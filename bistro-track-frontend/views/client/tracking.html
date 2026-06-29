@@ -3,100 +3,533 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Order Tracking - Bistro Track</title>
+  <title>Orders - Bistro Track</title>
+  
+  <script src="../../assets/js/store.js"></script>
   <script src="https://unpkg.com/lucide@latest" defer></script>
+  
   <link rel="stylesheet" href="../../assets/css/variables.css">
   <link rel="stylesheet" href="../../assets/css/reset.css">
   <link rel="stylesheet" href="../../assets/css/components.css">
+  
+  <style>
+    /* Swiggy/Zomato Style Order Cards */
+    .order-card {
+      background: var(--surface-0);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      margin: 0 0 16px 0;
+      padding: 16px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      transition: all var(--transition-base);
+    }
+    .order-card:hover {
+        box-shadow: var(--shadow-md);
+        border-color: var(--brand-primary);
+    }
+
+    /* Header: Restaurant & Status */
+    .order-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 1px dashed var(--border);
+      padding-bottom: 12px;
+    }
+    .order-title-block {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .order-title {
+      font-weight: 700;
+      font-size: 15px;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .order-meta {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    
+    .status-badge {
+      font-size: 10px;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+    }
+    .status-badge.completed {
+      background: var(--success-bg);
+      color: var(--success-text);
+    }
+    .status-badge.active {
+      background: var(--warning-bg);
+      color: var(--warning-text);
+      animation: pulse-bg 2s infinite;
+    }
+
+    @keyframes pulse-bg {
+        0% { opacity: 1; }
+        50% { opacity: 0.7; }
+        100% { opacity: 1; }
+    }
+
+    /* Items Summary */
+    .order-items-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding: 4px 0;
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+    
+    /* Footer: Total & Actions */
+    .order-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px dashed var(--border);
+      padding-top: 12px;
+      margin-top: 4px;
+    }
+    .order-total-wrap {
+      display: flex;
+      flex-direction: column;
+    }
+    .order-total-label {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .order-total {
+      font-weight: 700;
+      font-size: 15px;
+      color: var(--text-primary);
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 8px;
+    }
+
+    /* Buttons */
+    .btn-outline {
+      background: transparent;
+      color: var(--brand-primary);
+      border: 1px solid var(--border);
+      padding: 8px 12px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .btn-outline:hover {
+      border-color: var(--brand-primary);
+      background: var(--brand-primary-light);
+    }
+
+    .reorder-btn {
+      background: var(--brand-primary-light);
+      color: var(--brand-primary-dark);
+      border: 1px solid var(--brand-primary);
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .reorder-btn:hover {
+      background: var(--brand-primary);
+      color: #fff;
+    }
+
+    /* Empty State */
+    #empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 60px 16px;
+      gap: 16px;
+    }
+    .empty-icon {
+      width: 80px;
+      height: 80px;
+      color: var(--text-muted);
+      opacity: 0.5;
+    }
+
+    /* === Receipt Modal Styles === */
+    .receipt-modal .modal-content {
+      background: var(--surface-0);
+      padding: 0;
+      overflow: hidden;
+      max-width: 380px;
+      text-align: left;
+    }
+    .receipt-header {
+      background: var(--surface-1);
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .receipt-header h3 {
+      margin: 0;
+      font-size: 16px;
+    }
+    .close-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 4px;
+      display: flex;
+    }
+    .receipt-body {
+      padding: 20px;
+      max-height: 60vh;
+      overflow-y: auto;
+    }
+    .receipt-meta {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .receipt-meta strong {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+    .receipt-section-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      border-bottom: 1px dashed var(--border);
+      padding-bottom: 6px;
+    }
+    .receipt-item-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      margin-bottom: 10px;
+      color: var(--text-primary);
+    }
+    .receipt-item-qty {
+      color: var(--brand-primary);
+      font-weight: 600;
+      min-width: 24px;
+      display: inline-block;
+    }
+    .receipt-bill-summary {
+      margin-top: 20px;
+      border-top: 1px dashed var(--border);
+      padding-top: 12px;
+    }
+    .bill-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-bottom: 8px;
+    }
+    .bill-row.total {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-primary);
+      border-top: 1px solid var(--border);
+      padding-top: 12px;
+      margin-top: 4px;
+    }
+  </style>
 </head>
 <body>
 
 <div class="app-container">
-      <header class="nav-bar">
-        <a href="./cart.html" class="back"><i data-lucide="chevron-left"></i></a>
-        <span class="title">Payment & Status</span>
-        <span style="width:50px"></span>
-      </header>
+      
+      <div id="header-placeholder"></div>
+      
       <main class="body">
-        
-        <!-- Order Confirmation & Tracking View -->
-        <div id="tracking-view">
-          <div class="screen-title"><span>Client · Order Status</span></div>
-          <div class="success-wrap">
-            <div class="success-circle"><i data-lucide="check"></i></div>
-            <h2 id="success-title">Order confirmed!</h2>
-            <p id="success-details-text">Payment done. Your food is being prepared and will arrive at your table.</p>
-            <span id="order-details" class="order-id">#ORD-094 · Table -</span>
-          </div>
-
-          <div class="tracker">
-            <h4>Live order status</h4>
-            <div class="track-step">
-              <div class="step-line"></div>
-              <div class="step-circle done"><i data-lucide="check"></i></div>
-              <div class="step-text"><div class="step-label" id="tracker-step-1-label">Order placed and paid</div><div class="step-sub">9:43 PM</div></div>
-            </div>
-            <div class="track-step">
-              <div class="step-line"></div>
-              <div class="step-circle active"><i data-lucide="flame"></i></div>
-              <div class="step-text"><div class="step-label active">Kitchen is preparing</div><div class="step-sub">Est. 15 min remaining</div></div>
-            </div>
-            <div class="track-step">
-              <div class="step-line"></div>
-              <div class="step-circle pending"><i data-lucide="bell"></i></div>
-              <div class="step-text"><div class="step-label">Ready to serve</div></div>
-            </div>
-            <div class="track-step">
-              <div class="step-circle pending"><i data-lucide="armchair"></i></div>
-              <div class="step-text"><div class="step-label">Served at your table</div></div>
-            </div>
-          </div>
+        <div class="screen-title" style="margin-top: 10px;">
+          <span>Your Orders</span>
         </div>
+        
+        <div id="orders-container"></div>
 
+        <div id="empty-state" style="display: none;">
+          <i data-lucide="receipt" class="empty-icon"></i>
+          <div>
+            <div style="font-size: 18px; font-weight: 700; margin-bottom: 8px;">No orders yet</div>
+            <div style="font-size: 14px; color: var(--text-muted); margin-bottom: 24px;">Looks like you haven't placed any orders.</div>
+          </div>
+          <a href="./menu.html" class="btn-primary" style="max-width: 200px; display: inline-block;">Browse Menu</a>
+        </div>
       </main>
-      <footer class="bottom-nav">
-        <a href="./menu.html" class="bn-item"><i data-lucide="book-open" class="bn-icon"></i><span class="bn-label">Menu</span></a>
-        <a href="./cart.html" class="bn-item"><i data-lucide="shopping-cart" class="bn-icon"></i><span class="bn-label">Cart</span></a>
-        <div class="bn-item active"><i data-lucide="receipt" class="bn-icon"></i><span class="bn-label">Orders</span></div>
-      </footer>
+
+      <div id="footer-placeholder"></div>
+</div>
+
+<div class="modal-overlay receipt-modal" id="receipt-modal">
+    <div class="modal-content">
+        <div class="receipt-header">
+            <h3>Order Summary</h3>
+            <button class="close-btn" id="close-receipt"><i data-lucide="x" style="width:20px; height:20px;"></i></button>
+        </div>
+        <div class="receipt-body" id="receipt-body-content">
+            </div>
+    </div>
 </div>
 
 <script>
   document.addEventListener('DOMContentLoaded', () => {
-    const successTitle = document.getElementById('success-title');
-    const successDetailsText = document.getElementById('success-details-text');
-    const orderDetailsEl = document.getElementById('order-details');
-    const firstTrackerStepLabel = document.getElementById('tracker-step-1-label');
+    
+    // Attempt to update the header back button if it loads in time
+    setTimeout(() => {
+        const navBackBtn = document.querySelector('#header-placeholder .nav-back');
+        if (navBackBtn) navBackBtn.href = './menu.html';
+    }, 500);
 
-    const renderOrderStatus = () => {
-        // Read order details from localStorage
-        const orderDetails = JSON.parse(localStorage.getItem('bistroOrderDetails')) || {};
-        const tableNumber = orderDetails.table || localStorage.getItem('userTableNumber') || '-';
+    const ordersContainer = document.getElementById('orders-container');
+    const emptyState = document.getElementById('empty-state');
+    const receiptModal = document.getElementById('receipt-modal');
+    const closeReceiptBtn = document.getElementById('close-receipt');
+    const receiptBodyContent = document.getElementById('receipt-body-content');
 
-        if (orderDetails.method === 'Cash') {
-            successTitle.textContent = 'Order Placed!';
-            successDetailsText.textContent = `Your order is confirmed. Please pay with cash when your food is served at Table ${tableNumber}.`;
-            if (firstTrackerStepLabel) firstTrackerStepLabel.textContent = 'Order placed';
-        } else { // UPI success
-            successTitle.textContent = 'Order Confirmed!';
-            successDetailsText.textContent = `Payment successful. Your food is being prepared and will arrive at Table ${tableNumber}.`;
-            if (firstTrackerStepLabel) firstTrackerStepLabel.textContent = 'Order placed and paid';
+    let currentReversedHistory = [];
+
+    const renderOrders = () => {
+        const history = window.persistentStore.getItem('orderHistory') || [];
+
+        if (history.length === 0) {
+            ordersContainer.style.display = 'none';
+            emptyState.style.display = 'flex';
+            if (window.lucide) lucide.createIcons();
+            return;
         }
 
-        if (orderDetailsEl) {
-            // In a real app, order ID would be generated by the backend
-            orderDetailsEl.textContent = `#ORD-095 · Table ${tableNumber}`;
-        }
+        emptyState.style.display = 'none';
+        ordersContainer.style.display = 'block';
+        
+        let html = '';
+        currentReversedHistory = [...history].reverse();
 
-        // Clear cart after viewing order status to prevent re-ordering
-        localStorage.removeItem('bistroCart');
-        localStorage.removeItem('bistroPromoApplied');
+        currentReversedHistory.forEach((order, index) => {
+            const orderTime = new Date(order.timestamp);
+            const timeElapsed = Math.floor((Date.now() - orderTime.getTime()) / 60000); // in minutes
+            
+            const dateOptions = { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
+            const dateString = orderTime.toLocaleDateString('en-US', dateOptions);
+            
+            // Build Items Summary String and count total quantities
+            let itemsSummary = '';
+            let totalItemQuantity = 0;
+            
+            if (order.items && Object.keys(order.items).length > 0) {
+                const itemNames = Object.values(order.items).map(item => {
+                    totalItemQuantity += item.quantity; // Summing up all item quantities
+                    return `${item.name} x ${item.quantity}`;
+                });
+                
+                itemsSummary = itemNames.join(', ');
+                // Truncate if too long
+                if (itemsSummary.length > 50) {
+                    itemsSummary = itemsSummary.substring(0, 47) + '...';
+                }
+            } else {
+                itemsSummary = 'Item details unavailable';
+                totalItemQuantity = 2; // Fallback quantity if old order data is missing items
+            }
 
+            // --- DYNAMIC PREP TIME LOGIC ---
+            // Base time of 15 minutes + 3 minutes per item. Cap it at 45 minutes max.
+            const dynamicPrepTime = Math.min(15 + (totalItemQuantity * 3), 45);
+
+            // Status Logic
+            let statusText = 'Delivered';
+            let statusClass = 'completed';
+            
+            if (timeElapsed < dynamicPrepTime) {
+                const minutesLeft = dynamicPrepTime - timeElapsed;
+                statusText = `Preparing • ${minutesLeft} min left`;
+                statusClass = 'active';
+            }
+
+            // Build Card
+            html += `
+              <div class="order-card">
+                <div class="order-header">
+                  <div class="order-title-block">
+                    <div class="order-title">
+                        <i data-lucide="utensils" style="width:16px; height:16px; color: var(--brand-primary)"></i> 
+                        Table ${order.table} Order
+                    </div>
+                    <div class="order-meta">${dateString}</div>
+                  </div>
+                  <div class="status-badge ${statusClass}">${statusText}</div>
+                </div>
+
+                <div class="order-items-list">
+                    ${itemsSummary}
+                </div>
+
+                <div class="order-footer">
+                  <div class="order-total-wrap">
+                      <span class="order-total-label">Total Paid</span>
+                      <span class="order-total">₹${order.total}</span>
+                  </div>
+                  <div class="action-buttons">
+                      <button class="btn-outline view-details-btn" data-index="${index}">Details</button>
+                      <button class="reorder-btn" data-index="${index}">
+                          <i data-lucide="rotate-cw"></i> Reorder
+                      </button>
+                  </div>
+                </div>
+              </div>
+            `;
+        });
+
+        ordersContainer.innerHTML = html;
         if (window.lucide) lucide.createIcons();
     };
 
-    renderOrderStatus();
+    // --- Detail View Logic ---
+    const showReceipt = (index) => {
+        const order = currentReversedHistory[index];
+        if (!order) return;
+
+        const orderTime = new Date(order.timestamp);
+        const dateString = orderTime.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+        
+        // Generate real-looking Txn IDs if they don't exist
+        const paymentId = order.razorpay_payment_id || `txn_${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
+        const method = order.method || 'Cash / Counter';
+
+        let itemsHtml = '';
+        let calculatedSubtotal = 0;
+
+        if (order.items && Object.keys(order.items).length > 0) {
+            Object.values(order.items).forEach(item => {
+                const itemTotal = item.price * item.quantity;
+                calculatedSubtotal += itemTotal;
+                itemsHtml += `
+                    <div class="receipt-item-row">
+                        <div>
+                            <span class="receipt-item-qty">${item.quantity}x</span>
+                            <span>${item.name}</span>
+                        </div>
+                        <div>₹${itemTotal}</div>
+                    </div>
+                `;
+            });
+        } else {
+            itemsHtml = `<div style="color: var(--text-muted); font-size: 12px; font-style: italic;">Detailed items not found in history.</div>`;
+            calculatedSubtotal = order.total; // Fallback
+        }
+
+        // Figure out taxes/discounts based on difference between items and total
+        let taxAndChargesHtml = '';
+        if (order.items) {
+            const difference = order.total - calculatedSubtotal;
+            if (difference > 0) {
+                taxAndChargesHtml = `<div class="bill-row"><span>Taxes & Fees</span><span>₹${difference}</span></div>`;
+            } else if (difference < 0) {
+                taxAndChargesHtml = `<div class="bill-row" style="color: var(--success-text);"><span>Discount Applied</span><span>−₹${Math.abs(difference)}</span></div>`;
+            }
+        }
+
+        receiptBodyContent.innerHTML = `
+            <div class="receipt-meta">
+                <div>Order ID: <strong>${paymentId}</strong></div>
+                <div>Date: <strong>${dateString}</strong></div>
+                <div>Payment Method: <strong>${method}</strong></div>
+                <div>Table Number: <strong>${order.table}</strong></div>
+            </div>
+            
+            <div class="receipt-section-title">Item Details</div>
+            ${itemsHtml}
+
+            <div class="receipt-bill-summary">
+                <div class="bill-row">
+                    <span>Subtotal</span>
+                    <span>₹${calculatedSubtotal}</span>
+                </div>
+                ${taxAndChargesHtml}
+                <div class="bill-row total">
+                    <span>Grand Total</span>
+                    <span>₹${order.total}</span>
+                </div>
+            </div>
+        `;
+
+        receiptModal.classList.add('active');
+        if (window.lucide) lucide.createIcons();
+    };
+
+    // --- Event Listeners ---
+    ordersContainer.addEventListener('click', (e) => {
+        // Handle Reorder
+        const reorderBtn = e.target.closest('.reorder-btn');
+        if (reorderBtn) {
+            const index = reorderBtn.dataset.index;
+            const targetOrder = currentReversedHistory[index];
+
+            if (targetOrder && targetOrder.items && Object.keys(targetOrder.items).length > 0) {
+                window.persistentStore.setItem('cart', targetOrder.items);
+                // Reset promo state for safety on new orders
+                window.persistentStore.setItem('promoApplied', false); 
+                window.location.href = 'cart.html';
+            } else {
+                alert('Oops! We cannot reorder this because the item details are missing from the history log.');
+            }
+        }
+
+        // Handle View Details
+        const viewDetailsBtn = e.target.closest('.view-details-btn');
+        if (viewDetailsBtn) {
+            const index = viewDetailsBtn.dataset.index;
+            showReceipt(index);
+        }
+    });
+
+    closeReceiptBtn.addEventListener('click', () => {
+        receiptModal.classList.remove('active');
+    });
+
+    // Close modal on background click
+    receiptModal.addEventListener('click', (e) => {
+        if (e.target === receiptModal) {
+            receiptModal.classList.remove('active');
+        }
+    });
+
+    // Initial render
+    renderOrders();
+    setInterval(renderOrders, 60000); // refresh time
   });
 </script>
+
+<script src="../../assets/js/component-loader.js" defer></script>
 </body>
 </html>

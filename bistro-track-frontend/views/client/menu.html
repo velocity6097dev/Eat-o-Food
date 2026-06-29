@@ -5,24 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Menu - Bistro Track</title>
     
-    <!-- Enhanced CSS Files -->
     <link rel="stylesheet" href="../../assets/css/variables.css">
     <link rel="stylesheet" href="../../assets/css/reset.css">
     <link rel="stylesheet" href="../../assets/css/components.css">
     
-    <!-- Icons -->
     <script src="https://unpkg.com/lucide@latest" defer></script>
+    <script src="../../assets/js/store.js"></script>
 </head>
 <body>
 
 <div class="app-container">
-    <!-- Header Placeholder - Will be replaced with header-universal.html -->
     <div id="header-placeholder"></div>
 
-    <!-- Main Body -->
     <main class="body" id="main-body">
         
-        <!-- Greeting Banner -->
         <div class="greeting-banner-wrapper">
             <div class="greeting-banner">
                 <div>
@@ -31,14 +27,12 @@
                 </div>
                 <div class="table-info-badge">
                     <span>Table</span>
-                    <strong id="table-number">12</strong>
+                    <strong id="table-number">-</strong>
                 </div>
             </div>
         </div>
 
-        <!-- Menu Header (Sticky) -->
         <div id="menu-header" class="menu-header">
-            <!-- Search Bar -->
             <div class="search-bar-wrapper">
                 <div class="search-bar">
                     <i data-lucide="search" class="lucide-search"></i>
@@ -51,7 +45,6 @@
                 </div>
             </div>
 
-            <!-- Category Filters -->
             <div class="cats" id="category-filters">
                 <div class="cat active" data-filter="all">All</div>
                 <div class="cat" data-filter="starters">Starters</div>
@@ -62,10 +55,8 @@
             </div>
         </div>
 
-        <!-- Menu Items Container -->
         <div id="menu-items-container" class="menu-items-container">
             
-            <!-- Starters Section -->
             <div class="menu-section" id="category-starters">
                 <h3 class="menu-section-header">Starters</h3>
                 
@@ -90,7 +81,6 @@
                 </div>
             </div>
 
-            <!-- Mains Section -->
             <div class="menu-section" id="category-mains">
                 <h3 class="menu-section-header">Mains</h3>
                 
@@ -129,7 +119,6 @@
                 </div>
             </div>
 
-            <!-- Breads Section -->
             <div class="menu-section" id="category-breads">
                 <h3 class="menu-section-header">Breads</h3>
                 
@@ -154,7 +143,6 @@
                 </div>
             </div>
 
-            <!-- Drinks Section -->
             <div class="menu-section" id="category-drinks">
                 <h3 class="menu-section-header">Drinks</h3>
                 
@@ -179,7 +167,6 @@
                 </div>
             </div>
 
-            <!-- Desserts Section -->
             <div class="menu-section" id="category-desserts">
                 <h3 class="menu-section-header">Desserts</h3>
                 
@@ -204,7 +191,6 @@
                 </div>
             </div>
 
-            <!-- No Results Message -->
             <div class="no-results" id="no-results-message">
                 <i data-lucide="search-x"></i>
                 <p>No dishes match your search</p>
@@ -213,7 +199,6 @@
         </div>
     </main>
 
-    <!-- Cart Bar (Shows when items are added) -->
     <div id="cart-bar" class="cart-bar" style="display: none; margin: 0 14px 8px 14px;">
         <div class="cb-info">
             <div id="cart-bar-count" class="cb-count"></div>
@@ -222,11 +207,9 @@
         <a href="./cart.html" class="cb-btn">View Cart →</a>
     </div>
 
-    <!-- Footer Placeholder - Will be replaced with footer-universal.html -->
     <div id="footer-placeholder"></div>
 </div>
 
-<!-- Notification Modal -->
 <div class="modal-overlay" id="notifications-modal">
     <div class="modal-content">
         <h3>🔔 Notifications</h3>
@@ -237,10 +220,8 @@
     </div>
 </div>
 
-<!-- Toast placeholder -->
 <div id="toast-placeholder"></div>
 
-<!-- Component Loader Script -->
 <script src="../../assets/js/component-loader.js"></script>
 
 <script>
@@ -257,16 +238,19 @@
         const menuSections = document.querySelectorAll('.menu-section');
         const noResultsMessage = document.getElementById('no-results-message');
         const greetingTextEl = document.getElementById('greeting-text');
+        const tableNumberEl = document.getElementById('table-number');
 
         // State Management
         let cart = {};
 
         const loadCart = () => {
-            cart = JSON.parse(localStorage.getItem('bistroCart')) || {};
+            // Using unified store.js method
+            cart = window.persistentStore.getItem('cart') || {};
         };
 
         const saveCart = () => {
-            localStorage.setItem('bistroCart', JSON.stringify(cart));
+            // Using unified store.js method
+            window.persistentStore.setItem('cart', cart);
         };
 
         // Update Item Controls
@@ -408,8 +392,8 @@
             }
         });
 
-        // Dynamic Greeting
-        const setGreeting = () => {
+        // Dynamic Greeting and Table Number Setup
+        const setDynamicInfo = () => {
             const hour = new Date().getHours();
             let greetingText = 'Welcome!';
             if (hour < 12) {
@@ -421,6 +405,12 @@
             }
             if (greetingTextEl) {
                 greetingTextEl.textContent = greetingText;
+            }
+
+            // Load table number from persistent store
+            if (tableNumberEl) {
+                const storedTable = window.persistentStore.getItem('tableNumber');
+                tableNumberEl.textContent = storedTable ? storedTable : 'Walk-in';
             }
         };
 
@@ -453,7 +443,7 @@
                 }
             });
             updateCartIndicators();
-            setGreeting();
+            setDynamicInfo();
 
             // Initialize Lucide Icons
             if (window.lucide) {

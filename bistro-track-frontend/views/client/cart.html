@@ -337,8 +337,7 @@
 
     <div id="cart-content">
       <div class="ui-card" id="cart-items-card">
-        <!-- Cart items will be rendered here -->
-      </div>
+        </div>
 
       <div class="ui-card">
         <div class="promo-header">
@@ -361,8 +360,7 @@
       </div>
 
       <div class="ui-card" id="bill-summary-card">
-        <!-- Bill summary will be rendered here -->
-      </div>
+        </div>
 
       <div class="bottom-payment-bar" id="payment-bar" style="display: none;">
         <button class="btn-proceed" id="proceed-btn">Proceed to payment <i data-lucide="arrow-right" style="width:16px; height:16px;"></i></button>
@@ -374,10 +372,8 @@
 
 </div>
 
-<!-- Toast placeholder -->
 <div id="toast-placeholder"></div>
 
-<!-- Payment Modal -->
 <div class="modal-overlay" id="payment-modal">
     <div class="modal-content">
         <div id="payment-selection-view">
@@ -484,21 +480,26 @@ document.addEventListener('DOMContentLoaded', () => {
     const GST_RATE = 0.05; // 5%
     const VALID_PROMO = "WELCOME20";
     const PROMO_DISCOUNT_RATE = 0.20; // 20%
-    const RAZORPAY_KEY_ID = "rzp_test_YOUR_KEY_ID"; // IMPORTANT: Use a test key
+    
+    // IMPORTANT: Replace this with your NEW generated Test Key from the Razorpay Dashboard
+    const RAZORPAY_KEY_ID = "rzp_test_T7PdP1tLIcDMHL"; 
+    
     let cart = {};
     let isPromoApplied = false;
     let orderTotal = 0;
 
-    // --- Local Storage Management ---
-    const loadCart = () => {
-        cart = JSON.parse(localStorage.getItem('bistroCart')) || {};
-        isPromoApplied = JSON.parse(localStorage.getItem('bistroPromoApplied')) || false;
+    // --- Persistent Store Management ---
+    const loadState = () => {
+        cart = window.persistentStore.getItem('cart') || {};
+        isPromoApplied = window.persistentStore.getItem('promoApplied') || false;
     };
+    
     const saveCart = () => {
-        localStorage.setItem('bistroCart', JSON.stringify(cart));
+        window.persistentStore.setItem('cart', cart);
     };
+
     const savePromoState = () => {
-        localStorage.setItem('bistroPromoApplied', JSON.stringify(isPromoApplied));
+        window.persistentStore.setItem('promoApplied', isPromoApplied);
     };
 
     // --- Promo Logic ---
@@ -506,7 +507,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const code = promoInput.value.trim().toUpperCase();
         if (code === VALID_PROMO) {
             isPromoApplied = true;
-            savePromoState();
+            savePromoState(); // Save to persistent store
             updatePromoUI(true); // pass true to animate
             renderBill();
             if(window.showToast) window.showToast('Promo code "WELCOME20" applied!', 'success');
@@ -520,7 +521,7 @@ document.addEventListener('DOMContentLoaded', () => {
     removePromoBtn.addEventListener('click', () => {
         isPromoApplied = false;
         promoInput.value = "";
-        savePromoState();
+        savePromoState(); // Save to persistent store
         updatePromoUI(false);
         renderBill();
         if(window.showToast) window.showToast('Promo code removed.', 'info');
@@ -542,7 +543,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Rendering Logic ---
     const renderCart = () => {
-        loadCart();
         const cartKeys = Object.keys(cart);
 
         if (cartKeys.length === 0) {
@@ -576,7 +576,7 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
         });
 
-        const tableNumber = localStorage.getItem('userTableNumber') || '-';
+        const tableNumber = window.persistentStore.getItem('tableNumber') || '-';
         cartItemsCard.innerHTML = `
             <div class="card-header-row">
                 <span class="title">Table ${tableNumber} &middot; ${totalItems} items</span>
@@ -630,6 +630,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (cart[id].quantity <= 0) {
                     delete cart[id];
                 }
+                
+                // NEW: Reset promo code if the cart is now empty
+                if (Object.keys(cart).length === 0) {
+                    isPromoApplied = false;
+                    promoInput.value = "";
+                    savePromoState();
+                    updatePromoUI(false);
+                }
             }
             saveCart();
             renderCart();
@@ -641,8 +649,10 @@ document.addEventListener('DOMContentLoaded', () => {
             if (confirm('Are you sure you want to clear your cart?')) {
                 cart = {};
                 isPromoApplied = false;
+                promoInput.value = "";
                 savePromoState();
                 saveCart();
+                updatePromoUI();
                 renderCart();
             }
         }
@@ -668,7 +678,7 @@ document.addEventListener('DOMContentLoaded', () => {
     payButton.addEventListener('click', () => {
         const selectedMethodEl = paymentOptionsContainer.querySelector('.pay-method.sel');
         const method = selectedMethodEl ? selectedMethodEl.dataset.method : 'UPI';
-        const tableNumber = localStorage.getItem('userTableNumber') || '-';
+        const tableNumber = window.persistentStore.getItem('tableNumber') || '-';
 
         paymentSelectionView.style.display = 'none';
 
@@ -713,14 +723,25 @@ document.addEventListener('DOMContentLoaded', () => {
             table: tableNumber,
             total: orderTotal,
             razorpay_payment_id: paymentId,
-            timestamp: new Date().toISOString()
+            timestamp: new Date().toISOString(),
+            items: cart
         };
-        localStorage.setItem('bistroOrderDetails', JSON.stringify(orderDetails));
         
+        // Save the current order in persistent store
+        window.persistentStore.setItem('currentOrder', orderDetails);
+        
+        // Optionally save to an order history array
+        const history = window.persistentStore.getItem('orderHistory') || [];
+        history.push(orderDetails);
+        window.persistentStore.setItem('orderHistory', history);
+        
+        // NEW: Clear cart and reset promo state thoroughly
         cart = {};
         isPromoApplied = false;
-        savePromoState();
-        saveCart();
+        promoInput.value = "";
+        
+        window.persistentStore.removeItem('cart');
+        window.persistentStore.setItem('promoApplied', false);
         
         window.location.href = 'tracking.html';
     };
@@ -735,9 +756,10 @@ document.addEventListener('DOMContentLoaded', () => {
     cancelPaymentBtn.addEventListener('click', resetModalViews);
     cancelCounterPaymentBtn.addEventListener('click', resetModalViews);
 
-    // Initialize
-    updatePromoUI();
-    renderCart();
+    // Initialization Sequence
+    loadState();       // 1. Fetch cart and promo state from store
+    updatePromoUI();   // 2. Set the UI based on loaded promo state
+    renderCart();      // 3. Render items and bill based on cart and promo state
 });
 </script>
 <script src="../../assets/js/component-loader.js" defer></script>
