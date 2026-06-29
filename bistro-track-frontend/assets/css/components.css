@@ -1,0 +1,428 @@
+/* =========================================
+   0. APP LAYOUT
+   ========================================= */
+.app-container {
+  height: 100%;
+  width: 100%;
+  max-width: 480px; /* Optional: constrain width on desktop */
+  margin: 0 auto; /* Center the app on desktop */
+  display: flex;
+  flex-direction: column;
+  background: var(--surface-0);
+}
+.body{flex:1;overflow-y:auto;padding:14px}
+.screen-title{font-size:11px;color:var(--text-muted);text-align:center;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.screen-title::before,.screen-title::after{content:'';flex:1;height:0.5px;background:var(--border)}
+
+/* =========================================
+   1. WELCOME SCREEN
+   ========================================= */
+.welcome-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+  height: 100%;
+}
+
+.welcome-container h1 {
+  font-size: 26px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: var(--text-primary);
+}
+
+.welcome-container p {
+  font-size: 15px;
+  color: var(--text-secondary);
+  max-width: 300px;
+  margin: 0 auto 32px;
+  line-height: 1.6;
+}
+
+.welcome-input {
+  width: 100%;
+  height: 52px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-strong);
+  background: var(--surface-1);
+  padding: 0 20px;
+  font-size: 18px;
+  font-weight: 500;
+  text-align: center;
+  color: var(--text-primary);
+  outline: none;
+  transition: all 0.2s;
+}
+.welcome-input::placeholder {
+  color: var(--text-muted);
+  font-weight: 400;
+}
+.welcome-input:focus {
+  border-color: var(--brand-primary);
+  background: var(--surface-0);
+  box-shadow: 0 0 0 3px var(--brand-primary-light);
+}
+/* =========================================
+   2. NAVIGATION
+   ========================================= */
+.nav-bar{
+  background:var(--surface-0);
+  border-bottom:0.5px solid var(--border);
+  padding:10px 16px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  min-height: 52px;
+}
+.nav-bar .back{font-size:13px;color:var(--text-primary);cursor:pointer;white-space:nowrap}
+.nav-bar .title{font-size:15px;font-weight:500;color:var(--text-primary);flex:1;text-align:center}
+.nav-bar .nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+.nav-bar .action{font-size:13px;color:var(--text-primary);cursor:pointer;white-space:nowrap; position: relative;}
+
+.bottom-nav{background:var(--surface-2);border-top:0.5px solid var(--border);display:flex;padding:6px 0 8px}
+.bn-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px 0}
+.bn-icon{font-size:20px;color:var(--text-muted)}
+.bn-label{font-size:10px;color:var(--text-muted)}
+.bn-item.active .bn-icon,.bn-item.active .bn-label{color:var(--brand-primary)}
+.bn-dot{width:5px;height:5px;border-radius:50%;background:var(--brand-primary);margin:1px auto 0}
+
+/* =========================================
+   3. CLIENT-SIDE COMPONENTS
+   ========================================= */
+
+/* Greeting Banner */
+.greeting-banner-wrapper {
+    padding: 14px 14px 0;
+}
+.greeting-banner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--brand-primary-light);
+    border-radius: var(--radius-lg);
+    padding: 16px;
+    color: var(--brand-primary-dark);
+}
+.greeting-banner h2 {
+    font-size: 20px;
+    font-weight: 600;
+}
+.greeting-banner p {
+    font-size: 13px;
+    margin-top: 2px;
+    color: var(--brand-primary);
+    opacity: 0.8;
+}
+.table-info-badge {
+    background: var(--brand-primary);
+    color: var(--text-on-brand);
+    border-radius: var(--radius);
+    text-align: center;
+    padding: 8px 12px;
+    line-height: 1.2;
+    flex-shrink: 0;
+}
+.table-info-badge span { font-size: 10px; font-weight: 500; opacity: 0.8; display: block; }
+.table-info-badge strong { font-size: 20px; font-weight: 700; display: block; }
+
+/* Sticky Menu Header */
+.menu-header {
+  position: sticky;
+  top: 0;
+  z-index: 9;
+  background: var(--surface-0);
+  padding-top: 14px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0);
+  transition: box-shadow 0.2s ease-in-out;
+}
+
+.menu-header.scrolled {
+  box-shadow: 0 4px 8px rgba(0,0,0,0.04);
+}
+
+/* Search Bar */
+.search-bar-wrapper {
+  padding: 0 14px 14px;
+}
+.search-bar {
+  position: relative;
+}
+.search-bar .lucide-search {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  color: var(--text-muted);
+}
+.search-input {
+  width: 100%; height: 40px; border-radius: var(--radius-lg); border: 0.5px solid var(--border); background: var(--surface-1); padding: 0 12px 0 40px; font-size: 13px; color: var(--text-primary); outline: none; transition: all 0.2s;
+}
+.search-input:focus { border-color: var(--brand-primary); background: var(--surface-0); }
+
+/* Hero Banner */
+.hero{background:var(--brand-primary);border-radius:14px;padding:16px;margin-bottom:14px;color:var(--text-on-brand)}
+.hero h2{font-size:18px;font-weight:500}
+.hero p{font-size:12px;margin-top:4px;color:rgba(255,255,255,0.8)}
+.hero-row{display:flex;align-items:center;justify-content:space-between;margin-top:12px}
+.table-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,0.2);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:500}
+.promo-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,0.15);border-radius:20px;padding:4px 10px;font-size:11px;cursor:pointer;border:1px dashed rgba(255,255,255,0.4)}
+
+/* Category Filters */
+.cats{display:flex;gap:6px;overflow-x:auto;padding: 0 14px 12px 14px;}
+.cats::-webkit-scrollbar{display:none}
+.cat{padding:6px 14px;border-radius:20px;font-size:12px;white-space:nowrap;cursor:pointer;background:var(--surface-2);border:0.5px solid var(--border);color:var(--text-secondary);transition:all .15s}
+.cat.active{background:var(--brand-primary);color:var(--text-on-brand);border-color:transparent}
+
+/* Food Item Card */
+.food-item{display:flex;align-items:center;gap:10px;background:var(--surface-2);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:10px;margin-bottom:8px; will-change: transform, opacity;}
+.food-item.hidden {
+  display: none;
+}
+.food-actions {
+  min-width: 80px; /* Prevents layout shift when button changes to qty control */
+  display: flex;
+  justify-content: flex-end;
+}
+.food-emoji{width:48px;height:48px;border-radius:10px;background:var(--surface-1);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
+.food-info{flex:1;min-width:0}
+.food-name{font-size:13px;font-weight:500;color:var(--text-primary)}
+.food-desc{font-size:11px;color:var(--text-muted);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.food-price{font-size:13px;font-weight:500;color:var(--text-primary);margin-top:3px}
+.food-avail-time{font-size:10px;color:var(--warning-text);background:var(--warning-bg);padding:2px 6px;border-radius:10px;margin-top:3px;display:inline-block}
+.food-unavail{font-size:10px;color:var(--danger-text);background:var(--danger-bg);padding:2px 6px;border-radius:10px;margin-top:3px;display:inline-block}
+
+/* Quantity Controls & Add Button */
+.add-btn{width:30px;height:30px;border-radius:var(--radius);background:var(--brand-primary);border:none;color:var(--text-on-brand);font-size:18px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;line-height:1}
+.add-btn.disabled{background:var(--surface-1);color:var(--text-muted);cursor:not-allowed}
+.qty-ctrl{display:flex;align-items:center;gap:6px}
+.qty-btn{width:26px;height:26px;border-radius:6px;border:0.5px solid var(--border);background:var(--surface-1);color:var(--text-primary);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.qty-num{font-size:13px;font-weight:500;min-width:16px;text-align:center;color:var(--text-primary)}
+
+/* Food Tags (Veg/Non-Veg, Bestseller) */
+.veg-dot{width:8px;height:8px;border-radius:50%;background:var(--success-text);display:inline-block;margin-right:4px}
+.nonveg-dot{width:8px;height:8px;border-radius:50%;background:var(--brand-primary-dark);display:inline-block;margin-right:4px}
+.tag-row{display:flex;align-items:center;gap:4px;flex-wrap:wrap; margin-top: 4px;}
+.tag{font-size:10px;padding:2px 6px;border-radius:var(--radius);background:var(--surface-1);color:var(--text-muted)}
+.tag.best{background:var(--warning-bg);color:var(--warning-text)}
+
+/* Section Headings */
+.sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.sec-head h3{font-size:14px;font-weight:500;color:var(--text-primary)}
+.sec-head a{font-size:12px;color:var(--brand-primary);cursor:pointer}
+
+/* Menu Section */
+.menu-section-header {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+  padding: 24px 0 8px 0;
+  scroll-margin-top: 160px; /* Offset for all sticky headers */
+}
+.menu-items-container {
+    position: relative;
+    z-index: 1; /* Ensures menu items scroll UNDER the sticky header */
+}
+
+/* No Results Message */
+.no-results {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-muted);
+    display: none; /* Initially hidden */
+}
+.no-results .lucide {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 16px;
+    stroke-width: 1.5;
+}
+.no-results p { font-size: 14px; }
+
+/* Cart Bar (Bottom of Menu) */
+.cart-bar{background:var(--brand-primary);border-radius:var(--radius-lg);padding:12px 14px;display:flex;align-items:center;margin-top:12px}
+.cart-bar .cb-info{flex:1;color:var(--text-on-brand)}
+.cart-bar .cb-count{font-size:12px;opacity:.85}
+.cart-bar .cb-total{font-size:15px;font-weight:500}
+.cart-bar .cb-btn{background:rgba(255,255,255,0.2);color:var(--text-on-brand);border:none;border-radius:var(--radius);padding:7px 14px;font-size:12px;font-weight:500;cursor:pointer}
+
+/* Payment Methods */
+.pay-method{display:flex;align-items:center;gap:10px;background:var(--surface-2);border:0.5px solid var(--border);border-radius:10px;padding:10px;margin-bottom:8px;cursor:pointer}
+.pay-method.sel{border:1.5px solid var(--brand-primary);background:var(--brand-primary-light)}
+.pay-icon{width:36px;height:36px;border-radius:var(--radius);background:var(--surface-1);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.pay-name{font-size:13px;font-weight:500;color:var(--text-primary)}
+.pay-sub{font-size:11px;color:var(--text-muted);margin-top:1px}
+.radio{width:16px;height:16px;border-radius:50%;border:1.5px solid var(--border-strong);margin-left:auto;flex-shrink:0;position:relative}
+.radio.sel{border-color:var(--brand-primary)}
+.radio.sel::after{content:'';position:absolute;width:8px;height:8px;border-radius:50%;background:var(--brand-primary);top:3px;left:3px}
+
+/* Success Screen */
+.success-wrap{text-align:center;padding:20px 0 12px}
+.success-circle{width:64px;height:64px;border-radius:50%;background:var(--success-bg);margin:0 auto 12px;display:flex;align-items:center;justify-content:center}
+.success-circle i{font-size:28px;color:var(--success-text)}
+.success-wrap h2{font-size:17px;font-weight:500;color:var(--text-primary)}
+.success-wrap p{font-size:13px;color:var(--text-muted);margin-top:6px;line-height:1.6}
+.order-id{font-size:12px;color:var(--brand-primary);background:var(--brand-primary-light);padding:4px 12px;border-radius:20px;display:inline-block;margin-top:8px}
+
+/* Order Tracker */
+.tracker{background:var(--surface-2);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:12px;margin-top:14px}
+.tracker h4{font-size:13px;font-weight:500;color:var(--text-primary);margin-bottom:12px}
+.track-step{display:flex;align-items:flex-start;gap:10px;margin-bottom:12px;position:relative}
+.track-step:last-child{margin-bottom:0}
+.step-circle{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.step-circle.done{background:var(--success-bg)}
+.step-circle.done i{font-size:12px;color:var(--success-text)}
+.step-circle.active{background:var(--warning-bg)}
+.step-circle.active i{font-size:12px;color:var(--warning-text)}
+.step-circle.pending{background:var(--surface-1);border:0.5px solid var(--border)}
+.step-circle.pending i{font-size:12px;color:var(--text-muted)}
+.step-text{flex:1}
+.step-label{font-size:13px;color:var(--text-primary)}
+.step-label.active{font-weight:500}
+.step-sub{font-size:11px;color:var(--text-muted);margin-top:2px}
+.step-line{position:absolute;left:11px;top:26px;width:1.5px;height:20px;background:var(--border)}
+
+/* Gift Notification */
+.gift-notif{background:var(--info-bg);border:0.5px solid var(--info-border);border-radius:var(--radius-lg);padding:12px;margin-bottom:12px;display:flex;gap:10px;align-items:flex-start}
+.gift-notif-icon{width:36px;height:36px;border-radius:50%;background:var(--info-strong);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.gift-notif-icon i{font-size:18px;color:var(--text-on-brand)}
+.gift-notif-text h4{font-size:13px;font-weight:500;color:var(--info-text)}
+.gift-notif-text p{font-size:12px;color:var(--info-strong);margin-top:3px;line-height:1.5}
+.gift-notif-text .gn-from{font-size:11px;color:var(--info-strong);margin-top:6px;background:rgba(83,74,183,0.1);padding:3px 8px;border-radius:var(--radius);display:inline-block}
+
+/* =========================================
+   4. OWNER-SIDE COMPONENTS
+   ========================================= */
+
+/* Dashboard Metrics */
+.metric-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.metric{background:var(--surface-2);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:12px}
+.metric-label{font-size:11px;color:var(--text-muted);margin-bottom:4px}
+.metric-value{font-size:20px;font-weight:500;color:var(--text-primary)}
+.metric-delta{font-size:11px;margin-top:2px}
+.delta-up{color:var(--success-text)}
+.delta-dn{color:var(--danger-text)}
+
+/* Table Grid (Dashboard) */
+.table-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.tbl-card{background:var(--surface-2);border:0.5px solid var(--border);border-radius:10px;padding:10px}
+.tbl-card.occ{border-color:rgba(232,93,47,0.25);background:var(--brand-primary-light)}
+.tbl-card.rsv{border-color:rgba(83,74,183,0.25);background:var(--info-bg)}
+.tbl-card.avl{border-color:rgba(59,109,17,0.25);background:var(--success-bg)}
+.tbl-card.gift{border-color:rgba(83,74,183,0.25);background:var(--info-bg)}
+.tbl-num{font-size:15px;font-weight:500;color:var(--text-primary)}
+.tbl-seats{font-size:11px;color:var(--text-muted);margin-top:1px}
+.tbl-status{font-size:10px;padding:2px 6px;border-radius:var(--radius);margin-top:6px;display:inline-block}
+.tbl-status.occ{background:#fde8df;color:var(--brand-primary-dark)}
+.tbl-status.rsv{background:var(--info-bg);color:var(--info-text)}
+.tbl-status.avl{background:var(--success-bg);color:var(--success-text)}
+.tbl-status.gift{background:var(--info-bg);color:var(--info-text)}
+.tbl-actions{display:flex;gap:4px;margin-top:8px}
+.tbl-btn{flex:1;padding:4px 0;font-size:10px;border-radius:6px;border:0.5px solid var(--border);background:var(--surface-1);color:var(--text-secondary);cursor:pointer;text-align:center}
+.tbl-btn.red{background:#fde8df;border-color:rgba(232,93,47,0.25);color:var(--brand-primary-dark)}
+.tbl-btn.purple{background:var(--info-bg);border-color:var(--info-border);color:var(--info-text)}
+.tbl-btn.green{background:var(--success-bg);border-color:var(--success-border);color:var(--success-text)}
+
+/* Order Card (Dashboard) */
+.order-card{background:var(--surface-2);border:0.5px solid var(--border);border-radius:10px;padding:10px;margin-bottom:8px}
+.oc-head{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.oc-tbl{width:32px;height:32px;border-radius:var(--radius);background:var(--brand-primary-light);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:var(--brand-primary-dark);flex-shrink:0}
+.oc-info{flex:1}
+.oc-name{font-size:13px;font-weight:500;color:var(--text-primary)}
+.oc-meta{font-size:11px;color:var(--text-muted);margin-top:1px}
+.oc-status{font-size:11px;padding:3px 8px;border-radius:var(--radius)}
+.oc-status.prep{background:var(--warning-bg);color:var(--warning-text)}
+.oc-status.ready{background:var(--success-bg);color:var(--success-text)}
+.oc-status.served{background:var(--surface-1);color:var(--text-muted)}
+.oc-footer{display:flex;justify-content:space-between;align-items:center}
+.oc-amount{font-size:13px;font-weight:500;color:var(--text-primary)}
+.oc-btns{display:flex;gap:4px}
+.oc-btn{padding:4px 10px;border-radius:6px;font-size:11px;cursor:pointer;border:none}
+.oc-btn.mark{background:var(--success-bg);color:var(--success-text)}
+.oc-btn.bill{background:var(--brand-primary);color:var(--text-on-brand)}
+
+/* Settings & Forms */
+.setting-section{background:var(--surface-2);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:12px;margin-bottom:10px}
+.setting-section h4{font-size:13px;font-weight:500;color:var(--text-primary);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.form-row{margin-bottom:8px}
+.form-label{font-size:11px;color:var(--text-muted);margin-bottom:4px;display: block;}
+.form-input{width:100%;height:34px;border:0.5px solid var(--border);border-radius:var(--radius);padding:0 10px;font-size:13px;background:var(--surface-1);color:var(--text-primary)}
+.form-row-2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-top:0.5px solid var(--border)}
+.toggle-row:first-of-type{border-top:none}
+.toggle-label{font-size:13px;color:var(--text-secondary)}
+.toggle-sub{font-size:11px;color:var(--text-muted);margin-top:1px}
+.toggle{width:36px;height:20px;border-radius:10px;background:var(--brand-primary);cursor:pointer;position:relative;flex-shrink:0}
+.toggle::after{content:'';position:absolute;width:16px;height:16px;border-radius:50%;background:#fff;top:2px;right:2px;transition:all .2s}
+.toggle.off{background:var(--border-strong)}
+.toggle.off::after{right:auto;left:2px}
+
+/* Promo Code Management (Owner) */
+.promo-code-item{display:flex;align-items:center;gap:10px;background:var(--surface-2);border:0.5px solid var(--border);border-radius:10px;padding:10px;margin-bottom:8px}
+.promo-code-badge{font-size:12px;font-weight:500;background:var(--warning-bg);color:var(--warning-text);padding:4px 10px;border-radius:var(--radius);letter-spacing:.05em;font-family:var(--font-mono)}
+.promo-code-info{flex:1;min-width:0}
+.promo-code-name{font-size:12px;font-weight:500;color:var(--text-primary)}
+.promo-code-meta{font-size:11px;color:var(--text-muted);margin-top:2px}
+.promo-active{width:8px;height:8px;border-radius:50%;background:var(--success-text);flex-shrink:0}
+.promo-inactive{width:8px;height:8px;border-radius:50%;background:var(--border-strong);flex-shrink:0}
+.add-promo-btn{width:100%;padding:10px;background:var(--surface-1);border:1px dashed var(--border-strong);border-radius:10px;font-size:13px;color:var(--brand-primary);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px}
+
+/* =========================================
+   5. GENERIC BUTTONS
+   ========================================= */
+.btn-primary{width:100%;padding:13px;background:var(--brand-primary);color:var(--text-on-brand);border:none;border-radius:var(--radius-lg);font-size:14px;font-weight:500;cursor:pointer;margin-top:10px}
+.btn-secondary{width:100%;padding:12px;background:var(--surface-2);color:var(--brand-primary);border:0.5px solid var(--brand-primary);border-radius:var(--radius-lg);font-size:14px;cursor:pointer;margin-top:8px}
+
+/* =========================================
+   6. ANIMATIONS & ICONS
+   ========================================= */
+@keyframes item-fade-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Lucide Icon Sizing */
+.lucide { stroke-width: 1.75; } /* Default stroke */
+.bn-icon .lucide, .nav-bar .back .lucide, .nav-bar .action .lucide { width: 22px; height: 22px; }
+.nav-bar .action .lucide-shopping-cart { width: 24px; height: 24px; }
+.table-badge .lucide { width: 14px; height: 14px; margin-right: 2px; vertical-align: -2px; }
+.food-avail-time .lucide { width: 12px; height: 12px; margin-right: 2px; vertical-align: -1px; }
+
+/* =========================================
+   7. MODAL
+   ========================================= */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+.modal-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+.modal-content {
+    background: var(--surface-0);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    width: 90%;
+    max-width: 340px;
+    text-align: center;
+}
+.modal-content h3 { font-size: 16px; font-weight: 600; margin-bottom: 8px; }
+.modal-content p { font-size: 13px; color: var(--text-secondary); line-height: 1.5; }

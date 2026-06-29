@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Menu Manager - Bistro Track</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+  <link rel="stylesheet" href="../../assets/css/variables.css">
+  <link rel="stylesheet" href="../../assets/css/reset.css">
+  <link rel="stylesheet" href="../../assets/css/components.css">
+</head>
+<body>
+
+<div class="app-container">
+      <header class="nav-bar">
+        <span style="width:40px"></span>
+        <span class="title">Menu and promos</span>
+        <span class="action"><i class="ti ti-plus" style="font-size:17px"></i></span>
+      </header>
+      <main class="body">
+        <div class="screen-title"><span>Owner · Menu and promo code management</span></div>
+
+        <div class="sec-head"><h3>Menu items</h3><a>Add item</a></div>
+
+        <div class="food-item">
+          <div class="food-emoji">🍗</div>
+          <div class="food-info">
+            <div class="food-name">Butter Chicken</div>
+            <div class="food-desc">₹360 · All day</div>
+            <div class="tag-row"><span class="tag best">Bestseller</span><span class="tag">Non-veg</span></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px">
+            <button style="width:28px;height:28px;border-radius:6px;background:var(--surface-1);border:0.5px solid var(--border);color:var(--text-secondary);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center"><i class="ti ti-edit"></i></button>
+            <button style="width:28px;height:28px;border-radius:6px;background:#fde8df;border:0.5px solid #e85d2f40;color:var(--brand-primary-dark);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center"><i class="ti ti-eye-off"></i></button>
+          </div>
+        </div>
+
+        <div class="food-item" style="opacity:0.6">
+          <div class="food-emoji">🐟</div>
+          <div class="food-info">
+            <div class="food-name">Fish Curry</div>
+            <div class="food-desc">₹420 · Dinner only</div>
+            <div class="food-avail-time"><i class="ti ti-clock" style="font-size:10px"></i> 6:00 PM – 10:00 PM</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px">
+            <button style="width:28px;height:28px;border-radius:6px;background:var(--surface-1);border:0.5px solid var(--border);color:var(--text-secondary);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center"><i class="ti ti-edit"></i></button>
+            <button style="width:28px;height:28px;border-radius:6px;background:var(--success-bg);border:0.5px solid var(--success-border);color:var(--success-text);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center"><i class="ti ti-eye"></i></button>
+          </div>
+        </div>
+
+        <div style="height:0.5px;background:var(--border);margin:14px 0"></div>
+
+        <div class="sec-head"><h3>Promo codes</h3><a>Create new</a></div>
+
+        <div class="promo-code-item">
+          <div class="promo-code-badge">WELCOME20</div>
+          <div class="promo-code-info">
+            <div class="promo-code-name">20% off first order</div>
+            <div class="promo-code-meta">Used 34×  ·  Expires Dec 31</div>
+          </div>
+          <div class="promo-active"></div>
+          <button style="font-size:11px;background:none;border:none;color:var(--text-muted);cursor:pointer"><i class="ti ti-edit"></i></button>
+        </div>
+
+        <div class="promo-code-item">
+          <div class="promo-code-badge" style="background:var(--surface-1);color:var(--text-muted)">DIWALI30</div>
+          <div class="promo-code-info">
+            <div class="promo-code-name">30% off (seasonal)</div>
+            <div class="promo-code-meta">Expired Oct 25 · 88 uses</div>
+          </div>
+          <div class="promo-inactive"></div>
+          <button style="font-size:11px;background:none;border:none;color:var(--text-muted);cursor:pointer"><i class="ti ti-edit"></i></button>
+        </div>
+
+        <button class="add-promo-btn"><i class="ti ti-plus" style="font-size:14px"></i> Create promo code</button>
+
+      </main>
+      <footer class="bottom-nav">
+        <a href="./dashboard.html" class="bn-item"><i class="ti ti-layout-dashboard bn-icon"></i><span class="bn-label">Dashboard</span></a>
+        <div class="bn-item active"><i class="ti ti-book bn-icon"></i><span class="bn-label">Menu</span></div>
+        <a href="./settings.html" class="bn-item"><i class="ti ti-settings bn-icon"></i><span class="bn-label">Settings</span></a>
+      </footer>
+</div>
+
+</body>
+</html>

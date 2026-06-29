@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Welcome to Bistro Track</title>
+  <link rel="stylesheet" href="../../assets/css/variables.css">
+  <link rel="stylesheet" href="../../assets/css/reset.css">
+  <link rel="stylesheet" href="../../assets/css/loader.css">
+  <link rel="stylesheet" href="../../assets/css/components.css">
+</head>
+<body>
+
+  <div id="splash-screen" class="splash-wrap">
+    <div class="splash-content">
+      <div class="splash-icon">🍽️</div>
+      <h1 class="splash-title">Bistro Track</h1>
+      <p class="splash-subtitle">Smart Dining Experience</p>
+    </div>
+
+    <div class="splash-loader">
+      <p class="splash-status">Loading experience...</p>
+      <div class="progress-track">
+        <div class="progress-fill"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="app-container">
+    <main class="body welcome-container">
+        <div style="font-size: 64px; margin-bottom: 24px;">👋</div>
+        <h1>Welcome!</h1>
+        <p>Enter your table number to view the menu and place an order.</p>
+
+        <form id="table-form" style="max-width: 280px; margin: 0 auto;">
+            <input type="number" id="tableInput" class="welcome-input" placeholder="e.g., 12" required inputmode="numeric" pattern="[0-9]*">
+            <button type="submit" class="btn-primary" style="margin-top: 16px;">Access Menu</button>
+        </form>
+    </main>
+  </div>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const splashScreen = document.getElementById('splash-screen');
+      const tableForm = document.getElementById('table-form');
+      const tableInput = document.getElementById('tableInput');
+      const enterButton = tableForm.querySelector('.btn-glass');
+
+      // --- Splash Screen Logic ---
+      // Hide splash screen after 3 seconds (2.2s for animation + delay)
+      setTimeout(() => {
+        splashScreen.classList.add('hide');
+        // Remove from DOM after transition ends to improve performance
+        splashScreen.addEventListener('transitionend', () => {
+          splashScreen.remove();
+        });
+      }, 3000);
+
+      // --- Form Submission Logic ---
+      tableForm.addEventListener('submit', (event) => {
+        event.preventDefault(); // Prevent default form submission
+        enterRestaurant();
+      });
+
+      // Also allow pressing "Enter" on the number pad to submit
+      tableInput.addEventListener('keyup', (event) => {
+        if (event.key === 'Enter') {
+          enterRestaurant();
+        }
+      });
+
+      function enterRestaurant() {
+        const tableNumber = tableInput.value.trim();
+
+        if (!tableNumber || isNaN(tableNumber) || parseInt(tableNumber) <= 0) {
+          alert("Please enter a valid table number.");
+          return;
+        }
+
+        // Save the table number and redirect to the menu
+        localStorage.setItem('userTableNumber', tableNumber);
+        window.location.href = 'menu.html'; // Direct navigation to menu
+      }
+    });
+  </script>
+</body>
+</html>

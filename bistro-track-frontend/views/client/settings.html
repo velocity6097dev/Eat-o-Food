@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings - Bistro Track</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+  <link rel="stylesheet" href="../../assets/css/variables.css">
+  <link rel="stylesheet" href="../../assets/css/reset.css">
+  <link rel="stylesheet" href="../../assets/css/components.css">
+</head>
+<body>
+
+<div class="app-container">
+      <header class="nav-bar">
+        <span style="width:40px"></span>
+        <span class="title">Settings</span>
+        <span class="action">Save</span>
+      </header>
+      <main class="body">
+        <div class="screen-title"><span>Owner · Settings and controls</span></div>
+
+        <div class="setting-section">
+          <h4><i class="ti ti-building-store" aria-hidden="true"></i> Restaurant details</h4>
+          <div class="form-row"><label class="form-label">Name</label><input class="form-input" value="Bistro Track"></div>
+          <div class="form-row"><label class="form-label">Address</label><input class="form-input" value="42 Park Street, Kolkata"></div>
+          <div class="form-row-2">
+            <div><label class="form-label">Open from</label><input class="form-input" value="11:00 AM"></div>
+            <div><label class="form-label">Close at</label><input class="form-input" value="11:00 PM"></div>
+          </div>
+          <div class="form-row"><label class="form-label">UPI ID</label><input class="form-input" value="bistrotrack@upi"></div>
+        </div>
+
+        <div class="setting-section">
+          <h4><i class="ti ti-credit-card" aria-hidden="true"></i> Payment methods</h4>
+          <div class="toggle-row">
+            <div class="toggle-label">UPI / QR code</div>
+            <div class="toggle"></div>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-label">Debit / Credit card</div>
+            <div class="toggle"></div>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-label">Cash on table</div>
+            <div class="toggle"></div>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-label">Net banking</div>
+            <div class="toggle off"></div>
+          </div>
+        </div>
+
+        <div class="setting-section">
+          <h4><i class="ti ti-gift" aria-hidden="true"></i> Table gift system</h4>
+          <div class="toggle-row">
+            <div><div class="toggle-label">Allow table-to-table gifts</div><div class="toggle-sub">Clients can gift dishes to other tables</div></div>
+            <div class="toggle"></div>
+          </div>
+          <div class="toggle-row">
+            <div><div class="toggle-label">Show gift notifications</div><div class="toggle-sub">Receiver sees gift alert on their screen</div></div>
+            <div class="toggle"></div>
+          </div>
+        </div>
+
+        <div class="setting-section">
+          <h4><i class="ti ti-bell" aria-hidden="true"></i> Notifications</h4>
+          <div class="toggle-row">
+            <div class="toggle-label">New order alerts</div>
+            <div class="toggle"></div>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-label">Payment received</div>
+            <div class="toggle"></div>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-label">Daily revenue summary</div>
+            <div class="toggle off"></div>
+          </div>
+        </div>
+
+        <button class="btn-primary" style="margin-bottom:16px">Save all settings</button>
+
+      </main>
+      <footer class="bottom-nav">
+        <a href="./dashboard.html" class="bn-item"><i class="ti ti-layout-dashboard bn-icon"></i><span class="bn-label">Dashboard</span></a>
+        <a href="./menu-manager.html" class="bn-item"><i class="ti ti-book bn-icon"></i><span class="bn-label">Menu</span></a>
+        <div class="bn-item active"><i class="ti ti-settings bn-icon"></i><span class="bn-label">Settings</span></div>
+      </footer>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    // --- Toggle Switch Functionality ---
+    const toggles = document.querySelectorAll('.toggle');
+
+    toggles.forEach(toggle => {
+      toggle.addEventListener('click', () => {
+        // Toggle the 'off' class to change the visual state
+        toggle.classList.toggle('off');
+
+        // You can add logic here to get the state, e.g.:
+        // const isEnabled = !toggle.classList.contains('off');
+        // console.log(`Setting is now: ${isEnabled ? 'On' : 'Off'}`);
+      });
+    });
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bistro Track - Project Pages</title>
+    <link rel="stylesheet" href="./assets/css/variables.css">
+    <link rel="stylesheet" href="./assets/css/reset.css">
+    <style>
+        body { padding: 40px; text-align: center; }
+        h1 { font-size: 2rem; margin-bottom: 1rem; color: var(--text-primary); }
+        p { margin-bottom: 2rem; color: var(--text-secondary); }
+        .nav-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; max-width: 800px; margin: 0 auto; }
+        .nav-card { background: var(--surface-0); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.5rem; text-align: left; }
+        .nav-card h2 { font-size: 1.25rem; margin-bottom: 1rem; }
+        .nav-card ul { list-style: none; }
+        .nav-card li { margin-bottom: 0.5rem; }
+    </style>
+</head>
+<body>
+    <h1>Bistro Track Frontend</h1>
+    <p>Project navigation page. Select a view to get started.</p>
+
+    <div class="nav-grid">
+        <div class="nav-card">
+            <h2>Client View</h2>
+            <ul>
+                <li><a href="./views/client/welcome.html">1. Welcome Screen</a></li>
+                <li><a href="./views/client/menu.html">2. Menu Screen</a></li>
+                <li><a href="./views/client/cart.html">3. Cart Screen</a></li>
+                <li><a href="./views/client/tracking.html">4. Tracking Screen</a></li>
+            </ul>
+        </div>
+        <div class="nav-card">
+            <h2>Owner View</h2>
+            <ul>
+                <li><a href="./views/owner/dashboard.html">1. Dashboard</a></li>
+                <li><a href="./views/owner/menu-manager.html">2. Menu Manager</a></li>
+                <li><a href="./views/owner/settings.html">3. Settings</a></li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

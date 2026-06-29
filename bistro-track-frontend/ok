@@ -1,0 +1,827 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans)}
+.wrap{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;padding:8px 0}
+.phone{width:360px;background:var(--surface-0);border:0.5px solid var(--border);border-radius:28px;overflow:hidden;flex-shrink:0}
+.phone-inner{min-height:680px;display:flex;flex-direction:column;background:var(--surface-0)}
+.status-bar{background:#1a1a1a;padding:10px 16px 6px;display:flex;justify-content:space-between;align-items:center}
+.status-bar span{color:#fff;font-size:11px}
+.nav-bar{background:var(--surface-2);border-bottom:0.5px solid var(--border);padding:12px 16px 10px;display:flex;align-items:center;gap:10px}
+.nav-bar .back{font-size:13px;color:#e85d2f;cursor:pointer;white-space:nowrap}
+.nav-bar .title{font-size:15px;font-weight:500;color:var(--text-primary);flex:1;text-align:center}
+.nav-bar .action{font-size:13px;color:#e85d2f;cursor:pointer;white-space:nowrap}
+.body{flex:1;overflow-y:auto;padding:14px}
+.bottom-nav{background:var(--surface-2);border-top:0.5px solid var(--border);display:flex;padding:6px 0 8px}
+.bn-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px 0}
+.bn-icon{font-size:20px;color:var(--text-muted)}
+.bn-label{font-size:10px;color:var(--text-muted)}
+.bn-item.active .bn-icon,.bn-item.active .bn-label{color:#e85d2f}
+.bn-dot{width:5px;height:5px;border-radius:50%;background:#e85d2f;margin:1px auto 0}
+
+/* hero banner */
+.hero{background:#e85d2f;border-radius:14px;padding:16px;margin-bottom:14px;color:#fff}
+.hero h2{font-size:18px;font-weight:500}
+.hero p{font-size:12px;margin-top:4px;color:rgba(255,255,255,0.8)}
+.hero-row{display:flex;align-items:center;justify-content:space-between;margin-top:12px}
+.table-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,0.2);border-radius:20px;padding:4px 12px;font-size:12px;font-weight:500}
+.promo-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,0.15);border-radius:20px;padding:4px 10px;font-size:11px;cursor:pointer;border:1px dashed rgba(255,255,255,0.4)}
+
+/* cats */
+.cats{display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;padding-bottom:2px}
+.cats::-webkit-scrollbar{display:none}
+.cat{padding:6px 14px;border-radius:20px;font-size:12px;white-space:nowrap;cursor:pointer;background:var(--surface-2);border:0.5px solid var(--border);color:var(--text-secondary);transition:all .15s}
+.cat.active{background:#e85d2f;color:#fff;border-color:transparent}
+
+/* food items */
+.food-item{display:flex;align-items:center;gap:10px;background:var(--surface-2);border:0.5px solid var(--border);border-radius:12px;padding:10px;margin-bottom:8px}
+.food-emoji{width:48px;height:48px;border-radius:10px;background:var(--surface-1);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
+.food-info{flex:1;min-width:0}
+.food-name{font-size:13px;font-weight:500;color:var(--text-primary)}
+.food-desc{font-size:11px;color:var(--text-muted);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.food-price{font-size:13px;font-weight:500;color:var(--text-primary);margin-top:3px}
+.food-avail-time{font-size:10px;color:#633806;background:#FAEEDA;padding:2px 6px;border-radius:10px;margin-top:3px;display:inline-block}
+.food-unavail{font-size:10px;color:#A32D2D;background:#FCEBEB;padding:2px 6px;border-radius:10px;margin-top:3px;display:inline-block}
+.add-btn{width:30px;height:30px;border-radius:8px;background:#e85d2f;border:none;color:#fff;font-size:18px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;line-height:1}
+.add-btn.disabled{background:var(--surface-1);color:var(--text-muted);cursor:not-allowed}
+.qty-ctrl{display:flex;align-items:center;gap:6px}
+.qty-btn{width:26px;height:26px;border-radius:6px;border:0.5px solid var(--border);background:var(--surface-1);color:var(--text-primary);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.qty-num{font-size:13px;font-weight:500;min-width:16px;text-align:center;color:var(--text-primary)}
+
+/* veg tag */
+.veg-dot{width:8px;height:8px;border-radius:50%;background:#3B6D11;display:inline-block;margin-right:4px}
+.nonveg-dot{width:8px;height:8px;border-radius:50%;background:#c94820;display:inline-block;margin-right:4px}
+.tag-row{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+.tag{font-size:10px;padding:2px 6px;border-radius:8px;background:var(--surface-1);color:var(--text-muted)}
+.tag.best{background:#FAEEDA;color:#633806}
+
+/* section head */
+.sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.sec-head h3{font-size:14px;font-weight:500;color:var(--text-primary)}
+.sec-head a{font-size:12px;color:#e85d2f;cursor:pointer}
+
+/* cart bar */
+.cart-bar{background:#e85d2f;border-radius:12px;padding:12px 14px;display:flex;align-items:center;margin-bottom:12px}
+.cart-bar .cb-info{flex:1;color:#fff}
+.cart-bar .cb-count{font-size:12px;opacity:.85}
+.cart-bar .cb-total{font-size:15px;font-weight:500}
+.cart-bar .cb-btn{background:rgba(255,255,255,0.2);color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:12px;font-weight:500;cursor:pointer}
+
+/* cart list */
+.cart-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:0.5px solid var(--border)}
+.cart-item:last-child{border-bottom:none}
+.ci-name{flex:1;font-size:13px;color:var(--text-primary)}
+.ci-price{font-size:13px;font-weight:500;color:var(--text-primary);margin-right:8px}
+
+/* promo row */
+.promo-row{display:flex;gap:8px;margin-bottom:12px;align-items:center}
+.promo-input{flex:1;height:38px;border:0.5px solid var(--border);border-radius:var(--radius);padding:0 10px;font-size:13px;background:var(--surface-2);color:var(--text-primary)}
+.promo-apply{height:38px;padding:0 14px;background:#e85d2f;color:#fff;border:none;border-radius:var(--radius);font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap}
+.promo-success{background:#EAF3DE;border:0.5px solid #C0DD97;border-radius:var(--radius);padding:8px 12px;display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.promo-success span{font-size:12px;color:#3B6D11;flex:1}
+.promo-remove{font-size:11px;color:#A32D2D;cursor:pointer}
+
+/* bill */
+.bill-row{display:flex;justify-content:space-between;padding:5px 0;font-size:13px;color:var(--text-secondary)}
+.bill-row.total{font-size:15px;font-weight:500;color:var(--text-primary);border-top:0.5px solid var(--border);padding-top:10px;margin-top:4px}
+.bill-row.savings{color:#3B6D11}
+.bill-row.tax{color:var(--text-muted);font-size:12px}
+
+/* gift section */
+.gift-card{background:#EEEDFE;border:0.5px solid #AFA9EC;border-radius:12px;padding:12px;margin-bottom:12px}
+.gift-card h4{font-size:13px;font-weight:500;color:#3C3489;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.gift-subtitle{font-size:11px;color:#534AB7;margin-bottom:10px;line-height:1.5}
+.gift-form{display:flex;flex-direction:column;gap:8px}
+.gift-row{display:flex;gap:8px}
+.gift-select{flex:1;height:36px;border:0.5px solid #AFA9EC;border-radius:var(--radius);padding:0 8px;font-size:12px;background:#fff;color:#3C3489}
+.gift-input{flex:1;height:36px;border:0.5px solid #AFA9EC;border-radius:var(--radius);padding:0 8px;font-size:12px;background:#fff;color:var(--text-primary)}
+.gift-input::placeholder{color:var(--text-muted)}
+.gift-send{width:100%;padding:9px;background:#534AB7;color:#fff;border:none;border-radius:var(--radius);font-size:13px;font-weight:500;cursor:pointer;margin-top:4px}
+.gift-sent{display:flex;align-items:center;gap:8px;background:#EAF3DE;border-radius:8px;padding:8px;margin-top:6px}
+.gift-sent span{font-size:12px;color:#3B6D11}
+
+/* pay methods */
+.pay-method{display:flex;align-items:center;gap:10px;background:var(--surface-2);border:0.5px solid var(--border);border-radius:10px;padding:10px;margin-bottom:8px;cursor:pointer}
+.pay-method.sel{border:1.5px solid #e85d2f;background:#fff4f0}
+.pay-icon{width:36px;height:36px;border-radius:8px;background:var(--surface-1);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.pay-name{font-size:13px;font-weight:500;color:var(--text-primary)}
+.pay-sub{font-size:11px;color:var(--text-muted);margin-top:1px}
+.radio{width:16px;height:16px;border-radius:50%;border:1.5px solid var(--border-strong);margin-left:auto;flex-shrink:0;position:relative}
+.radio.sel{border-color:#e85d2f}
+.radio.sel::after{content:'';position:absolute;width:8px;height:8px;border-radius:50%;background:#e85d2f;top:3px;left:3px}
+
+/* success */
+.success-wrap{text-align:center;padding:20px 0 12px}
+.success-circle{width:64px;height:64px;border-radius:50%;background:#EAF3DE;margin:0 auto 12px;display:flex;align-items:center;justify-content:center}
+.success-circle i{font-size:28px;color:#3B6D11}
+.success-wrap h2{font-size:17px;font-weight:500;color:var(--text-primary)}
+.success-wrap p{font-size:13px;color:var(--text-muted);margin-top:6px;line-height:1.6}
+.order-id{font-size:12px;color:#e85d2f;background:#fff4f0;padding:4px 12px;border-radius:20px;display:inline-block;margin-top:8px}
+
+/* tracker */
+.tracker{background:var(--surface-2);border:0.5px solid var(--border);border-radius:12px;padding:12px;margin-top:14px}
+.tracker h4{font-size:13px;font-weight:500;color:var(--text-primary);margin-bottom:12px}
+.track-step{display:flex;align-items:flex-start;gap:10px;margin-bottom:12px;position:relative}
+.track-step:last-child{margin-bottom:0}
+.step-circle{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.step-circle.done{background:#EAF3DE}
+.step-circle.done i{font-size:12px;color:#3B6D11}
+.step-circle.active{background:#FAEEDA}
+.step-circle.active i{font-size:12px;color:#633806}
+.step-circle.pending{background:var(--surface-1);border:0.5px solid var(--border)}
+.step-circle.pending i{font-size:12px;color:var(--text-muted)}
+.step-text{flex:1}
+.step-label{font-size:13px;color:var(--text-primary)}
+.step-label.active{font-weight:500}
+.step-sub{font-size:11px;color:var(--text-muted);margin-top:2px}
+.step-line{position:absolute;left:11px;top:26px;width:1.5px;height:20px;background:var(--border)}
+
+/* gift notification */
+.gift-notif{background:#EEEDFE;border:0.5px solid #AFA9EC;border-radius:12px;padding:12px;margin-bottom:12px;display:flex;gap:10px;align-items:flex-start}
+.gift-notif-icon{width:36px;height:36px;border-radius:50%;background:#534AB7;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.gift-notif-icon i{font-size:18px;color:#fff}
+.gift-notif-text h4{font-size:13px;font-weight:500;color:#3C3489}
+.gift-notif-text p{font-size:12px;color:#534AB7;margin-top:3px;line-height:1.5}
+.gift-notif-text .gn-from{font-size:11px;color:#534AB7;margin-top:6px;background:rgba(83,74,183,0.1);padding:3px 8px;border-radius:8px;display:inline-block}
+
+/* owner screens */
+.metric-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.metric{background:var(--surface-2);border:0.5px solid var(--border);border-radius:12px;padding:12px}
+.metric-label{font-size:11px;color:var(--text-muted);margin-bottom:4px}
+.metric-value{font-size:20px;font-weight:500;color:var(--text-primary)}
+.metric-delta{font-size:11px;margin-top:2px}
+.delta-up{color:#3B6D11}
+.delta-dn{color:#A32D2D}
+
+.table-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.tbl-card{background:var(--surface-2);border:0.5px solid var(--border);border-radius:10px;padding:10px}
+.tbl-card.occ{border-color:#e85d2f40;background:#fff4f0}
+.tbl-card.rsv{border-color:#534AB740;background:#EEEDFE}
+.tbl-card.avl{border-color:#3B6D1140;background:#EAF3DE}
+.tbl-card.gift{border-color:#534AB740;background:#EEEDFE}
+.tbl-num{font-size:15px;font-weight:500;color:var(--text-primary)}
+.tbl-seats{font-size:11px;color:var(--text-muted);margin-top:1px}
+.tbl-status{font-size:10px;padding:2px 6px;border-radius:8px;margin-top:6px;display:inline-block}
+.tbl-status.occ{background:#fde8df;color:#c94820}
+.tbl-status.rsv{background:#EEEDFE;color:#3C3489}
+.tbl-status.avl{background:#EAF3DE;color:#3B6D11}
+.tbl-status.gift{background:#EEEDFE;color:#3C3489}
+.tbl-actions{display:flex;gap:4px;margin-top:8px}
+.tbl-btn{flex:1;padding:4px 0;font-size:10px;border-radius:6px;border:0.5px solid var(--border);background:var(--surface-1);color:var(--text-secondary);cursor:pointer;text-align:center}
+.tbl-btn.red{background:#fde8df;border-color:#e85d2f40;color:#c94820}
+.tbl-btn.purple{background:#EEEDFE;border-color:#AFA9EC;color:#3C3489}
+.tbl-btn.green{background:#EAF3DE;border-color:#C0DD97;color:#3B6D11}
+
+.order-card{background:var(--surface-2);border:0.5px solid var(--border);border-radius:10px;padding:10px;margin-bottom:8px}
+.oc-head{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.oc-tbl{width:32px;height:32px;border-radius:8px;background:#fff4f0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:#c94820;flex-shrink:0}
+.oc-info{flex:1}
+.oc-name{font-size:13px;font-weight:500;color:var(--text-primary)}
+.oc-meta{font-size:11px;color:var(--text-muted);margin-top:1px}
+.oc-status{font-size:11px;padding:3px 8px;border-radius:8px}
+.oc-status.prep{background:#FAEEDA;color:#633806}
+.oc-status.ready{background:#EAF3DE;color:#3B6D11}
+.oc-status.served{background:var(--surface-1);color:var(--text-muted)}
+.oc-footer{display:flex;justify-content:space-between;align-items:center}
+.oc-amount{font-size:13px;font-weight:500;color:var(--text-primary)}
+.oc-btns{display:flex;gap:4px}
+.oc-btn{padding:4px 10px;border-radius:6px;font-size:11px;cursor:pointer;border:none}
+.oc-btn.mark{background:#EAF3DE;color:#3B6D11}
+.oc-btn.bill{background:#e85d2f;color:#fff}
+
+/* owner settings */
+.setting-section{background:var(--surface-2);border:0.5px solid var(--border);border-radius:12px;padding:12px;margin-bottom:10px}
+.setting-section h4{font-size:13px;font-weight:500;color:var(--text-primary);margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.form-row{margin-bottom:8px}
+.form-label{font-size:11px;color:var(--text-muted);margin-bottom:4px}
+.form-input{width:100%;height:34px;border:0.5px solid var(--border);border-radius:var(--radius);padding:0 10px;font-size:13px;background:var(--surface-1);color:var(--text-primary)}
+.form-row-2{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-top:0.5px solid var(--border)}
+.toggle-row:first-of-type{border-top:none}
+.toggle-label{font-size:13px;color:var(--text-secondary)}
+.toggle-sub{font-size:11px;color:var(--text-muted);margin-top:1px}
+.toggle{width:36px;height:20px;border-radius:10px;background:#e85d2f;cursor:pointer;position:relative;flex-shrink:0}
+.toggle::after{content:'';position:absolute;width:16px;height:16px;border-radius:50%;background:#fff;top:2px;right:2px;transition:all .2s}
+.toggle.off{background:var(--border-strong)}
+.toggle.off::after{right:auto;left:2px}
+
+/* promo codes owner */
+.promo-code-item{display:flex;align-items:center;gap:10px;background:var(--surface-2);border:0.5px solid var(--border);border-radius:10px;padding:10px;margin-bottom:8px}
+.promo-code-badge{font-size:12px;font-weight:500;background:#FAEEDA;color:#633806;padding:4px 10px;border-radius:8px;letter-spacing:.05em;font-family:var(--font-mono)}
+.promo-code-info{flex:1;min-width:0}
+.promo-code-name{font-size:12px;font-weight:500;color:var(--text-primary)}
+.promo-code-meta{font-size:11px;color:var(--text-muted);margin-top:2px}
+.promo-active{width:8px;height:8px;border-radius:50%;background:#3B6D11;flex-shrink:0}
+.promo-inactive{width:8px;height:8px;border-radius:50%;background:var(--border-strong);flex-shrink:0}
+.add-promo-btn{width:100%;padding:10px;background:var(--surface-1);border:1px dashed var(--border-strong);border-radius:10px;font-size:13px;color:#e85d2f;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px}
+
+.btn-primary{width:100%;padding:13px;background:#e85d2f;color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:500;cursor:pointer;margin-top:10px}
+.btn-secondary{width:100%;padding:12px;background:var(--surface-2);color:#e85d2f;border:0.5px solid #e85d2f;border-radius:12px;font-size:14px;cursor:pointer;margin-top:8px}
+
+.screen-title{font-size:11px;color:var(--text-muted);text-align:center;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.screen-title::before,.screen-title::after{content:'';flex:1;height:0.5px;background:var(--border)}
+</style>
+
+<h2 class="sr-only">Restaurant Android app — full mobile UI with client ordering, gift system, promo codes, and owner dashboard</h2>
+
+<div class="wrap">
+
+<!-- === PHONE 1: CLIENT - MENU === -->
+<div class="phone">
+<div class="phone-inner">
+<div class="status-bar"><span>9:41</span><span>📶 🔋</span></div>
+<div class="nav-bar">
+  <span style="width:40px"></span>
+  <span class="title">Bistro Track</span>
+  <span class="action"><i class="ti ti-shopping-cart" style="font-size:17px"></i> 2</span>
+</div>
+<div class="body">
+  <div class="screen-title">Client · Menu screen</div>
+
+  <div class="gift-notif">
+    <div class="gift-notif-icon"><i class="ti ti-gift" aria-hidden="true"></i></div>
+    <div class="gift-notif-text">
+      <h4>You received a gift!</h4>
+      <p>Table 5 sent you Butter Chicken as a surprise treat.</p>
+      <span class="gn-from"><i class="ti ti-armchair" style="font-size:10px"></i> From Table 5 · Just now</span>
+    </div>
+  </div>
+
+  <div class="hero">
+    <h2>Good evening!</h2>
+    <p>Scan your table QR to order. Your food comes straight to you.</p>
+    <div class="hero-row">
+      <div class="table-badge"><i class="ti ti-armchair" style="font-size:12px"></i> Table 6</div>
+      <div class="promo-badge"><i class="ti ti-tag" style="font-size:11px"></i> Add promo</div>
+    </div>
+  </div>
+
+  <div class="cats">
+    <div class="cat active">All</div>
+    <div class="cat">Starters</div>
+    <div class="cat">Mains</div>
+    <div class="cat">Breads</div>
+    <div class="cat">Drinks</div>
+    <div class="cat">Desserts</div>
+  </div>
+
+  <div class="sec-head"><h3>Popular now</h3></div>
+
+  <div class="food-item">
+    <div class="food-emoji">🍗</div>
+    <div class="food-info">
+      <div class="food-name"><span class="nonveg-dot"></span>Butter Chicken</div>
+      <div class="food-desc">Creamy tomato curry, best seller</div>
+      <div class="tag-row"><span class="tag best">Bestseller</span></div>
+      <div class="food-price">₹360</div>
+    </div>
+    <div class="qty-ctrl">
+      <button class="qty-btn">−</button>
+      <span class="qty-num">1</span>
+      <button class="qty-btn" style="background:#e85d2f;color:#fff;border-color:#e85d2f">+</button>
+    </div>
+  </div>
+
+  <div class="food-item">
+    <div class="food-emoji">🍛</div>
+    <div class="food-info">
+      <div class="food-name"><span class="veg-dot"></span>Paneer Tikka</div>
+      <div class="food-desc">Grilled cottage cheese, tandoor style</div>
+      <div class="food-price">₹280</div>
+    </div>
+    <button class="add-btn" aria-label="Add Paneer Tikka">+</button>
+  </div>
+
+  <div class="food-item" style="opacity:0.6">
+    <div class="food-emoji">🐟</div>
+    <div class="food-info">
+      <div class="food-name"><span class="nonveg-dot"></span>Fish Curry</div>
+      <div class="food-desc">Coastal style, fresh catch</div>
+      <div class="food-avail-time"><i class="ti ti-clock" style="font-size:10px"></i> Available from 6:00 PM</div>
+      <div class="food-price">₹420</div>
+    </div>
+    <button class="add-btn disabled" aria-label="Not available yet">+</button>
+  </div>
+
+  <div class="food-item">
+    <div class="food-emoji">🫓</div>
+    <div class="food-info">
+      <div class="food-name"><span class="veg-dot"></span>Garlic Naan</div>
+      <div class="food-desc">Fresh baked flatbread</div>
+      <div class="food-price">₹60</div>
+    </div>
+    <button class="add-btn" aria-label="Add Garlic Naan">+</button>
+  </div>
+
+  <div class="food-item">
+    <div class="food-emoji">🥭</div>
+    <div class="food-info">
+      <div class="food-name"><span class="veg-dot"></span>Mango Lassi</div>
+      <div class="food-desc">Sweet chilled yoghurt drink</div>
+      <div class="food-price">₹90</div>
+    </div>
+    <button class="add-btn" aria-label="Add Mango Lassi">+</button>
+  </div>
+
+  <div class="cart-bar">
+    <div class="cb-info">
+      <div class="cb-count">2 items in cart</div>
+      <div class="cb-total">₹440</div>
+    </div>
+    <button class="cb-btn">View cart →</button>
+  </div>
+</div>
+<div class="bottom-nav">
+  <div class="bn-item active"><i class="ti ti-book bn-icon"></i><span class="bn-label">Menu</span></div>
+  <div class="bn-item"><i class="ti ti-shopping-cart bn-icon"></i><span class="bn-label">Cart</span><div class="bn-dot"></div></div>
+  <div class="bn-item"><i class="ti ti-receipt bn-icon"></i><span class="bn-label">Orders</span></div>
+  <div class="bn-item"><i class="ti ti-user bn-icon"></i><span class="bn-label">Profile</span></div>
+</div>
+</div>
+</div>
+
+<!-- === PHONE 2: CLIENT - CART + GIFT + PROMO === -->
+<div class="phone">
+<div class="phone-inner">
+<div class="status-bar"><span>9:42</span><span>📶 🔋</span></div>
+<div class="nav-bar">
+  <span class="back">← Menu</span>
+  <span class="title">Your cart</span>
+  <span class="action">Clear</span>
+</div>
+<div class="body">
+  <div class="screen-title">Client · Cart, gift and promo</div>
+
+  <div style="background:var(--surface-2);border:0.5px solid var(--border);border-radius:12px;padding:12px;margin-bottom:12px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+      <span style="font-size:13px;font-weight:500;color:var(--text-primary)">Table 6 · 2 items</span>
+      <span style="font-size:11px;color:var(--text-muted)">Est. 18 min</span>
+    </div>
+    <div class="cart-item">
+      <div class="ci-name">Butter Chicken</div>
+      <div class="qty-ctrl">
+        <button class="qty-btn">−</button>
+        <span class="qty-num">1</span>
+        <button class="qty-btn">+</button>
+      </div>
+      <span class="ci-price">₹360</span>
+    </div>
+    <div class="cart-item">
+      <div class="ci-name">Garlic Naan ×2</div>
+      <div class="qty-ctrl">
+        <button class="qty-btn">−</button>
+        <span class="qty-num">2</span>
+        <button class="qty-btn">+</button>
+      </div>
+      <span class="ci-price">₹120</span>
+    </div>
+  </div>
+
+  <!-- Gift a dish to another table -->
+  <div class="gift-card">
+    <h4><i class="ti ti-gift" aria-hidden="true"></i> Send a dish as a gift</h4>
+    <div class="gift-subtitle">Surprise someone at another table! Pick a dish and it'll be added to their order, paid by you.</div>
+    <div class="gift-form">
+      <div class="gift-row">
+        <select class="gift-select"><option>Paneer Tikka · ₹280</option><option>Garlic Naan · ₹60</option><option>Mango Lassi · ₹90</option></select>
+        <select class="gift-select"><option>Table 1</option><option>Table 2</option><option>Table 3</option><option selected>Table 5</option><option>Table 7</option></select>
+      </div>
+      <input class="gift-input" placeholder="Add a message (optional)" value="Happy birthday! Enjoy your meal 🎉">
+      <button class="gift-send"><i class="ti ti-send" style="font-size:13px"></i> Send gift to Table 5</button>
+    </div>
+    <div class="gift-sent">
+      <i class="ti ti-circle-check" style="font-size:16px;color:#3B6D11"></i>
+      <span>Mango Lassi sent to Table 3 earlier · ₹90 added to your bill</span>
+    </div>
+  </div>
+
+  <!-- Promo code -->
+  <div style="background:var(--surface-2);border:0.5px solid var(--border);border-radius:12px;padding:12px;margin-bottom:12px">
+    <div style="font-size:13px;font-weight:500;color:var(--text-primary);margin-bottom:8px;display:flex;align-items:center;gap:6px"><i class="ti ti-tag" aria-hidden="true"></i> Promo code</div>
+    <div class="promo-row">
+      <input class="promo-input" value="WELCOME20" placeholder="Enter code">
+      <button class="promo-apply">Apply</button>
+    </div>
+    <div class="promo-success">
+      <i class="ti ti-tag" style="font-size:14px;color:#3B6D11"></i>
+      <span><strong>WELCOME20</strong> applied — 20% off your order</span>
+      <span class="promo-remove">Remove</span>
+    </div>
+  </div>
+
+  <!-- Bill breakdown -->
+  <div style="background:var(--surface-2);border:0.5px solid var(--border);border-radius:12px;padding:12px;margin-bottom:12px">
+    <div style="font-size:13px;font-weight:500;color:var(--text-primary);margin-bottom:8px">Bill summary</div>
+    <div class="bill-row"><span>Subtotal</span><span>₹480</span></div>
+    <div class="bill-row"><span>Gift sent (Mango Lassi)</span><span>₹90</span></div>
+    <div class="bill-row savings"><span>Promo WELCOME20 (−20%)</span><span>−₹114</span></div>
+    <div class="bill-row tax"><span>GST (5%)</span><span>₹23</span></div>
+    <div class="bill-row total"><span>Total payable</span><span>₹479</span></div>
+  </div>
+
+  <button class="btn-primary">Proceed to payment →</button>
+</div>
+<div class="bottom-nav">
+  <div class="bn-item"><i class="ti ti-book bn-icon"></i><span class="bn-label">Menu</span></div>
+  <div class="bn-item active"><i class="ti ti-shopping-cart bn-icon"></i><span class="bn-label">Cart</span></div>
+  <div class="bn-item"><i class="ti ti-receipt bn-icon"></i><span class="bn-label">Orders</span></div>
+  <div class="bn-item"><i class="ti ti-user bn-icon"></i><span class="bn-label">Profile</span></div>
+</div>
+</div>
+</div>
+
+<!-- === PHONE 3: CLIENT - PAYMENT + TRACKING === -->
+<div class="phone">
+<div class="phone-inner">
+<div class="status-bar"><span>9:44</span><span>📶 🔋</span></div>
+<div class="nav-bar">
+  <span class="back">← Cart</span>
+  <span class="title">Payment</span>
+  <span style="width:40px"></span>
+</div>
+<div class="body">
+  <div class="screen-title">Client · Payment and tracking</div>
+
+  <div style="background:var(--surface-1);border:0.5px solid var(--border);border-radius:12px;padding:10px 12px;margin-bottom:14px">
+    <div style="display:flex;justify-content:space-between;font-size:13px;color:var(--text-secondary);padding:3px 0"><span>Table 6 · 2 items</span><span style="font-weight:500;color:var(--text-primary)">₹479</span></div>
+    <div style="font-size:11px;color:#3B6D11;margin-top:4px;display:flex;align-items:center;gap:4px"><i class="ti ti-tag" style="font-size:11px"></i> WELCOME20 applied — saving ₹114</div>
+  </div>
+
+  <div style="font-size:13px;font-weight:500;color:var(--text-primary);margin-bottom:10px">Choose payment method</div>
+
+  <div class="pay-method sel">
+    <div class="pay-icon">📱</div>
+    <div><div class="pay-name">UPI</div><div class="pay-sub">GPay, PhonePe, Paytm</div></div>
+    <div class="radio sel"></div>
+  </div>
+  <div class="pay-method">
+    <div class="pay-icon">💳</div>
+    <div><div class="pay-name">Card</div><div class="pay-sub">Debit or credit card</div></div>
+    <div class="radio"></div>
+  </div>
+  <div class="pay-method">
+    <div class="pay-icon">💵</div>
+    <div><div class="pay-name">Cash</div><div class="pay-sub">Pay when served</div></div>
+    <div class="radio"></div>
+  </div>
+
+  <button class="btn-primary" style="margin-top:14px">Pay ₹479 via UPI →</button>
+
+  <div style="height:1.5px;background:var(--border);margin:18px 0 14px"></div>
+
+  <!-- Order confirmed state -->
+  <div class="success-wrap">
+    <div class="success-circle"><i class="ti ti-check" aria-hidden="true"></i></div>
+    <h2>Order confirmed!</h2>
+    <p>Payment done. Your food is being prepared and will arrive at Table 6.</p>
+    <span class="order-id">#ORD-094 · Table 6</span>
+  </div>
+
+  <div class="tracker">
+    <h4>Live order status</h4>
+    <div class="track-step">
+      <div class="step-line"></div>
+      <div class="step-circle done"><i class="ti ti-check" aria-hidden="true"></i></div>
+      <div class="step-text"><div class="step-label">Order placed and paid</div><div class="step-sub">9:43 PM</div></div>
+    </div>
+    <div class="track-step">
+      <div class="step-line"></div>
+      <div class="step-circle active"><i class="ti ti-flame" aria-hidden="true"></i></div>
+      <div class="step-text"><div class="step-label active">Kitchen is preparing</div><div class="step-sub">Est. 15 min remaining</div></div>
+    </div>
+    <div class="track-step">
+      <div class="step-line"></div>
+      <div class="step-circle pending"><i class="ti ti-bell" aria-hidden="true"></i></div>
+      <div class="step-text"><div class="step-label">Ready to serve</div></div>
+    </div>
+    <div class="track-step">
+      <div class="step-circle pending"><i class="ti ti-armchair" aria-hidden="true"></i></div>
+      <div class="step-text"><div class="step-label">Served at your table</div></div>
+    </div>
+  </div>
+
+  <button class="btn-secondary">Add more items</button>
+</div>
+<div class="bottom-nav">
+  <div class="bn-item"><i class="ti ti-book bn-icon"></i><span class="bn-label">Menu</span></div>
+  <div class="bn-item"><i class="ti ti-shopping-cart bn-icon"></i><span class="bn-label">Cart</span></div>
+  <div class="bn-item active"><i class="ti ti-receipt bn-icon"></i><span class="bn-label">Orders</span></div>
+  <div class="bn-item"><i class="ti ti-user bn-icon"></i><span class="bn-label">Profile</span></div>
+</div>
+</div>
+</div>
+
+<!-- === PHONE 4: OWNER - DASHBOARD + ORDERS === -->
+<div class="phone">
+<div class="phone-inner">
+<div class="status-bar"><span>9:41</span><span>📶 🔋</span></div>
+<div class="nav-bar">
+  <span style="width:40px"></span>
+  <span class="title">Owner dashboard</span>
+  <span class="action"><i class="ti ti-bell" style="font-size:17px"></i></span>
+</div>
+<div class="body">
+  <div class="screen-title">Owner · Dashboard and orders</div>
+
+  <div class="metric-row">
+    <div class="metric"><div class="metric-label">Today's orders</div><div class="metric-value">47</div><div class="metric-delta delta-up"><i class="ti ti-trending-up" style="font-size:11px"></i> +12% vs yesterday</div></div>
+    <div class="metric"><div class="metric-label">Revenue</div><div class="metric-value">₹18.2k</div><div class="metric-delta delta-up"><i class="ti ti-trending-up" style="font-size:11px"></i> +8%</div></div>
+    <div class="metric"><div class="metric-label">Tables active</div><div class="metric-value">7/12</div><div class="metric-delta" style="color:var(--text-muted)">3 reserved</div></div>
+    <div class="metric"><div class="metric-label">Avg wait time</div><div class="metric-value">14m</div><div class="metric-delta delta-dn"><i class="ti ti-trending-up" style="font-size:11px"></i> +2m over target</div></div>
+  </div>
+
+  <div class="sec-head"><h3>Tables — live</h3><a>Manage →</a></div>
+  <div class="table-grid">
+    <div class="tbl-card occ">
+      <div class="tbl-num">Table 1</div>
+      <div class="tbl-seats">4 seats · Indoor</div>
+      <div class="tbl-status occ">Occupied · 22 min</div>
+      <div class="tbl-actions">
+        <div class="tbl-btn">Edit</div>
+        <div class="tbl-btn red">Clear</div>
+        <div class="tbl-btn purple">Bill</div>
+      </div>
+    </div>
+    <div class="tbl-card avl">
+      <div class="tbl-num">Table 3</div>
+      <div class="tbl-seats">6 seats · Outdoor</div>
+      <div class="tbl-status avl">Available</div>
+      <div class="tbl-actions">
+        <div class="tbl-btn">Edit</div>
+        <div class="tbl-btn green">Reserve</div>
+      </div>
+    </div>
+    <div class="tbl-card gift">
+      <div class="tbl-num">Table 5</div>
+      <div class="tbl-seats">2 seats · Indoor</div>
+      <div class="tbl-status gift"><i class="ti ti-gift" style="font-size:10px"></i> Gift booking</div>
+      <div style="font-size:10px;color:#534AB7;margin-top:2px">Sent gift to T6</div>
+      <div class="tbl-actions">
+        <div class="tbl-btn purple">View gifts</div>
+        <div class="tbl-btn red">Cancel</div>
+      </div>
+    </div>
+    <div class="tbl-card rsv">
+      <div class="tbl-num">Table 4</div>
+      <div class="tbl-seats">4 seats · Indoor</div>
+      <div class="tbl-status rsv">Reserved 7pm</div>
+      <div class="tbl-actions">
+        <div class="tbl-btn">Edit</div>
+        <div class="tbl-btn red">Cancel</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec-head"><h3>Active orders</h3><a>View all →</a></div>
+  <div class="order-card">
+    <div class="oc-head">
+      <div class="oc-tbl">T1</div>
+      <div class="oc-info">
+        <div class="oc-name">Butter Chicken, Naan ×2</div>
+        <div class="oc-meta">Placed 9:20 · #ORD-081 · 4 items</div>
+      </div>
+      <span class="oc-status prep">Preparing</span>
+    </div>
+    <div class="oc-footer">
+      <span class="oc-amount">₹640</span>
+      <div class="oc-btns">
+        <button class="oc-btn mark">Mark ready</button>
+        <button class="oc-btn bill">Print bill</button>
+      </div>
+    </div>
+  </div>
+  <div class="order-card">
+    <div class="oc-head">
+      <div class="oc-tbl">T5</div>
+      <div class="oc-info">
+        <div class="oc-name">Paneer Tikka + Gift to T6</div>
+        <div class="oc-meta">Placed 9:28 · #ORD-082 · incl. gift</div>
+      </div>
+      <span class="oc-status ready">Ready</span>
+    </div>
+    <div class="oc-footer">
+      <span class="oc-amount">₹370</span>
+      <div class="oc-btns">
+        <button class="oc-btn mark">Serve now</button>
+        <button class="oc-btn bill">Print bill</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+<div class="bottom-nav">
+  <div class="bn-item active"><i class="ti ti-layout-dashboard bn-icon"></i><span class="bn-label">Dashboard</span></div>
+  <div class="bn-item"><i class="ti ti-book bn-icon"></i><span class="bn-label">Menu</span></div>
+  <div class="bn-item"><i class="ti ti-armchair bn-icon"></i><span class="bn-label">Tables</span></div>
+  <div class="bn-item"><i class="ti ti-settings bn-icon"></i><span class="bn-label">Settings</span></div>
+</div>
+</div>
+</div>
+
+<!-- === PHONE 5: OWNER - MENU + PROMO MANAGEMENT === -->
+<div class="phone">
+<div class="phone-inner">
+<div class="status-bar"><span>9:41</span><span>📶 🔋</span></div>
+<div class="nav-bar">
+  <span style="width:40px"></span>
+  <span class="title">Menu and promos</span>
+  <span class="action"><i class="ti ti-plus" style="font-size:17px"></i></span>
+</div>
+<div class="body">
+  <div class="screen-title">Owner · Menu and promo code management</div>
+
+  <div class="sec-head"><h3>Menu items</h3><a>Add item</a></div>
+
+  <div class="food-item">
+    <div class="food-emoji">🍗</div>
+    <div class="food-info">
+      <div class="food-name">Butter Chicken</div>
+      <div class="food-desc">₹360 · All day</div>
+      <div class="tag-row"><span class="tag best">Bestseller</span><span class="tag">Non-veg</span></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:4px">
+      <button style="width:28px;height:28px;border-radius:6px;background:var(--surface-1);border:0.5px solid var(--border);color:var(--text-secondary);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center"><i class="ti ti-edit"></i></button>
+      <button style="width:28px;height:28px;border-radius:6px;background:#fde8df;border:0.5px solid #e85d2f40;color:#c94820;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center"><i class="ti ti-eye-off"></i></button>
+    </div>
+  </div>
+
+  <div class="food-item" style="opacity:0.6">
+    <div class="food-emoji">🐟</div>
+    <div class="food-info">
+      <div class="food-name">Fish Curry</div>
+      <div class="food-desc">₹420 · Dinner only</div>
+      <div class="food-avail-time"><i class="ti ti-clock" style="font-size:10px"></i> 6:00 PM – 10:00 PM</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:4px">
+      <button style="width:28px;height:28px;border-radius:6px;background:var(--surface-1);border:0.5px solid var(--border);color:var(--text-secondary);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center"><i class="ti ti-edit"></i></button>
+      <button style="width:28px;height:28px;border-radius:6px;background:#EAF3DE;border:0.5px solid #C0DD9740;color:#3B6D11;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center"><i class="ti ti-eye"></i></button>
+    </div>
+  </div>
+
+  <div class="food-item">
+    <div class="food-emoji">🍛</div>
+    <div class="food-info">
+      <div class="food-name">Paneer Tikka</div>
+      <div class="food-desc">₹280 · All day</div>
+      <div class="tag-row"><span class="tag">Veg</span></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:4px">
+      <button style="width:28px;height:28px;border-radius:6px;background:var(--surface-1);border:0.5px solid var(--border);color:var(--text-secondary);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center"><i class="ti ti-edit"></i></button>
+      <button style="width:28px;height:28px;border-radius:6px;background:#fde8df;border:0.5px solid #e85d2f40;color:#c94820;cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center"><i class="ti ti-eye-off"></i></button>
+    </div>
+  </div>
+
+  <div style="height:0.5px;background:var(--border);margin:14px 0"></div>
+
+  <div class="sec-head"><h3>Promo codes</h3><a>Create new</a></div>
+
+  <div class="promo-code-item">
+    <div class="promo-code-badge">WELCOME20</div>
+    <div class="promo-code-info">
+      <div class="promo-code-name">20% off first order</div>
+      <div class="promo-code-meta">Used 34×  ·  Expires Dec 31</div>
+    </div>
+    <div class="promo-active"></div>
+    <button style="font-size:11px;background:none;border:none;color:var(--text-muted);cursor:pointer"><i class="ti ti-edit"></i></button>
+  </div>
+
+  <div class="promo-code-item">
+    <div class="promo-code-badge">FLAT50</div>
+    <div class="promo-code-info">
+      <div class="promo-code-name">₹50 off above ₹400</div>
+      <div class="promo-code-meta">Used 12×  ·  No expiry</div>
+    </div>
+    <div class="promo-active"></div>
+    <button style="font-size:11px;background:none;border:none;color:var(--text-muted);cursor:pointer"><i class="ti ti-edit"></i></button>
+  </div>
+
+  <div class="promo-code-item">
+    <div class="promo-code-badge" style="background:var(--surface-1);color:var(--text-muted)">DIWALI30</div>
+    <div class="promo-code-info">
+      <div class="promo-code-name">30% off (seasonal)</div>
+      <div class="promo-code-meta">Expired Oct 25 · 88 uses</div>
+    </div>
+    <div class="promo-inactive"></div>
+    <button style="font-size:11px;background:none;border:none;color:var(--text-muted);cursor:pointer"><i class="ti ti-edit"></i></button>
+  </div>
+
+  <button class="add-promo-btn"><i class="ti ti-plus" style="font-size:14px"></i> Create promo code</button>
+
+</div>
+<div class="bottom-nav">
+  <div class="bn-item"><i class="ti ti-layout-dashboard bn-icon"></i><span class="bn-label">Dashboard</span></div>
+  <div class="bn-item active"><i class="ti ti-book bn-icon"></i><span class="bn-label">Menu</span></div>
+  <div class="bn-item"><i class="ti ti-armchair bn-icon"></i><span class="bn-label">Tables</span></div>
+  <div class="bn-item"><i class="ti ti-settings bn-icon"></i><span class="bn-label">Settings</span></div>
+</div>
+</div>
+</div>
+
+<!-- === PHONE 6: OWNER - SETTINGS === -->
+<div class="phone">
+<div class="phone-inner">
+<div class="status-bar"><span>9:41</span><span>📶 🔋</span></div>
+<div class="nav-bar">
+  <span style="width:40px"></span>
+  <span class="title">Settings</span>
+  <span class="action">Save</span>
+</div>
+<div class="body">
+  <div class="screen-title">Owner · Settings and controls</div>
+
+  <div class="setting-section">
+    <h4><i class="ti ti-building-store" aria-hidden="true"></i> Restaurant details</h4>
+    <div class="form-row"><div class="form-label">Name</div><input class="form-input" value="Bistro Track"></div>
+    <div class="form-row"><div class="form-label">Address</div><input class="form-input" value="42 Park Street, Kolkata"></div>
+    <div class="form-row-2">
+      <div><div class="form-label">Open from</div><input class="form-input" value="11:00 AM"></div>
+      <div><div class="form-label">Close at</div><input class="form-input" value="11:00 PM"></div>
+    </div>
+    <div class="form-row"><div class="form-label">UPI ID</div><input class="form-input" value="bistrotrack@upi"></div>
+  </div>
+
+  <div class="setting-section">
+    <h4><i class="ti ti-clock" aria-hidden="true"></i> Menu availability windows</h4>
+    <div class="toggle-row">
+      <div><div class="toggle-label">Lunch menu</div><div class="toggle-sub">11am – 3pm</div></div>
+      <div class="toggle"></div>
+    </div>
+    <div class="toggle-row">
+      <div><div class="toggle-label">Dinner menu</div><div class="toggle-sub">6pm – 11pm</div></div>
+      <div class="toggle"></div>
+    </div>
+    <div class="toggle-row">
+      <div><div class="toggle-label">All day items</div><div class="toggle-sub">Always visible</div></div>
+      <div class="toggle"></div>
+    </div>
+  </div>
+
+  <div class="setting-section">
+    <h4><i class="ti ti-credit-card" aria-hidden="true"></i> Payment methods</h4>
+    <div class="toggle-row">
+      <div class="toggle-label">UPI / QR code</div>
+      <div class="toggle"></div>
+    </div>
+    <div class="toggle-row">
+      <div class="toggle-label">Debit / Credit card</div>
+      <div class="toggle"></div>
+    </div>
+    <div class="toggle-row">
+      <div class="toggle-label">Cash on table</div>
+      <div class="toggle"></div>
+    </div>
+    <div class="toggle-row">
+      <div class="toggle-label">Net banking</div>
+      <div class="toggle off"></div>
+    </div>
+  </div>
+
+  <div class="setting-section">
+    <h4><i class="ti ti-gift" aria-hidden="true"></i> Table gift system</h4>
+    <div class="toggle-row">
+      <div><div class="toggle-label">Allow table-to-table gifts</div><div class="toggle-sub">Clients can gift dishes to other tables</div></div>
+      <div class="toggle"></div>
+    </div>
+    <div class="toggle-row">
+      <div><div class="toggle-label">Show gift notifications</div><div class="toggle-sub">Receiver sees gift alert on their screen</div></div>
+      <div class="toggle"></div>
+    </div>
+  </div>
+
+  <div class="setting-section">
+    <h4><i class="ti ti-bell" aria-hidden="true"></i> Notifications</h4>
+    <div class="toggle-row">
+      <div class="toggle-label">New order alerts</div>
+      <div class="toggle"></div>
+    </div>
+    <div class="toggle-row">
+      <div class="toggle-label">Payment received</div>
+      <div class="toggle"></div>
+    </div>
+    <div class="toggle-row">
+      <div class="toggle-label">Table gift alerts</div>
+      <div class="toggle"></div>
+    </div>
+    <div class="toggle-row">
+      <div class="toggle-label">Daily revenue summary</div>
+      <div class="toggle"></div>
+    </div>
+    <div class="toggle-row">
+      <div class="toggle-label">Low stock warning</div>
+      <div class="toggle off"></div>
+    </div>
+  </div>
+
+  <button class="btn-primary" style="margin-bottom:16px">Save all settings</button>
+
+</div>
+<div class="bottom-nav">
+  <div class="bn-item"><i class="ti ti-layout-dashboard bn-icon"></i><span class="bn-label">Dashboard</span></div>
+  <div class="bn-item"><i class="ti ti-book bn-icon"></i><span class="bn-label">Menu</span></div>
+  <div class="bn-item"><i class="ti ti-armchair bn-icon"></i><span class="bn-label">Tables</span></div>
+  <div class="bn-item active"><i class="ti ti-settings bn-icon"></i><span class="bn-label">Settings</span></div>
+</div>
+</div>
+</div>
+
+</div>

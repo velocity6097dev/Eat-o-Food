@@ -1,0 +1,37 @@
+<footer class="bottom-nav">
+    <a href="./menu.html" class="bn-item" id="nav-menu">
+        <i data-lucide="book-open" class="bn-icon"></i>
+        <span class="bn-label">Menu</span>
+    </a>
+    <a href="./cart.html" class="bn-item" id="nav-cart">
+        <i data-lucide="shopping-cart" class="bn-icon"></i>
+        <span class="bn-label">Cart</span>
+        <div id="bn-cart-dot" class="bn-dot" style="display: none;"></div>
+    </a>
+    <a href="./tracking.html" class="bn-item" id="nav-orders">
+        <i data-lucide="receipt" class="bn-icon"></i>
+        <span class="bn-label">Orders</span>
+    </a>
+</footer>
+<script>
+    (function() {
+        const path = window.location.pathname;
+        const page = path.split("/").pop();
+
+        const menuLink = document.querySelector('#nav-menu');
+        const cartLink = document.querySelector('#nav-cart');
+        const ordersLink = document.querySelector('#nav-orders');
+
+        if (menuLink) menuLink.classList.remove('active');
+        if (cartLink) cartLink.classList.remove('active');
+        if (ordersLink) ordersLink.classList.remove('active');
+
+        if (page.startsWith('menu')) {
+            if (menuLink) menuLink.classList.add('active');
+        } else if (page.startsWith('cart')) {
+            if (cartLink) cartLink.classList.add('active');
+        } else if (page.startsWith('tracking')) {
+            if (ordersLink) ordersLink.classList.add('active');
+        }
+    })();
+</script>

@@ -1,0 +1,43 @@
+:root {
+  /* Brand Colors */
+  --brand-primary: #e85d2f;
+  --brand-primary-light: #fff4f0;
+  --brand-primary-dark: #c94820;
+
+  /* Surface Colors (Backgrounds) */
+  --surface-0: #ffffff;
+  --surface-1: #f8f9fa;
+  --surface-2: #f1f3f5;
+  --app-bg: #f8f9fa; /* Main background for the body */
+
+  /* Text Colors */
+  --text-primary: #212529;
+  --text-secondary: #495057;
+  --text-muted: #868e96;
+  --text-on-brand: #ffffff;
+
+  /* Border Colors */
+  --border: #dee2e6;
+  --border-strong: #ced4da;
+
+  /* Status & Accent Colors */
+  --success-bg: #EAF3DE;
+  --success-text: #3B6D11;
+  --success-border: #C0DD97;
+
+  --warning-bg: #FAEEDA;
+  --warning-text: #633806;
+
+  --danger-bg: #FCEBEB;
+  --danger-text: #A32D2D;
+
+  --info-bg: #EEEDFE;
+  --info-text: #3C3489;
+  --info-border: #AFA9EC;
+  --info-strong: #534AB7;
+
+  /* Sizing & Spacing */
+  --radius: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 24px;
+}
