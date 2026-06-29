@@ -442,6 +442,12 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+    // Update back button in header
+    const navBackBtn = document.querySelector('#header-placeholder .nav-back');
+    if (navBackBtn) {
+        navBackBtn.href = './menu.html';
+    }
+
     // DOM Elements
     const cartItemsCard = document.getElementById('cart-items-card');
     const billSummaryCard = document.getElementById('bill-summary-card');
