@@ -27,47 +27,67 @@
   </div>
 
   <div class="app-container">
+    <div id="header-placeholder"></div>
     <main class="body welcome-container">
         <div style="font-size: 64px; margin-bottom: 24px;">👋</div>
-        <h1>Welcome!</h1>
-        <p>Enter your table number to view the menu and place an order.</p>
+        <div id="welcome-content">
+            <h1>Welcome!</h1>
+            <p>Enter your table number to view the menu and place an order.</p>
 
-        <form id="table-form" style="max-width: 280px; margin: 0 auto;">
-            <input type="number" id="tableInput" class="welcome-input" placeholder="e.g., 12" required inputmode="numeric" pattern="[0-9]*">
-            <button type="submit" class="btn-primary" style="margin-top: 16px;">Access Menu</button>
-        </form>
+            <form id="table-form" style="max-width: 280px; margin: 0 auto;">
+                <input type="number" id="tableInput" class="welcome-input" placeholder="e.g., 12" required inputmode="numeric" pattern="[0-9]*">
+                <button type="submit" class="btn-primary" style="margin-top: 16px;">Access Menu</button>
+            </form>
+        </div>
     </main>
   </div>
-
+<script src="../../assets/js/component-loader.js"></script>
   <script>
     document.addEventListener("DOMContentLoaded", () => {
       const splashScreen = document.getElementById('splash-screen');
       const tableForm = document.getElementById('table-form');
       const tableInput = document.getElementById('tableInput');
-      const enterButton = tableForm.querySelector('.btn-glass');
+      const welcomeContent = document.getElementById('welcome-content');
 
       // --- Splash Screen Logic ---
-      // Hide splash screen after 3 seconds (2.2s for animation + delay)
       setTimeout(() => {
-        splashScreen.classList.add('hide');
-        // Remove from DOM after transition ends to improve performance
-        splashScreen.addEventListener('transitionend', () => {
-          splashScreen.remove();
-        });
+        if(splashScreen){
+            splashScreen.classList.add('hide');
+            splashScreen.addEventListener('transitionend', () => {
+            splashScreen.remove();
+            });
+        }
       }, 3000);
 
-      // --- Form Submission Logic ---
-      tableForm.addEventListener('submit', (event) => {
-        event.preventDefault(); // Prevent default form submission
-        enterRestaurant();
-      });
+        // --- Check for existing table number ---
+      const existingTable = window.persistentStore.getItem('tableNumber');
+      if (existingTable) {
+        welcomeContent.innerHTML = `
+            <h1>Welcome Back!</h1>
+            <p>You are at table <strong>${existingTable}</strong>.</p>
+            <a href="menu.html" class="btn-primary" style="margin-top: 16px;">Continue to Menu</a>
+            <p style="margin-top: 16px; font-size: 14px;">Not your table? <a href="#" id="change-table">Change it</a>.</p>
+        `;
 
-      // Also allow pressing "Enter" on the number pad to submit
-      tableInput.addEventListener('keyup', (event) => {
-        if (event.key === 'Enter') {
-          enterRestaurant();
-        }
-      });
+        document.getElementById('change-table').addEventListener('click', (e) => {
+            e.preventDefault();
+            window.persistentStore.removeItem('tableNumber');
+            window.location.reload();
+        });
+      } else {
+        // --- Form Submission Logic ---
+        tableForm.addEventListener('submit', (event) => {
+            event.preventDefault(); 
+            enterRestaurant();
+        });
+
+        tableInput.addEventListener('keyup', (event) => {
+            if (event.key === 'Enter') {
+            enterRestaurant();
+            }
+        });
+      }
+
 
       function enterRestaurant() {
         const tableNumber = tableInput.value.trim();
@@ -77,9 +97,8 @@
           return;
         }
 
-        // Save the table number and redirect to the menu
-        localStorage.setItem('userTableNumber', tableNumber);
-        window.location.href = 'menu.html'; // Direct navigation to menu
+        window.persistentStore.setItem('tableNumber', tableNumber);
+        window.location.href = 'menu.html';
       }
     });
   </script>
