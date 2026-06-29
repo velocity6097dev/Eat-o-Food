@@ -1,14 +1,244 @@
-<header class="nav-bar" style="gap: 4px;">
-  <a href="./welcome.html" class="back"><i data-lucide="chevron-left"></i></a>
-  <div class="title" style="text-align: left; flex: 1;">
-    <div style="font-size: 15px; font-weight: 600;">Bistro Track</div>
-    <div style="font-size: 11px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">42 Park Street, Kolkata</div>
+<header class="nav-bar glass-effect">
+  <a href="./welcome.html" class="nav-back" title="Go back">
+    <i data-lucide="chevron-left"></i>
+  </a>
+  
+  <div class="nav-title">
+    <div class="nav-title-primary">Bistro Track</div>
+    <div class="nav-title-secondary">42 Park Street, Kolkata</div>
   </div>
+  
   <div class="nav-actions">
-    <a href="#" class="action" data-modal-target="notifications-modal"><i data-lucide="bell"></i></a>
-    <a href="./cart.html" class="action" id="nav-cart-link">
+    <a href="#" class="nav-action" data-modal-target="notifications-modal" title="Notifications">
+      <i data-lucide="bell"></i>
+      <span class="nav-badge" id="notif-badge" style="display: none;">1</span>
+    </a>
+    <a href="./cart.html" class="nav-action" title="View cart">
       <i data-lucide="shopping-cart"></i>
-      <span id="nav-cart-count" style="display: none; font-size: 11px; margin-left: 2px;"></span>
+      <span class="nav-badge" id="cart-badge" style="display: none;"></span>
     </a>
   </div>
 </header>
+
+<style>
+  /* ========== HEADER STYLES ========== */
+  .nav-bar {
+    position: sticky;
+    top: 0;
+    z-index: var(--z-sticky);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    height: 56px;
+    min-height: 56px;
+
+    /* Glass Morphism Effect */
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-backdrop);
+    border-bottom: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow);
+    
+    transition: all var(--transition-base);
+  }
+
+  /* Scrolled State */
+  .nav-bar.scrolled {
+    box-shadow: var(--shadow-lg);
+    background: var(--glass-bg);
+    border-color: var(--glass-border);
+  }
+
+  /* ========== BACK BUTTON ========== */
+  .nav-back {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-lg);
+    background: rgba(0, 0, 0, 0.05);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    flex-shrink: 0;
+    position: relative;
+  }
+
+  .nav-back:hover {
+    background: rgba(232, 93, 47, 0.1);
+    color: var(--brand-primary);
+    transform: translateX(-2px);
+  }
+
+  .nav-back:active {
+    transform: translateX(-2px) scale(0.95);
+  }
+
+  .nav-back i {
+    width: 20px;
+    height: 20px;
+  }
+
+  /* ========== TITLE ========== */
+  .nav-title {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  .nav-title-primary {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+  }
+
+  .nav-title-secondary {
+    font-size: 11px;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* ========== ACTIONS ========== */
+  .nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .nav-action {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-lg);
+    background: rgba(0, 0, 0, 0.05);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .nav-action:hover {
+    background: rgba(232, 93, 47, 0.1);
+    color: var(--brand-primary);
+    transform: scale(1.05);
+  }
+
+  .nav-action:active {
+    transform: scale(0.95);
+  }
+
+  .nav-action i {
+    width: 20px;
+    height: 20px;
+  }
+
+  /* ========== BADGE ========== */
+  .nav-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    min-width: 20px;
+    height: 20px;
+    border-radius: 10px;
+    background: var(--brand-primary);
+    color: var(--text-on-brand);
+    font-size: 10px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+    box-shadow: 0 2px 8px rgba(232, 93, 47, 0.3);
+    animation: badge-pop 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  @keyframes badge-pop {
+    0% {
+      transform: scale(0.5);
+      opacity: 0;
+    }
+    50% {
+      transform: scale(1.1);
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  /* ========== GLASS MORPHISM ========== */
+  .glass-effect {
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-backdrop);
+    -webkit-backdrop-filter: var(--glass-backdrop);
+    border: 1px solid var(--glass-border);
+  }
+
+  /* ========== RESPONSIVE ========== */
+  @media (max-width: 480px) {
+    .nav-bar {
+      padding: 8px 12px;
+      gap: 8px;
+    }
+
+    .nav-title-primary {
+      font-size: 14px;
+    }
+
+    .nav-title-secondary {
+      font-size: 10px;
+    }
+
+    .nav-back,
+    .nav-action {
+      width: 32px;
+      height: 32px;
+    }
+
+    .nav-back i,
+    .nav-action i {
+      width: 18px;
+      height: 18px;
+    }
+  }
+
+  /* ========== DARK MODE ========== */
+  @media (prefers-color-scheme: dark) {
+    .nav-back,
+    .nav-action {
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .nav-back:hover,
+    .nav-action:hover {
+      background: rgba(232, 93, 47, 0.15);
+    }
+  }
+</style>
+
+<script>
+  // Update scroll effect
+  (function() {
+    const header = document.querySelector('.nav-bar');
+    const parentScroll = header?.parentElement;
+
+    if (parentScroll) {
+      parentScroll.addEventListener('scroll', () => {
+        if (parentScroll.scrollTop > 10) {
+          header.classList.add('scrolled');
+        } else {
+          header.classList.remove('scrolled');
+        }
+      });
+    }
+  })();
+</script>

@@ -10,103 +10,19 @@
   <link rel="stylesheet" href="../../assets/css/reset.css">
   <link rel="stylesheet" href="../../assets/css/components.css">
   <style>
-    /* Base & Overrides for Exact Match */
-    :root {
-      --bg-color: #F9FAFB;
-      --card-bg: #FFFFFF;
-      --border-color: #E5E7EB;
-      --text-main: #111827;
-      --text-muted: #6B7280;
-      --brand-primary: #e85d2f;
-      --brand-primary-dark: #c94820;
-      --brand-green: #34A853;
-      --bg-green-light: #F0FDF4;
-      --razorpay-blue: #1F51BA;
-    }
-
-    body {
-      background-color: var(--bg-color);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      color: var(--text-main);
-      /* padding-bottom: 0; */ /*This will be handled by app-container padding */
-    }
-
-    .app-container {
-      max-width: 480px;
-      margin: 0 auto;
-      background: var(--bg-color);
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      padding-top: 60px; /* For fixed header */
-      padding-bottom: 60px; /* For fixed footer */
-    }
-
-    /* Main content area */
-    .body {
-      flex: 1;
-      overflow-y: auto;
-    }
-
-    /* Original header styling is now in components.css or loaded with header */
-    /* This can be removed if loaded from components.css */
-    .header-nav {
-      position: sticky;
-      top: 0;
-      background: var(--card-bg);
-      z-index: 100;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 16px;
-      border-bottom: 1px solid var(--border-color);
-    }
-    .header-action {
-      color: var(--brand-primary);
-      font-weight: 500;
-      font-size: 15px;
-      text-decoration: none;
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      cursor: pointer;
-    }
-    .header-title {
-      font-size: 17px;
-      font-weight: 600;
-      flex: 1;
-      text-align: center;
-    }
-
-    /* Divider */
-    .section-divider {
-      display: flex;
-      align-items: center;
-      text-align: center;
-      margin: 16px;
-      color: var(--text-muted);
-      font-size: 12px;
-    }
-    .section-divider::before,
-    .section-divider::after {
-      content: '';
-      flex: 1;
-      border-bottom: 1px solid var(--border-color);
-    }
-    .section-divider span {
-      padding: 0 10px;
-    }
-
-    /* Cards */
+    /* ADDING GLASS MORPHISM TO CARDS */
     .ui-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
+      background: var(--glass-bg);
+      backdrop-filter: var(--glass-backdrop);
+      -webkit-backdrop-filter: var(--glass-backdrop);
+      border: 1px solid var(--glass-border);
       border-radius: 12px;
-      margin: 0 16px 16px 16px;
+      margin: 0 0 16px 0;
       padding: 16px;
+      box-shadow: var(--glass-shadow);
     }
 
-    /* Cart Items */
+    /* Original Cart Styles (Minimal) */
     .card-header-row {
       display: flex;
       justify-content: space-between;
@@ -124,7 +40,7 @@
       align-items: center;
       justify-content: space-between;
       padding: 12px 0;
-      border-bottom: 1px solid var(--border-color);
+      border-bottom: 1px solid var(--glass-border);
     }
     .cart-item-row:last-child {
       border-bottom: none;
@@ -142,20 +58,20 @@
     .qty-btn {
       width: 32px;
       height: 32px;
-      border: 1px solid var(--border-color);
-      background: transparent;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.1);
       border-radius: 8px;
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 18px;
-      color: var(--text-muted);
+      color: var(--text-secondary);
       cursor: pointer;
     }
     .qty-btn[data-action="increase"] {
-      background: transparent;
+      background: var(--brand-primary);
       border-color: var(--brand-primary);
-      color: var(--brand-primary);
+      color: var(--text-on-brand);
     }
     .qty-num {
       font-weight: 500;
@@ -171,83 +87,28 @@
     /* Empty State */
     #empty-state {
       display: flex;
+      flex-direction: column;
       align-items: center;
-      gap: 24px;
+      justify-content: center;
+      text-align: center;
       padding: 40px 16px;
       min-height: 300px;
+      gap: 16px;
     }
-    
     .empty-cart-icon {
-      flex-shrink: 0;
-      width: 60px;
-      height: 60px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      width: 80px;
+      height: 80px;
+      color: var(--brand-primary);
     }
-    
-    .empty-state-content {
-      flex: 1;
-    }
-    
     .empty-state-heading {
-      font-size: 18px;
+      font-size: 20px;
       font-weight: 700;
-      color: var(--text-main);
-      margin-bottom: 4px;
-      letter-spacing: -0.3px;
+      margin-top: 16px;
     }
-    
     .empty-state-subtext {
-      font-size: 13px;
-      color: var(--text-muted);
-      font-weight: 400;
-      line-height: 1.4;
-    }
-    
-    #empty-state .btn-secondary {
-      flex-shrink: 0;
-      text-decoration: none;
-      background: var(--brand-primary);
-      color: white;
-      padding: 16px 32px;
-      border-radius: 12px;
-      font-weight: 600;
       font-size: 14px;
-      border: none;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s;
-      white-space: nowrap;
-      min-height: 50px;
-    }
-    
-    #empty-state .btn-secondary:hover {
-      background: var(--brand-primary-dark);
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(232, 93, 47, 0.3);
-    }
-    
-    @media (max-width: 600px) {
-      #empty-state {
-        flex-direction: column;
-        text-align: center;
-        gap: 16px;
-        padding: 30px 16px;
-        min-height: auto;
-      }
-      
-      .empty-cart-icon {
-        width: 80px;
-        height: 80px;
-      }
-      
-      #empty-state .btn-secondary {
-        flex-shrink: 0;
-        width: 100%;
-      }
+      color: var(--text-muted);
+      margin-bottom: 24px;
     }
 
     /* Promo Code */
@@ -265,12 +126,16 @@
     }
     .promo-input {
       flex: 1;
-      border: 1px solid var(--border-color);
+      border: 1px solid var(--border);
+      background-color: var(--surface-1);
       border-radius: 8px;
       padding: 10px 12px;
       font-size: 15px;
       outline: none;
     }
+     .promo-input:focus {
+        border-color: var(--brand-primary);
+     }
     .promo-btn {
       border: none;
       background: var(--brand-primary);
@@ -286,8 +151,8 @@
       background: var(--brand-primary-dark);
     }
     .promo-applied-banner {
-      background: var(--bg-green-light);
-      border: 1px solid #BBF7D0;
+      background: var(--success-bg);
+      border: 1px solid var(--success-border);
       border-radius: 8px;
       padding: 12px;
       display: flex;
@@ -300,12 +165,12 @@
       font-size: 13px;
     }
     .promo-banner-text strong {
-      color: var(--brand-green);
+      color: var(--success-text);
       display: block;
       margin-bottom: 2px;
     }
     .promo-remove {
-      color: var(--brand-green);
+      color: var(--success-text);
       background: none;
       border: none;
       font-size: 14px;
@@ -323,94 +188,59 @@
       justify-content: space-between;
       margin-bottom: 12px;
       font-size: 15px;
-      color: var(--text-muted);
+      color: var(--text-secondary);
     }
     .bill-row.discount {
-      color: var(--brand-green);
+      color: var(--success-text);
     }
     .bill-row.total-row {
-      border-top: 1px solid var(--border-color);
+      border-top: 1px solid var(--glass-border);
       padding-top: 16px;
       margin-top: 16px;
       margin-bottom: 0;
       font-weight: 600;
-      color: var(--text-main);
+      color: var(--text-primary);
       font-size: 16px;
     }
 
     /* Bottom Payment Area */
     .bottom-payment-bar {
-      padding: 0 16px 16px;
+      padding: 16px 0 0;
     }
     .btn-proceed {
       width: 100%;
-      text-align: center;
-      background: var(--brand-primary);
+      background: var(--gradient-primary);
       border: none;
-      color: #fff;
-      font-weight: 500;
+      color: var(--text-on-brand);
+      font-weight: 600;
       font-size: 16px;
       padding: 14px;
-      border-radius: 8px;
-      text-decoration: none;
+      border-radius: var(--radius-lg);
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 8px;
-      transition: background-color 0.2s;
+      transition: all var(--transition-base);
       cursor: pointer;
+      box-shadow: var(--shadow-brand-sm);
     }
     .btn-proceed:hover {
-      background: var(--brand-primary-dark);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-brand);
     }
     .btn-proceed:disabled {
-      background: #D1D5DB;
+      background: var(--text-muted);
       cursor: not-allowed;
+      opacity: 0.5;
     }
 
-    /* Modal Styles - Razorpay Inspired */
-    .modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.5);
-      z-index: 1000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.3s ease;
-    }
-    .modal-overlay.active {
-      opacity: 1;
-      pointer-events: auto;
-    }
-    .modal-content {
-      background: var(--card-bg);
-      border-radius: 12px;
-      padding: 24px;
-      width: 90%;
-      max-width: 420px;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-    }
-    .modal-content h3 {
-      font-size: 18px;
-      font-weight: 600;
-      margin-bottom: 20px;
-      color: var(--text-main);
-    }
-
-    /* Payment Methods - Razorpay Style */
-    .payment-methods-container {
-      text-align: left;
-      margin-bottom: 24px;
-    }
+    /* Modal Styles */
     .pay-method {
       display: flex;
       align-items: center;
       gap: 12px;
-      background: #F5F5F5;
-      border: 2px solid transparent;
+      background: var(--surface-1);
+      border: 2px solid var(--border);
       border-radius: 10px;
       padding: 14px 12px;
       margin-bottom: 10px;
@@ -418,11 +248,12 @@
       transition: all 0.3s ease;
     }
     .pay-method:hover {
-      background: #EFEFEF;
+      background: var(--surface-2);
+      border-color: var(--brand-primary);
     }
     .pay-method.sel {
-      border-color: var(--razorpay-blue);
-      background: #F0F4FF;
+      border-color: var(--info-strong);
+      background: var(--info-bg);
     }
     .pay-icon {
       width: 40px;
@@ -434,11 +265,10 @@
       justify-content: center;
       font-size: 20px;
       flex-shrink: 0;
-      border: 1px solid var(--border-color);
+      border: 1px solid var(--border);
     }
     .pay-method.sel .pay-icon {
-      border-color: var(--razorpay-blue);
-      background: #E8F0FF;
+      border-color: var(--info-strong);
     }
     .pay-info {
       flex: 1;
@@ -446,7 +276,7 @@
     .pay-name {
       font-size: 14px;
       font-weight: 600;
-      color: var(--text-main);
+      color: var(--text-primary);
       margin-bottom: 2px;
     }
     .pay-sub {
@@ -457,14 +287,14 @@
       width: 18px;
       height: 18px;
       border-radius: 50%;
-      border: 2px solid var(--border-color);
+      border: 2px solid var(--border);
       flex-shrink: 0;
       position: relative;
       background: white;
     }
     .pay-method.sel .radio {
-      border-color: var(--razorpay-blue);
-      background: var(--razorpay-blue);
+      border-color: var(--info-strong);
+      background: var(--info-strong);
     }
     .radio::after {
       content: '';
@@ -482,160 +312,45 @@
       opacity: 1;
     }
 
-    /* Button Styles */
-    .btn-primary {
-      width: 100%;
-      background: var(--razorpay-blue);
-      color: white;
-      border: none;
-      border-radius: 8px;
-      padding: 14px;
-      font-weight: 600;
-      font-size: 15px;
-      cursor: pointer;
-      transition: background-color 0.2s;
-      margin-bottom: 8px;
-    }
-    .btn-primary:hover {
-      background: #164494;
-    }
-    .btn-primary:disabled {
-      background: #D1D5DB;
-      cursor: not-allowed;
-    }
-    .btn-secondary {
-      width: 100%;
-      background: transparent;
-      color: var(--text-muted);
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      padding: 12px;
-      font-weight: 500;
-      font-size: 15px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .btn-secondary:hover {
-      background: var(--bg-color);
-    }
-
-    /* Order Summary in Modal */
-    .modal-order-summary {
-      background: var(--bg-color);
-      border-radius: 8px;
-      padding: 12px;
-      margin-bottom: 20px;
-      font-size: 14px;
-    }
-    .modal-order-summary .summary-row {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 8px;
-    }
-    .modal-order-summary .summary-row:last-child {
-      margin-bottom: 0;
-      font-weight: 600;
-      border-top: 1px solid var(--border-color);
-      padding-top: 8px;
-      margin-top: 8px;
-    }
-
-    /* Processing State */
-    .processing-spinner {
-      width: 40px;
-      height: 40px;
-      border: 4px solid var(--bg-color);
-      border-top-color: var(--razorpay-blue);
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin: 20px auto;
-    }
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-  </style>
-  <style>
-    /* Fixed header and footer styles */
-    .nav-bar { /* This is the class for the new header */
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 1000;
-      max-width: 480px;
-      margin: 0 auto;
-    }
-    .bottom-nav {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      z-index: 1000;
-      max-width: 480px;
-      margin: 0 auto;
-    }
-  </style>
+</style>
 </head>
 <body>
 
-<div id="header-placeholder"></div>
-
 <div class="app-container">
-  
-  <main class="body" style="padding: 0;">
-    <div class="section-divider">
-      <span>Client &middot; Cart and promo</span>
+
+  <div id="header-placeholder"></div>
+
+  <main class="body">
+    <div class="screen-title">
+      <span>Your Cart</span>
     </div>
 
     <div id="empty-state" style="display: none;">
-      <div class="empty-cart-icon">
-        <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg" style="width: 100%; height: 100%;">
-          <!-- Cart handle -->
-          <path d="M 30 25 Q 30 15 40 15 L 90 15 Q 100 15 100 25" stroke="#E8A79B" stroke-width="2.5" fill="none" stroke-linecap="round"/>
-          
-          <!-- Cart body -->
-          <path d="M 25 30 L 35 90 Q 35 95 40 95 L 95 95 Q 100 95 100 90 L 110 30" stroke="#E8A79B" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-          
-          <!-- Cart grid -->
-          <line x1="45" y1="35" x2="45" y2="85" stroke="#E8A79B" stroke-width="1.5" opacity="0.6"/>
-          <line x1="60" y1="35" x2="60" y2="85" stroke="#E8A79B" stroke-width="1.5" opacity="0.6"/>
-          <line x1="75" y1="35" x2="75" y2="85" stroke="#E8A79B" stroke-width="1.5" opacity="0.6"/>
-          
-          <line x1="35" y1="50" x2="100" y2="50" stroke="#E8A79B" stroke-width="1.5" opacity="0.6"/>
-          <line x1="35" y1="65" x2="100" y2="65" stroke="#E8A79B" stroke-width="1.5" opacity="0.6"/>
-          
-          <!-- Left wheel -->
-          <circle cx="48" cy="100" r="5" fill="none" stroke="#E8A79B" stroke-width="1.5"/>
-          
-          <!-- Right wheel -->
-          <circle cx="87" cy="100" r="5" fill="none" stroke="#E8A79B" stroke-width="1.5"/>
-        </svg>
-      </div>
-      
+      <i data-lucide="shopping-basket" class="empty-cart-icon"></i>
       <div class="empty-state-content">
-        <div class="empty-state-heading">Woops!</div>
-        <div class="empty-state-subtext">Your cart is empty</div>
+        <div class="empty-state-heading">Your cart is empty</div>
+        <div class="empty-state-subtext">Looks like you haven't added anything to your cart yet.</div>
       </div>
-      
-      <a href="./menu.html" class="btn-secondary">Back to Main menu</a>
+      <a href="./menu.html" class="btn-primary">Browse Menu</a>
     </div>
 
     <div id="cart-content">
       <div class="ui-card" id="cart-items-card">
+        <!-- Cart items will be rendered here -->
       </div>
 
       <div class="ui-card">
         <div class="promo-header">
           <i data-lucide="tag" style="width:16px;height:16px;"></i> Promo code
         </div>
-        
+
         <div class="promo-input-group" id="promo-input-area">
           <input type="text" class="promo-input" id="promo-code-input" placeholder="Enter promo code">
           <button class="promo-btn" id="apply-promo-btn">Apply</button>
         </div>
 
         <div class="promo-applied-banner" id="promo-applied-area" style="display: none;">
-          <i data-lucide="tag" style="width:16px;height:16px; color: var(--brand-green); margin-top: 2px;"></i>
+          <i data-lucide="tag" style="width:16px;height:16px; color: var(--success-text); margin-top: 2px;"></i>
           <div class="promo-banner-text">
             <strong id="promo-text-applied">WELCOME20 applied</strong>
             <span id="promo-text-details">— 20% off your order</span>
@@ -645,6 +360,7 @@
       </div>
 
       <div class="ui-card" id="bill-summary-card">
+        <!-- Bill summary will be rendered here -->
       </div>
 
       <div class="bottom-payment-bar" id="payment-bar" style="display: none;">
@@ -653,18 +369,21 @@
     </div>
   </main>
 
+  <div id="footer-placeholder"></div>
+
 </div>
 
-<div id="footer-placeholder"></div>
+<!-- Toast placeholder -->
+<div id="toast-placeholder"></div>
 
-<!-- Payment Modal - Razorpay Style -->
+<!-- Payment Modal -->
 <div class="modal-overlay" id="payment-modal">
     <div class="modal-content">
         <div id="payment-selection-view">
             <h3>Select Payment Method</h3>
-            
-            <div class="modal-order-summary" id="modal-summary">
-              <div class="summary-row">
+
+            <div class="modal-order-summary" id="modal-summary" style="background: var(--surface-1); border-radius: 8px; padding: 12px; margin-bottom: 20px; font-size: 14px;">
+              <div class="summary-row" style="display: flex; justify-content: space-between; margin-bottom: 8px;">
                 <span>Total Amount</span>
                 <span id="modal-total">₹0</span>
               </div>
@@ -683,7 +402,7 @@
                 <div class="pay-icon">💳</div>
                 <div class="pay-info">
                   <div class="pay-name">Debit or Credit Card</div>
-                  <div class="pay-sub">Visa, Mastercard, American Express</div>
+                  <div class="pay-sub">Visa, Mastercard, AmEx</div>
                 </div>
                 <div class="radio"></div>
               </div>
@@ -697,40 +416,26 @@
               </div>
             </div>
 
-            <button class="btn-primary" id="pay-button">Proceed to Pay</button>
+            <button class="btn-primary" id="pay-button" style="background: var(--info-strong);">Proceed to Pay</button>
             <button class="btn-secondary" id="close-modal-btn">Cancel</button>
         </div>
 
-        <div id="payment-processing-view" style="display: none;">
-            <div style="text-align: center;">
-              <div class="processing-spinner"></div>
+        <div id="payment-processing-view" style="display: none; text-align:center;">
+              <div class="processing-spinner" style="width: 40px; height: 40px; border: 4px solid var(--surface-2); border-top-color: var(--info-strong); border-radius: 50%; animation: spin 1s linear infinite; margin: 20px auto;"></div>
               <h3 style="margin-top: 16px;">Processing Payment</h3>
               <p style="color: var(--text-muted); font-size: 14px; margin-top: 8px;">
-                Completing your payment via <strong id="processing-method-name"></strong>
+                Completing payment via <strong id="processing-method-name"></strong>
               </p>
-              <p style="color: var(--text-muted); font-size: 12px; margin-top: 12px;">
-                Please do not close this window
-              </p>
-              <button class="btn-secondary" id="cancel-payment-btn" style="margin-top: 20px; width: auto; padding: 10px 16px;">Cancel Payment</button>
-            </div>
+              <button class="btn-secondary" id="cancel-payment-btn" style="margin-top: 20px; width: auto; padding: 10px 16px;">Cancel</button>
         </div>
 
-        <div id="counter-payment-view" style="display: none;">
-            <div style="text-align: center;">
-              <i data-lucide="clock" style="width: 48px; height: 48px; color: var(--razorpay-blue); margin-bottom: 16px;"></i>
+        <div id="counter-payment-view" style="display: none; text-align:center;">
+              <i data-lucide="clock" style="width: 48px; height: 48px; color: var(--info-strong); margin-bottom: 16px;"></i>
               <h3 style="margin-top: 0;">Awaiting Counter Payment</h3>
               <p style="color: var(--text-muted); font-size: 14px; margin-top: 12px;">
-                Please pay <strong>₹<span id="counter-amount">0</span></strong> at the counter
+                Please pay <strong>₹<span id="counter-amount">0</span></strong> at the counter.
               </p>
-              <p style="color: var(--text-muted); font-size: 12px; margin-top: 8px;">
-                Your order will be confirmed once payment is received
-              </p>
-              <div style="background: var(--bg-color); border-radius: 8px; padding: 16px; margin-top: 16px; margin-bottom: 16px;">
-                <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;">Status:</p>
-                <p style="font-size: 13px; font-weight: 600; color: var(--text-main);">Waiting for payment...</p>
-              </div>
-              <button class="btn-secondary" id="cancel-counter-payment-btn" style="width: auto; padding: 10px 16px;">Cancel Order</button>
-            </div>
+              <button class="btn-secondary" id="cancel-counter-payment-btn" style="width: auto; padding: 10px 16px; margin-top: 20px;">Cancel Order</button>
         </div>
     </div>
 </div>
@@ -743,9 +448,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const cartContent = document.getElementById('cart-content');
     const emptyState = document.getElementById('empty-state');
     const paymentBar = document.getElementById('payment-bar');
-    // const clearCartBtn = document.getElementById('clear-cart-btn'); // This is in the loaded header now
     const proceedBtn = document.getElementById('proceed-btn');
-    
+
     // Promo Elements
     const promoInputArea = document.getElementById('promo-input-area');
     const promoAppliedArea = document.getElementById('promo-applied-area');
@@ -754,7 +458,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const removePromoBtn = document.getElementById('remove-promo-btn');
     const promoTextApplied = document.getElementById('promo-text-applied');
     const promoTextDetails = document.getElementById('promo-text-details');
-    
+
     // Modal and Payment Elements
     const paymentModal = document.getElementById('payment-modal');
     const payButton = document.getElementById('pay-button');
@@ -773,10 +477,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const GST_RATE = 0.05; // 5%
     const VALID_PROMO = "WELCOME20";
     const PROMO_DISCOUNT_RATE = 0.20; // 20%
-    const RAZORPAY_KEY_ID = "rzp_live_YOUR_KEY_ID"; // Replace with your Razorpay key
+    const RAZORPAY_KEY_ID = "rzp_test_YOUR_KEY_ID"; // IMPORTANT: Use a test key
     let cart = {};
     let isPromoApplied = false;
-    let paymentTimeout;
     let orderTotal = 0;
 
     // --- Local Storage Management ---
@@ -797,10 +500,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (code === VALID_PROMO) {
             isPromoApplied = true;
             savePromoState();
-            updatePromoUI();
+            updatePromoUI(true); // pass true to animate
             renderBill();
+            if(window.showToast) window.showToast('Promo code "WELCOME20" applied!', 'success');
         } else if (code !== "") {
-            alert("Invalid Promo Code. Try 'WELCOME20'");
+            if(window.showToast) window.showToast("Invalid Promo Code. Try 'WELCOME20'", 'error');
+            promoInput.classList.add('shake');
+            setTimeout(() => promoInput.classList.remove('shake'), 500);
         }
     });
 
@@ -808,16 +514,19 @@ document.addEventListener('DOMContentLoaded', () => {
         isPromoApplied = false;
         promoInput.value = "";
         savePromoState();
-        updatePromoUI();
+        updatePromoUI(false);
         renderBill();
+        if(window.showToast) window.showToast('Promo code removed.', 'info');
     });
 
-    const updatePromoUI = () => {
+    const updatePromoUI = (animate = false) => {
         if (isPromoApplied) {
             promoInputArea.style.display = 'none';
             promoAppliedArea.style.display = 'flex';
-            promoTextApplied.textContent = `${VALID_PROMO} applied`;
-            promoTextDetails.textContent = `— ${PROMO_DISCOUNT_RATE * 100}% off your order`;
+            if (animate) {
+                promoAppliedArea.classList.add('animate');
+                setTimeout(() => promoAppliedArea.classList.remove('animate'), 500);
+            }
         } else {
             promoInputArea.style.display = 'flex';
             promoAppliedArea.style.display = 'none';
@@ -828,7 +537,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const renderCart = () => {
         loadCart();
         const cartKeys = Object.keys(cart);
-        
+
         if (cartKeys.length === 0) {
             cartContent.style.display = 'none';
             paymentBar.style.display = 'none';
@@ -848,7 +557,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const item = cart[id];
             totalItems += item.quantity;
             itemsHtml += `
-                <div class="cart-item-row">
+                <div class="cart-item-row" data-id="${id}">
                     <div class="item-name">${item.name}</div>
                     <div class="item-controls">
                         <button class="qty-btn" data-action="decrease" data-id="${id}">−</button>
@@ -902,9 +611,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Event Listeners ---
     cartItemsCard.addEventListener('click', (e) => {
-        if (e.target.classList.contains('qty-btn')) {
-            const id = e.target.dataset.id;
-            const action = e.target.dataset.action;
+        const button = e.target.closest('.qty-btn');
+        if (button) {
+            const id = button.dataset.id;
+            const action = button.dataset.action;
 
             if (action === 'increase') {
                 cart[id].quantity++;
@@ -934,110 +644,62 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Modal and Payment Logic ---
     proceedBtn.addEventListener('click', () => {
         paymentModal.classList.add('active');
-        if (window.lucide) { lucide.createIcons(); }
     });
 
     closeModalBtn.addEventListener('click', () => {
         paymentModal.classList.remove('active');
-        paymentProcessingView.style.display = 'none';
-        paymentSelectionView.style.display = 'block';
-        payButton.disabled = false;
     });
 
-    // Payment method selection - FIX: Properly handle click events
     paymentOptionsContainer.addEventListener('click', (e) => {
         const clickedMethod = e.target.closest('.pay-method');
         if (clickedMethod) {
-            // Remove selection from all methods
-            paymentOptionsContainer.querySelectorAll('.pay-method').forEach(m => {
-                m.classList.remove('sel');
-                m.querySelector('.radio').classList.remove('sel');
-            });
-            // Add selection to clicked method
+            paymentOptionsContainer.querySelectorAll('.pay-method').forEach(m => m.classList.remove('sel'));
             clickedMethod.classList.add('sel');
-            clickedMethod.querySelector('.radio').classList.add('sel');
         }
     });
 
-    // Updated pay button event
     payButton.addEventListener('click', () => {
-        const selectedMethod = paymentOptionsContainer.querySelector('.pay-method.sel');
-        const method = selectedMethod ? selectedMethod.dataset.method : 'UPI';
+        const selectedMethodEl = paymentOptionsContainer.querySelector('.pay-method.sel');
+        const method = selectedMethodEl ? selectedMethodEl.dataset.method : 'UPI';
         const tableNumber = localStorage.getItem('userTableNumber') || '-';
 
+        paymentSelectionView.style.display = 'none';
+
         if (method === 'Counter') {
-            // Show counter payment waiting view
-            paymentSelectionView.style.display = 'none';
             counterPaymentView.style.display = 'block';
             counterAmount.textContent = orderTotal;
-            payButton.disabled = true;
         } else {
-            // Initialize Razorpay payment
+            paymentProcessingView.style.display = 'block';
+            processingMethodName.textContent = method;
             initializeRazorpayPayment(method, tableNumber);
         }
     });
 
-    // Razorpay Payment Handler
     const initializeRazorpayPayment = (method, tableNumber) => {
         const options = {
             key: RAZORPAY_KEY_ID,
-            amount: orderTotal * 100, // Amount in paise
+            amount: orderTotal * 100,
             currency: "INR",
             name: "Bistro Track",
-            description: `Order from Table ${tableNumber}`,
-            image: "../../assets/images/logo.png", // Your logo URL
-            prefill: {
-                contact: localStorage.getItem('userPhone') || "",
-                email: localStorage.getItem('userEmail') || ""
-            },
-            method: getPaymentMethodCode(method),
+            description: `Order for Table ${tableNumber}`,
             handler: function (response) {
-                // Payment successful
                 handlePaymentSuccess(response.razorpay_payment_id, method, tableNumber);
             },
             modal: {
                 ondismiss: function() {
-                    // Payment cancelled
-                    paymentSelectionView.style.display = 'block';
-                    paymentProcessingView.style.display = 'none';
-                    payButton.disabled = false;
-                    alert('Payment cancelled. Please try again.');
+                    resetModalViews();
+                    alert('Payment cancelled.');
                 }
             },
-            notes: {
-                table_number: tableNumber,
-                promo_applied: isPromoApplied ? VALID_PROMO : 'none'
-            }
         };
-
         const rzp = new Razorpay(options);
-        
         rzp.on('payment.failed', function (response) {
-            handlePaymentFailure(response.error);
+            resetModalViews();
+            alert(`Payment failed: ${response.error.description}`);
         });
-
-        // Show custom processing view before opening Razorpay
-        paymentSelectionView.style.display = 'none';
-        paymentProcessingView.style.display = 'block';
-        processingMethodName.textContent = method;
-        payButton.disabled = true;
-
-        // Open Razorpay checkout
-        setTimeout(() => {
-            rzp.open();
-        }, 800);
+        rzp.open();
     };
-
-    const getPaymentMethodCode = (method) => {
-        const methodMap = {
-            'UPI': 'upi',
-            'Card': 'card',
-            'Wallet': 'wallet',
-            'Cash': 'cash'
-        };
-        return methodMap[method] || null;
-    };
-
+    
     const handlePaymentSuccess = (paymentId, method, tableNumber) => {
         const orderDetails = {
             method: method,
@@ -1048,63 +710,23 @@ document.addEventListener('DOMContentLoaded', () => {
         };
         localStorage.setItem('bistroOrderDetails', JSON.stringify(orderDetails));
         
-        // Clear cart after successful payment
         cart = {};
         isPromoApplied = false;
         savePromoState();
         saveCart();
         
-        setTimeout(() => {
-            window.location.href = 'tracking.html';
-        }, 1500);
+        window.location.href = 'tracking.html';
     };
 
-    const handlePaymentFailure = (error) => {
+    const resetModalViews = () => {
         paymentSelectionView.style.display = 'block';
         paymentProcessingView.style.display = 'none';
-        payButton.disabled = false;
-        alert(`Payment failed: ${error.description}. Please try again.`);
-    };
-
-    cancelPaymentBtn.addEventListener('click', () => {
-        clearTimeout(paymentTimeout);
-        paymentProcessingView.style.display = 'none';
-        paymentSelectionView.style.display = 'block';
-        payButton.disabled = false;
-    });
-
-    cancelCounterPaymentBtn.addEventListener('click', () => {
         counterPaymentView.style.display = 'none';
-        paymentSelectionView.style.display = 'block';
-        payButton.disabled = false;
-    });
+        paymentModal.classList.remove('active');
+    }
 
-    // Function to confirm counter payment (called manually or by admin)
-    const confirmCounterPayment = () => {
-        const tableNumber = localStorage.getItem('userTableNumber') || '-';
-        const orderDetails = { method: 'Counter', table: tableNumber, total: orderTotal };
-        localStorage.setItem('bistroOrderDetails', JSON.stringify(orderDetails));
-        
-        // Clear cart after successful payment
-        cart = {};
-        isPromoApplied = false;
-        savePromoState();
-        saveCart();
-        
-        setTimeout(() => {
-            window.location.href = 'tracking.html';
-        }, 1000);
-    };
-
-    // Listen for counter payment confirmation from parent window or external trigger
-    window.confirmCounterPayment = confirmCounterPayment;
-    
-    // Add keyboard shortcut for testing (Ctrl+Enter to confirm counter payment when visible)
-    document.addEventListener('keydown', (e) => {
-        if (e.ctrlKey && e.key === 'Enter' && counterPaymentView.style.display === 'block') {
-            confirmCounterPayment();
-        }
-    });
+    cancelPaymentBtn.addEventListener('click', resetModalViews);
+    cancelCounterPaymentBtn.addEventListener('click', resetModalViews);
 
     // Initialize
     updatePromoUI();

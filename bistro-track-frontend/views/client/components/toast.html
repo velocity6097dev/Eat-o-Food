@@ -1,0 +1,77 @@
+<style>
+    /* Snackbar Styles */
+    .snackbar {
+        visibility: hidden;
+        min-width: 250px;
+        background-color: var(--text-primary);
+        color: var(--text-on-brand);
+        text-align: center;
+        border-radius: var(--radius);
+        padding: 10px;
+        position: fixed;
+        z-index: var(--z-fixed);
+        left: 50%;
+        transform: translateX(-50%);
+        top: 70px; /* Position below header */
+        font-size: 14px;
+        opacity: 0;
+        transition: visibility 0s, opacity 0.5s, transform 0.5s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .snackbar.show {
+        visibility: visible;
+        opacity: 1;
+    }
+    .snackbar.success {
+        background-color: var(--success-bg);
+        color: var(--success-text);
+        border: 1px solid var(--success-border);
+    }
+    .snackbar.error {
+        background-color: var(--danger-bg);
+        color: var(--danger-text);
+        border: 1px solid var(--danger-border);
+    }
+    .snackbar.info {
+        background-color: var(--info-bg);
+        color: var(--info-text);
+        border: 1px solid var(--info-border);
+    }
+    .snackbar .lucide {
+      width: 18px;
+      height: 18px;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+</style>
+
+<div id="snackbar" class="snackbar"></div>
+
+<script>
+    // Universal Snackbar Functionality
+    window.showToast = (message, type = 'info', duration = 3000) => {
+        const snackbar = document.getElementById('snackbar');
+        if (!snackbar) return;
+        snackbar.textContent = ''; // Clear previous message
+        
+        let icon = '';
+        if (type === 'success') {
+            icon = '<i data-lucide="check-circle" class="lucide"></i>';
+        } else if (type === 'error') {
+            icon = '<i data-lucide="x-circle" class="lucide"></i>';
+        } else if (type === 'info') {
+            icon = '<i data-lucide="info" class="lucide"></i>';
+        }
+        snackbar.innerHTML = icon + message;
+
+        snackbar.className = `snackbar show ${type}`;
+        setTimeout(() => {
+            snackbar.className = snackbar.className.replace('show', '');
+        }, duration);
+        if (window.lucide) {
+            window.lucide.createIcons();
+        }
+    };
+</script>

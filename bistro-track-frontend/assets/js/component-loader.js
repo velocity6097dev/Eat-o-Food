@@ -32,4 +32,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
     loadComponent('header-placeholder', 'header.html');
     loadComponent('footer-placeholder', 'footer.html');
+    loadComponent('toast-placeholder', 'toast.html');
 });

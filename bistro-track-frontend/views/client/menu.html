@@ -1,389 +1,469 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Menu - Bistro Track</title>
-  <script src="https://unpkg.com/lucide@latest" defer></script>
-  <link rel="stylesheet" href="../../assets/css/variables.css">
-  <link rel="stylesheet" href="../../assets/css/reset.css">
-  <link rel="stylesheet" href="../../assets/css/components.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menu - Bistro Track</title>
+    
+    <!-- Enhanced CSS Files -->
+    <link rel="stylesheet" href="../../assets/css/variables.css">
+    <link rel="stylesheet" href="../../assets/css/reset.css">
+    <link rel="stylesheet" href="../../assets/css/components.css">
+    
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest" defer></script>
 </head>
 <body>
 
 <div class="app-container">
-      <header class="nav-bar" style="gap: 4px;">
-        <a href="./welcome.html" class="back"><i data-lucide="chevron-left"></i></a>
-        <div class="title" style="text-align: left; flex: 1;">
-          <div style="font-size: 15px; font-weight: 600;">Bistro Track</div>
-          <div style="font-size: 11px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">42 Park Street, Kolkata</div>
-        </div>
-        <div class="nav-actions">
-          <a href="#" class="action" data-modal-target="notifications-modal"><i data-lucide="bell"></i></a>
-          <a href="./cart.html" class="action" id="nav-cart-link">
-            <i data-lucide="shopping-cart"></i> 
-            <span id="nav-cart-count" style="display: none; font-size: 11px; margin-left: 2px;"></span>
-          </a>
-        </div>
-      </header>
-      <main id="main-body" class="body" style="padding: 0;">
+    <!-- Header Placeholder - Will be replaced with header-universal.html -->
+    <div id="header-placeholder"></div>
+
+    <!-- Main Body -->
+    <main class="body" id="main-body">
         
+        <!-- Greeting Banner -->
         <div class="greeting-banner-wrapper">
             <div class="greeting-banner">
                 <div>
-                    <h2 id="greeting-text"></h2>
+                    <h2 id="greeting-text">Welcome back!</h2>
                     <p>Ready to order?</p>
                 </div>
                 <div class="table-info-badge">
-                    <span>TABLE</span>
-                    <strong id="table-number-display"></strong>
+                    <span>Table</span>
+                    <strong id="table-number">12</strong>
                 </div>
             </div>
         </div>
 
+        <!-- Menu Header (Sticky) -->
         <div id="menu-header" class="menu-header">
-          <div class="search-bar-wrapper">
-              <div class="search-bar">
-                  <i data-lucide="search" class="lucide-search"></i>
-                  <input type="text" id="search-input" class="search-input" placeholder="Search for dishes...">
-              </div>
-          </div>
-          <div class="cats" id="category-filters">
-            <div class="cat active" data-filter="all">All</div>
-            <div class="cat" data-filter="starters">Starters</div>
-            <div class="cat" data-filter="mains">Mains</div>
-            <div class="cat" data-filter="breads">Breads</div>
-            <div class="cat" data-filter="drinks">Drinks</div>
-            <div class="cat" data-filter="desserts">Desserts</div>
-          </div>
+            <!-- Search Bar -->
+            <div class="search-bar-wrapper">
+                <div class="search-bar">
+                    <i data-lucide="search" class="lucide-search"></i>
+                    <input 
+                        type="text" 
+                        id="search-input" 
+                        class="search-input" 
+                        placeholder="Search for dishes..."
+                    >
+                </div>
+            </div>
+
+            <!-- Category Filters -->
+            <div class="cats" id="category-filters">
+                <div class="cat active" data-filter="all">All</div>
+                <div class="cat" data-filter="starters">Starters</div>
+                <div class="cat" data-filter="mains">Mains</div>
+                <div class="cat" data-filter="breads">Breads</div>
+                <div class="cat" data-filter="drinks">Drinks</div>
+                <div class="cat" data-filter="desserts">Desserts</div>
+            </div>
         </div>
 
-        <div id="menu-items-container" class="menu-items-container" style="padding: 0 14px;">
-          
-          <div class="menu-section" id="category-starters">
-            <h3 class="menu-section-header">Starters</h3>
-            <div class="food-item" data-id="2" data-name="Paneer Tikka" data-price="280" data-category="starters">
-              <div class="food-emoji">🍛</div>
-              <div class="food-info">
-                <div class="food-name"><span class="veg-dot"></span>Paneer Tikka</div>
-                <div class="food-desc">Grilled cottage cheese, tandoor style</div>
-                <div class="food-price">₹280</div>
-              </div>
-              <div class="food-actions"></div>
-            </div>
-          </div>
+        <!-- Menu Items Container -->
+        <div id="menu-items-container" class="menu-items-container">
+            
+            <!-- Starters Section -->
+            <div class="menu-section" id="category-starters">
+                <h3 class="menu-section-header">Starters</h3>
+                
+                <div class="food-item" data-id="2" data-name="Paneer Tikka" data-price="280" data-category="starters">
+                    <div class="food-emoji">🍛</div>
+                    <div class="food-info">
+                        <div class="food-name"><span class="veg-dot"></span>Paneer Tikka</div>
+                        <div class="food-desc">Grilled cottage cheese, tandoor style</div>
+                        <div class="food-price">₹280</div>
+                    </div>
+                    <div class="food-actions"></div>
+                </div>
 
-          <div class="menu-section" id="category-mains">
-            <h3 class="menu-section-header">Mains</h3>
-            <div class="food-item" data-id="1" data-name="Butter Chicken" data-price="360" data-category="mains">
-              <div class="food-emoji">🍗</div>
-              <div class="food-info">
-                <div class="food-name"><span class="nonveg-dot"></span>Butter Chicken</div>
-                <div class="food-desc">Creamy tomato curry, best seller</div>
-                <div class="tag-row"><span class="tag best">Bestseller</span></div>
-                <div class="food-price">₹360</div>
-              </div>
-              <div class="food-actions"></div>
+                <div class="food-item" data-id="7" data-name="Spring Rolls" data-price="180" data-category="starters">
+                    <div class="food-emoji">🥟</div>
+                    <div class="food-info">
+                        <div class="food-name"><span class="veg-dot"></span>Spring Rolls</div>
+                        <div class="food-desc">Crispy vegetable rolls with dip</div>
+                        <div class="food-price">₹180</div>
+                    </div>
+                    <div class="food-actions"></div>
+                </div>
             </div>
-            <div class="food-item" data-id="3" data-name="Fish Curry" data-price="420" data-category="mains" style="opacity:0.6">
-              <div class="food-emoji">🐟</div>
-              <div class="food-info">
-                <div class="food-name"><span class="nonveg-dot"></span>Fish Curry</div>
-                <div class="food-desc">Coastal style, fresh catch</div>
-                <div class="food-avail-time"><i data-lucide="clock"></i> Available from 6:00 PM</div>
-                <div class="food-price">₹420</div>
-              </div>
-              <div class="food-actions">
-                <button class="add-btn disabled" aria-label="Not available yet" disabled>+</button>
-              </div>
-            </div>
-          </div>
 
-          <div class="menu-section" id="category-breads">
-            <h3 class="menu-section-header">Breads</h3>
-            <div class="food-item" data-id="4" data-name="Garlic Naan" data-price="75" data-category="breads">
-              <div class="food-emoji">🥖</div>
-              <div class="food-info">
-                <div class="food-name"><span class="veg-dot"></span>Garlic Naan</div>
-                <div class="food-desc">Tandoor-baked flatbread with garlic</div>
-                <div class="food-price">₹75</div>
-              </div>
-              <div class="food-actions"></div>
-            </div>
-          </div>
+            <!-- Mains Section -->
+            <div class="menu-section" id="category-mains">
+                <h3 class="menu-section-header">Mains</h3>
+                
+                <div class="food-item" data-id="1" data-name="Butter Chicken" data-price="360" data-category="mains">
+                    <div class="food-emoji">🍗</div>
+                    <div class="food-info">
+                        <div class="food-name"><span class="nonveg-dot"></span>Butter Chicken</div>
+                        <div class="food-desc">Creamy tomato curry, best seller</div>
+                        <div class="tag-row"><span class="tag best">Bestseller</span></div>
+                        <div class="food-price">₹360</div>
+                    </div>
+                    <div class="food-actions"></div>
+                </div>
 
-          <div class="menu-section" id="category-drinks">
-            <h3 class="menu-section-header">Drinks</h3>
-            <div class="food-item" data-id="5" data-name="Coke" data-price="40" data-category="drinks">
-              <div class="food-emoji">🥤</div>
-              <div class="food-info">
-                <div class="food-name">Coke</div>
-                <div class="food-desc">Chilled soft drink</div>
-                <div class="food-price">₹40</div>
-              </div>
-              <div class="food-actions"></div>
-            </div>
-          </div>
+                <div class="food-item" data-id="3" data-name="Fish Curry" data-price="420" data-category="mains">
+                    <div class="food-emoji">🐟</div>
+                    <div class="food-info">
+                        <div class="food-name"><span class="nonveg-dot"></span>Fish Curry</div>
+                        <div class="food-desc">Coastal style, fresh catch</div>
+                        <div class="food-avail-time"><i data-lucide="clock"></i> Available from 6:00 PM</div>
+                        <div class="food-price">₹420</div>
+                    </div>
+                    <div class="food-actions">
+                        <button class="add-btn disabled" aria-label="Not available yet" disabled>+</button>
+                    </div>
+                </div>
 
-          <div class="menu-section" id="category-desserts">
-            <h3 class="menu-section-header">Desserts</h3>
-            <div class="food-item" data-id="6" data-name="Gulab Jamun" data-price="90" data-category="desserts">
-              <div class="food-emoji">🍮</div>
-              <div class="food-info">
-                <div class="food-name"><span class="veg-dot"></span>Gulab Jamun</div>
-                <div class="food-desc">Warm, sweet, and syrupy</div>
-                <div class="food-price">₹90</div>
-              </div>
-              <div class="food-actions"></div>
+                <div class="food-item" data-id="8" data-name="Dal Makhani" data-price="240" data-category="mains">
+                    <div class="food-emoji">🥘</div>
+                    <div class="food-info">
+                        <div class="food-name"><span class="veg-dot"></span>Dal Makhani</div>
+                        <div class="food-desc">Creamy lentils with butter and cream</div>
+                        <div class="food-price">₹240</div>
+                    </div>
+                    <div class="food-actions"></div>
+                </div>
             </div>
-          </div>
 
-          <div class="no-results" id="no-results-message">
-            <i data-lucide="search-slash"></i>
-            <p>No dishes found</p>
-          </div>
+            <!-- Breads Section -->
+            <div class="menu-section" id="category-breads">
+                <h3 class="menu-section-header">Breads</h3>
+                
+                <div class="food-item" data-id="4" data-name="Garlic Naan" data-price="75" data-category="breads">
+                    <div class="food-emoji">🥖</div>
+                    <div class="food-info">
+                        <div class="food-name"><span class="veg-dot"></span>Garlic Naan</div>
+                        <div class="food-desc">Tandoor-baked flatbread with garlic</div>
+                        <div class="food-price">₹75</div>
+                    </div>
+                    <div class="food-actions"></div>
+                </div>
+
+                <div class="food-item" data-id="9" data-name="Butter Naan" data-price="65" data-category="breads">
+                    <div class="food-emoji">🥐</div>
+                    <div class="food-info">
+                        <div class="food-name"><span class="veg-dot"></span>Butter Naan</div>
+                        <div class="food-desc">Soft naan with melted butter</div>
+                        <div class="food-price">₹65</div>
+                    </div>
+                    <div class="food-actions"></div>
+                </div>
+            </div>
+
+            <!-- Drinks Section -->
+            <div class="menu-section" id="category-drinks">
+                <h3 class="menu-section-header">Drinks</h3>
+                
+                <div class="food-item" data-id="5" data-name="Coke" data-price="40" data-category="drinks">
+                    <div class="food-emoji">🥤</div>
+                    <div class="food-info">
+                        <div class="food-name">Coke</div>
+                        <div class="food-desc">Chilled soft drink</div>
+                        <div class="food-price">₹40</div>
+                    </div>
+                    <div class="food-actions"></div>
+                </div>
+
+                <div class="food-item" data-id="10" data-name="Lassi" data-price="60" data-category="drinks">
+                    <div class="food-emoji">🥛</div>
+                    <div class="food-info">
+                        <div class="food-name"><span class="veg-dot"></span>Lassi</div>
+                        <div class="food-desc">Sweet yogurt drink</div>
+                        <div class="food-price">₹60</div>
+                    </div>
+                    <div class="food-actions"></div>
+                </div>
+            </div>
+
+            <!-- Desserts Section -->
+            <div class="menu-section" id="category-desserts">
+                <h3 class="menu-section-header">Desserts</h3>
+                
+                <div class="food-item" data-id="6" data-name="Gulab Jamun" data-price="90" data-category="desserts">
+                    <div class="food-emoji">🍮</div>
+                    <div class="food-info">
+                        <div class="food-name"><span class="veg-dot"></span>Gulab Jamun</div>
+                        <div class="food-desc">Warm, sweet, and syrupy</div>
+                        <div class="food-price">₹90</div>
+                    </div>
+                    <div class="food-actions"></div>
+                </div>
+
+                <div class="food-item" data-id="11" data-name="Kheer" data-price="80" data-category="desserts">
+                    <div class="food-emoji">🍲</div>
+                    <div class="food-info">
+                        <div class="food-name"><span class="veg-dot"></span>Kheer</div>
+                        <div class="food-desc">Rice pudding with cardamom</div>
+                        <div class="food-price">₹80</div>
+                    </div>
+                    <div class="food-actions"></div>
+                </div>
+            </div>
+
+            <!-- No Results Message -->
+            <div class="no-results" id="no-results-message">
+                <i data-lucide="search-x"></i>
+                <p>No dishes match your search</p>
+            </div>
 
         </div>
-      </main>
-      <!-- Cart Bar appears above the bottom nav when items are added -->
-      <div id="cart-bar" class="cart-bar" style="display: none; margin: 0 14px 8px 14px;">
+    </main>
+
+    <!-- Cart Bar (Shows when items are added) -->
+    <div id="cart-bar" class="cart-bar" style="display: none; margin: 0 14px 8px 14px;">
         <div class="cb-info">
             <div id="cart-bar-count" class="cb-count"></div>
             <div id="cart-bar-total" class="cb-total"></div>
         </div>
         <a href="./cart.html" class="cb-btn">View Cart →</a>
-      </div>
-      <footer id="bottom-nav" class="bottom-nav">
-        <div class="bn-item active"><i data-lucide="book-open" class="bn-icon"></i><span class="bn-label">Menu</span></div>
-        <a href="./cart.html" class="bn-item">
-          <i data-lucide="shopping-cart" class="bn-icon"></i>
-          <span class="bn-label">Cart</span>
-          <div id="bn-cart-dot" class="bn-dot" style="display: none;"></div>
-        </a>
-        <a href="./tracking.html" class="bn-item"><i data-lucide="receipt" class="bn-icon"></i><span class="bn-label">Orders</span></a>
-      </footer>
+    </div>
+
+    <!-- Footer Placeholder - Will be replaced with footer-universal.html -->
+    <div id="footer-placeholder"></div>
 </div>
 
 <!-- Notification Modal -->
 <div class="modal-overlay" id="notifications-modal">
     <div class="modal-content">
-        <h3>Notifications</h3>
-        <p>You have no new notifications.</p>
-        <button class="btn-secondary" data-modal-close style="margin-top: 16px; width: auto; padding: 8px 16px;">Close</button>
+        <h3>🔔 Notifications</h3>
+        <p>You have no new notifications at the moment.</p>
+        <button class="btn-secondary" data-modal-close style="margin-top: 16px; width: auto; padding: 8px 16px;">
+            Close
+        </button>
     </div>
 </div>
 
+<!-- Toast placeholder -->
+<div id="toast-placeholder"></div>
+
+<!-- Component Loader Script -->
+<script src="../../assets/js/component-loader.js"></script>
 
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-  // --- DOM Elements ---
-  const menuContainer = document.getElementById('menu-items-container');
-  const navCartCount = document.getElementById('nav-cart-count');
-  const bnCartDot = document.getElementById('bn-cart-dot');
-  const cartBar = document.getElementById('cart-bar');
-  const cartBarCount = document.getElementById('cart-bar-count');
-  const cartBarTotal = document.getElementById('cart-bar-total');
-  const mainBody = document.getElementById('main-body');
-  const menuHeader = document.getElementById('menu-header');
-  const searchInput = document.getElementById('search-input');
-  const categoryFilters = document.getElementById('category-filters');
-  const menuSections = document.querySelectorAll('.menu-section');
-  const noResultsMessage = document.getElementById('no-results-message');
-  const greetingTextEl = document.getElementById('greeting-text');
-  const tableNumberDisplay = document.getElementById('table-number-display');
-  // --- State Management ---
-  let cart = {};
+    document.addEventListener('DOMContentLoaded', () => {
+        // DOM Elements
+        const menuContainer = document.getElementById('menu-items-container');
+        const cartBar = document.getElementById('cart-bar');
+        const cartBarCount = document.getElementById('cart-bar-count');
+        const cartBarTotal = document.getElementById('cart-bar-total');
+        const mainBody = document.getElementById('main-body');
+        const menuHeader = document.getElementById('menu-header');
+        const searchInput = document.getElementById('search-input');
+        const categoryFilters = document.getElementById('category-filters');
+        const menuSections = document.querySelectorAll('.menu-section');
+        const noResultsMessage = document.getElementById('no-results-message');
+        const greetingTextEl = document.getElementById('greeting-text');
 
-  const loadCart = () => {
-      cart = JSON.parse(localStorage.getItem('bistroCart')) || {};
-  };
+        // State Management
+        let cart = {};
 
-  const saveCart = () => {
-      localStorage.setItem('bistroCart', JSON.stringify(cart));
-  };
+        const loadCart = () => {
+            cart = JSON.parse(localStorage.getItem('bistroCart')) || {};
+        };
 
-  // --- UI Update Functions ---
-  const updateItemControls = (itemElement) => {
-      const id = itemElement.dataset.id;
-      const actionsContainer = itemElement.querySelector('.food-actions');
-      if (!actionsContainer) return;
+        const saveCart = () => {
+            localStorage.setItem('bistroCart', JSON.stringify(cart));
+        };
 
-      if (cart[id] && cart[id].quantity > 0) {
-          actionsContainer.innerHTML = `
-              <div class="qty-ctrl">
-                  <button class="qty-btn" data-action="decrease">−</button>
-                  <span class="qty-num">${cart[id].quantity}</span>
-                  <button class="qty-btn" data-action="increase">+</button>
-              </div>
-          `;
-      } else {
-          actionsContainer.innerHTML = `<button class="add-btn" aria-label="Add ${itemElement.dataset.name}">+</button>`;
-      }
-  };
+        // Update Item Controls
+        const updateItemControls = (itemElement) => {
+            const id = itemElement.dataset.id;
+            const actionsContainer = itemElement.querySelector('.food-actions');
+            if (!actionsContainer) return;
 
-  const updateCartIndicators = () => {
-      const totalItems = Object.values(cart).reduce((sum, item) => sum + item.quantity, 0);
-      const totalPrice = Object.values(cart).reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            if (cart[id] && cart[id].quantity > 0) {
+                actionsContainer.innerHTML = `
+                    <div class="qty-ctrl">
+                        <button class="qty-btn" data-action="decrease">−</button>
+                        <span class="qty-num">${cart[id].quantity}</span>
+                        <button class="qty-btn" data-action="increase">+</button>
+                    </div>
+                `;
+            } else {
+                actionsContainer.innerHTML = `<button class="add-btn" aria-label="Add ${itemElement.dataset.name}">+</button>`;
+            }
+        };
 
-      if (totalItems > 0) {
-          navCartCount.textContent = totalItems;
-          navCartCount.style.display = 'inline';
-          bnCartDot.style.display = 'block';
-          cartBarCount.textContent = `${totalItems} item${totalItems > 1 ? 's' : ''}`;
-          cartBarTotal.textContent = `₹${totalPrice}`;
-          cartBar.style.display = 'flex';
-          // Add padding to the items container to prevent overlap with the cart bar
-          menuContainer.style.paddingBottom = `${cartBar.offsetHeight + 8}px`;
-      } else {
-          navCartCount.style.display = 'none';
-          bnCartDot.style.display = 'none';
-          cartBar.style.display = 'none';
-          menuContainer.style.paddingBottom = '0px';
-      }
-  };
+        // Update Cart Indicators
+        const updateCartIndicators = () => {
+            // Find elements here to avoid race condition with component loader
+            const navCartBadge = document.getElementById('cart-badge');
+            const bnCartDot = document.getElementById('bn-cart-dot');
 
-  // --- Event Handling ---
-  menuContainer.addEventListener('click', (e) => {
-      const itemElement = e.target.closest('.food-item');
-      if (!itemElement) return;
+            const totalItems = Object.values(cart).reduce((sum, item) => sum + item.quantity, 0);
+            const totalPrice = Object.values(cart).reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
-      const id = itemElement.dataset.id;
-      const name = itemElement.dataset.name;
-      const price = parseInt(itemElement.dataset.price, 10);
+            if (totalItems > 0) {
+                // Update badges
+                if (navCartBadge) {
+                    navCartBadge.textContent = totalItems;
+                    navCartBadge.style.display = 'inline-flex';
+                }
+                if (bnCartDot) {
+                    bnCartDot.style.display = 'block';
+                }
 
-      if (e.target.matches('.add-btn')) {
-          cart[id] = { name, price, quantity: 1 };
-      } else if (e.target.matches('[data-action="increase"]')) {
-          cart[id].quantity++;
-      } else if (e.target.matches('[data-action="decrease"]')) {
-          cart[id].quantity--;
-          if (cart[id].quantity <= 0) {
-              delete cart[id];
-          }
-      }
+                // Update cart bar
+                cartBarCount.textContent = `${totalItems} item${totalItems > 1 ? 's' : ''}`;
+                cartBarTotal.textContent = `₹${totalPrice}`;
+                cartBar.style.display = 'flex';
+                menuContainer.style.paddingBottom = `${cartBar.offsetHeight + 8}px`;
+            } else {
+                if (navCartBadge) {
+                    navCartBadge.style.display = 'none';
+                }
+                if (bnCartDot) {
+                    bnCartDot.style.display = 'none';
+                }
+                cartBar.style.display = 'none';
+                menuContainer.style.paddingBottom = '0px';
+            }
+        };
 
-      saveCart();
-      updateItemControls(itemElement);
-      updateCartIndicators();
-  });
+        // Event Handling for Food Items
+        menuContainer.addEventListener('click', (e) => {
+            const itemElement = e.target.closest('.food-item');
+            if (!itemElement) return;
 
-  // --- Sticky Header Shadow ---
-  mainBody.addEventListener('scroll', () => {
-      menuHeader.classList.toggle('scrolled', mainBody.scrollTop > 10);
-  });
+            const id = itemElement.dataset.id;
+            const name = itemElement.dataset.name;
+            const price = parseInt(itemElement.dataset.price, 10);
 
-  // --- Filtering and Search Logic ---
-  const updateMenuVisibility = () => {
-    const searchTerm = searchInput.value.toLowerCase();
-    const activeCategory = categoryFilters.querySelector('.cat.active').dataset.filter;
-    let itemsVisible = 0;
+            let message = '';
+            if (e.target.matches('.add-btn')) {
+                cart[id] = { name, price, quantity: 1 };
+                message = `${name} added to cart!`;
+            } else if (e.target.matches('[data-action="increase"]')) {
+                cart[id].quantity++;
+                message = `${name} quantity increased!`;
+            } else if (e.target.matches('[data-action="decrease"]')) {
+                cart[id].quantity--;
+                if (cart[id].quantity <= 0) {
+                    delete cart[id];
+                    message = `${name} removed from cart.`;
+                } else {
+                    message = `${name} quantity decreased.`;
+                }
+            }
 
-    menuSections.forEach(section => {
-      let sectionVisibleItems = 0;
-      const sectionCategory = section.id.replace('category-', '');
+            saveCart();
+            updateItemControls(itemElement);
+            updateCartIndicators();
+            if (message && window.showToast) {
+                window.showToast(message, 'success');
+            }
+        });
 
-      section.querySelectorAll('.food-item').forEach(item => {
-        const itemName = item.dataset.name.toLowerCase();
-        const itemCategory = item.dataset.category;
+        // Scroll Effect for Sticky Header
+        mainBody.addEventListener('scroll', () => {
+            menuHeader.classList.toggle('scrolled', mainBody.scrollTop > 10);
+        });
 
-        const categoryMatch = (activeCategory === 'all' || activeCategory === itemCategory);
-        const searchMatch = itemName.includes(searchTerm);
+        // Filtering and Search Logic
+        const updateMenuVisibility = () => {
+            const searchTerm = searchInput.value.toLowerCase();
+            const activeCategory = categoryFilters.querySelector('.cat.active').dataset.filter;
+            let itemsVisible = 0;
 
-        if (categoryMatch && searchMatch) {
-          item.style.display = 'flex';
-          sectionVisibleItems++;
-        } else {
-          item.style.display = 'none';
-        }
-      });
+            menuSections.forEach(section => {
+                let sectionVisibleItems = 0;
 
-      // Show or hide the entire section based on visible items
-      if (sectionVisibleItems > 0) {
-        section.style.display = 'block';
-        itemsVisible += sectionVisibleItems;
-      } else {
-        section.style.display = 'none';
-      }
+                section.querySelectorAll('.food-item').forEach(item => {
+                    const itemName = item.dataset.name.toLowerCase();
+                    const itemCategory = item.dataset.category;
+
+                    const categoryMatch = (activeCategory === 'all' || activeCategory === itemCategory);
+                    const searchMatch = itemName.includes(searchTerm);
+
+                    if (categoryMatch && searchMatch) {
+                        item.style.display = 'flex';
+                        sectionVisibleItems++;
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+
+                if (sectionVisibleItems > 0) {
+                    section.style.display = 'block';
+                    itemsVisible += sectionVisibleItems;
+                } else {
+                    section.style.display = 'none';
+                }
+            });
+
+            noResultsMessage.style.display = itemsVisible === 0 ? 'block' : 'none';
+        };
+
+        searchInput.addEventListener('input', updateMenuVisibility);
+
+        categoryFilters.addEventListener('click', (e) => {
+            if (e.target.matches('.cat')) {
+                categoryFilters.querySelector('.cat.active').classList.remove('active');
+                e.target.classList.add('active');
+                updateMenuVisibility();
+            }
+        });
+
+        // Dynamic Greeting
+        const setGreeting = () => {
+            const hour = new Date().getHours();
+            let greetingText = 'Welcome!';
+            if (hour < 12) {
+                greetingText = 'Good morning!';
+            } else if (hour < 18) {
+                greetingText = 'Good afternoon!';
+            } else {
+                greetingText = 'Good evening!';
+            }
+            if (greetingTextEl) {
+                greetingTextEl.textContent = greetingText;
+            }
+        };
+
+        // Modal Logic
+        const openModalButtons = document.querySelectorAll('[data-modal-target]');
+        const closeModalButtons = document.querySelectorAll('[data-modal-close]');
+
+        openModalButtons.forEach(button => {
+            button.addEventListener('click', (e) => {
+                e.preventDefault();
+                const modal = document.getElementById(button.dataset.modalTarget);
+                if (modal) modal.classList.add('active');
+            });
+        });
+
+        closeModalButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const modal = button.closest('.modal-overlay');
+                if (modal) modal.classList.remove('active');
+            });
+        });
+
+        // Initialize
+        const initializeMenu = () => {
+            loadCart();
+            const foodItems = menuContainer.querySelectorAll('.food-item');
+            foodItems.forEach(item => {
+                if (!item.querySelector('.add-btn.disabled')) {
+                    updateItemControls(item);
+                }
+            });
+            updateCartIndicators();
+            setGreeting();
+
+            // Initialize Lucide Icons
+            if (window.lucide) {
+                window.lucide.createIcons();
+            }
+        };
+
+        initializeMenu();
     });
-
-    // Show or hide the "No results" message
-    noResultsMessage.style.display = itemsVisible === 0 ? 'block' : 'none';
-  };
-
-  searchInput.addEventListener('input', updateMenuVisibility);
-
-  categoryFilters.addEventListener('click', (e) => {
-      if (e.target.matches('.cat')) {
-          categoryFilters.querySelector('.cat.active').classList.remove('active');
-          e.target.classList.add('active');
-          updateMenuVisibility();
-      }
-  });
-
-  // --- Dynamic Greeting ---
-  const setGreeting = () => {
-    const hour = new Date().getHours();
-    let greetingText = 'Welcome!';
-    if (hour < 12) {
-      greetingText = 'Good morning!';
-    } else if (hour < 18) {
-      greetingText = 'Good afternoon!';
-    } else {
-      greetingText = 'Good evening!';
-    }
-    if (greetingTextEl) {
-      greetingTextEl.textContent = greetingText;
-    }
-  };
-
-  const setTableNumber = () => {
-      const tableNumber = localStorage.getItem('userTableNumber');
-      if (tableNumber && tableNumberDisplay) {
-          tableNumberDisplay.textContent = tableNumber;
-      } else if (tableNumberDisplay) {
-          // Fallback if no table number is found
-          tableNumberDisplay.textContent = '-';
-      }
-  };
-
-  // --- Modal Logic ---
-  const openModalButtons = document.querySelectorAll('[data-modal-target]');
-  const closeModalButtons = document.querySelectorAll('[data-modal-close]');
-
-  openModalButtons.forEach(button => {
-    button.addEventListener('click', (e) => {
-      e.preventDefault();
-      const modal = document.getElementById(button.dataset.modalTarget);
-      if (modal) modal.classList.add('active');
-    });
-  });
-
-  closeModalButtons.forEach(button => {
-    button.addEventListener('click', () => {
-      const modal = button.closest('.modal-overlay');
-      if (modal) modal.classList.remove('active');
-    });
-  });
-
-  // --- Initialization ---
-  const initializeMenu = () => {
-      loadCart();
-      const foodItems = menuContainer.querySelectorAll('.food-item');
-      foodItems.forEach(item => {
-          if (!item.querySelector('.add-btn.disabled')) {
-              updateItemControls(item);
-          }
-      });
-      updateCartIndicators();
-      setGreeting();
-      setTableNumber();
-
-      // Initialize Lucide Icons
-      lucide.createIcons();
-  };
-
-  initializeMenu();
-});
 </script>
+
 </body>
 </html>

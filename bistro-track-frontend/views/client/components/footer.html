@@ -1,37 +1,224 @@
-<footer class="bottom-nav">
-    <a href="./menu.html" class="bn-item" id="nav-menu">
-        <i data-lucide="book-open" class="bn-icon"></i>
-        <span class="bn-label">Menu</span>
-    </a>
-    <a href="./cart.html" class="bn-item" id="nav-cart">
-        <i data-lucide="shopping-cart" class="bn-icon"></i>
-        <span class="bn-label">Cart</span>
-        <div id="bn-cart-dot" class="bn-dot" style="display: none;"></div>
-    </a>
-    <a href="./tracking.html" class="bn-item" id="nav-orders">
-        <i data-lucide="receipt" class="bn-icon"></i>
-        <span class="bn-label">Orders</span>
-    </a>
+<footer class="bottom-nav glass-effect">
+  <a href="./menu.html" class="bn-item active" id="nav-menu" title="Menu">
+    <div class="bn-indicator"></div>
+    <i data-lucide="book-open" class="bn-icon"></i>
+    <span class="bn-label">Menu</span>
+  </a>
+  
+  <a href="./cart.html" class="bn-item" id="nav-cart" title="Cart">
+    <div class="bn-indicator"></div>
+    <i data-lucide="shopping-cart" class="bn-icon"></i>
+    <span class="bn-label">Cart</span>
+    <div class="bn-dot" id="bn-cart-dot" style="display: none;"></div>
+  </a>
+  
+  <a href="./tracking.html" class="bn-item" id="nav-orders" title="Orders">
+    <div class="bn-indicator"></div>
+    <i data-lucide="receipt" class="bn-icon"></i>
+    <span class="bn-label">Orders</span>
+  </a>
 </footer>
+
+<style>
+  /* ========== FOOTER STYLES ========== */
+  .bottom-nav {
+    position: sticky;
+    bottom: 0;
+    z-index: var(--z-sticky);
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    padding: 8px 16px 12px;
+    gap: 8px;
+    min-height: 68px;
+
+    /* Glass Morphism Effect */
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-backdrop);
+    border-top: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow);
+
+    transition: all var(--transition-base);
+  }
+
+  /* ========== NAV ITEM ========== */
+  .bn-item {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    flex: 1;
+    padding: 8px 4px;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    transition: all var(--transition-fast);
+    color: var(--text-muted);
+  }
+
+  .bn-item:hover {
+    color: var(--brand-primary);
+  }
+
+  /* ========== GLASS INDICATOR ========== */
+  .bn-indicator {
+    position: absolute;
+    inset: -4px -8px;
+    background: rgba(232, 93, 47, 0.08);
+    border-radius: 12px;
+    border: 1px solid rgba(232, 93, 47, 0.1);
+    opacity: 0;
+    pointer-events: none;
+    transition: all var(--transition-base);
+    backdrop-filter: blur(4px);
+  }
+
+  /* Active State */
+  .bn-item.active .bn-indicator {
+    opacity: 1;
+    background: rgba(232, 93, 47, 0.12);
+    border-color: rgba(232, 93, 47, 0.2);
+    box-shadow: inset 0 2px 8px rgba(232, 93, 47, 0.1);
+  }
+
+  /* ========== ICON ========== */
+  .bn-icon {
+    width: 22px;
+    height: 22px;
+    stroke-width: 1.75;
+    transition: all var(--transition-fast);
+    position: relative;
+    z-index: 1;
+  }
+
+  .bn-item.active .bn-icon {
+    color: var(--brand-primary);
+  }
+
+  /* ========== LABEL ========== */
+  .bn-label {
+    font-size: 10px;
+    font-weight: 500;
+    color: currentColor;
+    transition: all var(--transition-fast);
+    letter-spacing: var(--letter-spacing-wide);
+    position: relative;
+    z-index: 1;
+  }
+
+  .bn-item.active .bn-label {
+    color: var(--brand-primary);
+    font-weight: 600;
+  }
+
+  /* ========== DOT NOTIFICATION ========== */
+  .bn-dot {
+    position: absolute;
+    top: 4px;
+    right: 8px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--brand-primary);
+    box-shadow: 0 2px 8px rgba(232, 93, 47, 0.4);
+    animation: pulse-dot 2s ease-in-out infinite;
+    z-index: 2;
+  }
+
+  @keyframes pulse-dot {
+    0%, 100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    50% {
+      transform: scale(1.2);
+      opacity: 0.8;
+    }
+  }
+
+  /* ========== GLASS MORPHISM ========== */
+  .glass-effect {
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-backdrop);
+    -webkit-backdrop-filter: var(--glass-backdrop);
+    border: 1px solid var(--glass-border);
+  }
+
+  /* ========== RESPONSIVE ========== */
+  @media (max-width: 480px) {
+    .bottom-nav {
+      padding: 6px 12px 10px;
+      min-height: 60px;
+    }
+
+    .bn-item {
+      gap: 2px;
+      padding: 6px 2px;
+    }
+
+    .bn-indicator {
+      inset: -2px -4px;
+      border-radius: 8px;
+    }
+
+    .bn-icon {
+      width: 20px;
+      height: 20px;
+    }
+
+    .bn-label {
+      font-size: 9px;
+    }
+  }
+
+  /* ========== DARK MODE ========== */
+  @media (prefers-color-scheme: dark) {
+    .bn-item:hover {
+      color: var(--brand-primary);
+    }
+
+    .bn-indicator {
+      background: rgba(232, 93, 47, 0.1);
+      border-color: rgba(232, 93, 47, 0.15);
+    }
+
+    .bn-item.active .bn-indicator {
+      background: rgba(232, 93, 47, 0.15);
+      border-color: rgba(232, 93, 47, 0.25);
+    }
+  }
+
+  /* ========== ACTIVE PAGE DETECTION ========== */
+  .bn-item.active {
+    color: var(--brand-primary);
+  }
+</style>
+
 <script>
-    (function() {
-        const path = window.location.pathname;
-        const page = path.split("/").pop();
+  // Automatic active page detection
+  (function() {
+    const path = window.location.pathname;
+    const page = path.split("/").pop() || "menu.html";
 
-        const menuLink = document.querySelector('#nav-menu');
-        const cartLink = document.querySelector('#nav-cart');
-        const ordersLink = document.querySelector('#nav-orders');
+    const menuLink = document.querySelector('#nav-menu');
+    const cartLink = document.querySelector('#nav-cart');
+    const ordersLink = document.querySelector('#nav-orders');
 
-        if (menuLink) menuLink.classList.remove('active');
-        if (cartLink) cartLink.classList.remove('active');
-        if (ordersLink) ordersLink.classList.remove('active');
+    // Remove active from all
+    [menuLink, cartLink, ordersLink].forEach(link => {
+      if (link) link.classList.remove('active');
+    });
 
-        if (page.startsWith('menu')) {
-            if (menuLink) menuLink.classList.add('active');
-        } else if (page.startsWith('cart')) {
-            if (cartLink) cartLink.classList.add('active');
-        } else if (page.startsWith('tracking')) {
-            if (ordersLink) ordersLink.classList.add('active');
-        }
-    })();
+    // Add active to current page
+    if (page.startsWith('menu')) {
+      if (menuLink) menuLink.classList.add('active');
+    } else if (page.startsWith('cart')) {
+      if (cartLink) cartLink.classList.add('active');
+    } else if (page.startsWith('tracking')) {
+      if (ordersLink) ordersLink.classList.add('active');
+    }
+  })();
 </script>

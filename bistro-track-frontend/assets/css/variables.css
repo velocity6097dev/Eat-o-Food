@@ -1,26 +1,27 @@
 :root {
-  /* Brand Colors */
+  /* ========== BRAND COLORS ========== */
   --brand-primary: #e85d2f;
   --brand-primary-light: #fff4f0;
   --brand-primary-dark: #c94820;
+  --brand-primary-rgb: 232, 93, 47; /* For rgba usage */
 
-  /* Surface Colors (Backgrounds) */
+  /* ========== SURFACE COLORS ========== */
   --surface-0: #ffffff;
   --surface-1: #f8f9fa;
   --surface-2: #f1f3f5;
-  --app-bg: #f8f9fa; /* Main background for the body */
+  --app-bg: #f8f9fa;
 
-  /* Text Colors */
+  /* ========== TEXT COLORS ========== */
   --text-primary: #212529;
   --text-secondary: #495057;
   --text-muted: #868e96;
   --text-on-brand: #ffffff;
 
-  /* Border Colors */
+  /* ========== BORDER COLORS ========== */
   --border: #dee2e6;
   --border-strong: #ced4da;
 
-  /* Status & Accent Colors */
+  /* ========== STATUS & ACCENT COLORS ========== */
   --success-bg: #EAF3DE;
   --success-text: #3B6D11;
   --success-border: #C0DD97;
@@ -36,8 +37,105 @@
   --info-border: #AFA9EC;
   --info-strong: #534AB7;
 
-  /* Sizing & Spacing */
+  /* ========== SIZING & SPACING ========== */
   --radius: 8px;
   --radius-lg: 12px;
   --radius-xl: 24px;
+
+  /* ========== GLASS MORPHISM ========== */
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.2);
+  --glass-backdrop: blur(10px);
+  --glass-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
+
+  /* Dark variant */
+  --glass-dark-bg: rgba(33, 37, 41, 0.8);
+  --glass-dark-border: rgba(255, 255, 255, 0.1);
+
+  /* ========== SHADOWS ========== */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 12px 24px rgba(0, 0, 0, 0.12);
+  --shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.15);
+
+  /* Colored Shadows */
+  --shadow-brand: 0 8px 24px rgba(232, 93, 47, 0.2);
+  --shadow-brand-sm: 0 4px 12px rgba(232, 93, 47, 0.15);
+
+  /* ========== TRANSITIONS ========== */
+  --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-base: 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* ========== BACKDROPS ========== */
+  --backdrop-blur-sm: blur(4px);
+  --backdrop-blur-md: blur(10px);
+  --backdrop-blur-lg: blur(16px);
+
+  /* ========== GRADIENTS ========== */
+  --gradient-primary: linear-gradient(135deg, #e85d2f 0%, #c94820 100%);
+  --gradient-primary-soft: linear-gradient(135deg, #fff4f0 0%, #ffe8de 100%);
+  --gradient-success: linear-gradient(135deg, #3B6D11 0%, #5a9c2e 100%);
+  --gradient-danger: linear-gradient(135deg, #A32D2D 0%, #d94141 100%);
+
+  /* ========== Z-INDEX ========== */
+  --z-base: 1;
+  --z-dropdown: 10;
+  --z-sticky: 20;
+  --z-fixed: 30;
+  --z-overlay: 40;
+  --z-modal: 1000;
+
+  /* ========== FONT ========== */
+  --font-primary: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "Courier New", Courier, monospace;
+  --letter-spacing-tight: -0.02em;
+  --letter-spacing-normal: 0;
+  --letter-spacing-wide: 0.02em;
+
+  /* ========== BREAKPOINTS (Reference) ========== */
+  /* Mobile: < 480px */
+  /* Tablet: 480px - 768px */
+  /* Desktop: > 768px */
+}
+
+/* ========== DARK MODE ========== */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --surface-0: #1a1a1a;
+    --surface-1: #252525;
+    --surface-2: #2a2a2a;
+    --app-bg: #121212;
+
+    --text-primary: #f5f5f5;
+    --text-secondary: #b0b0b0;
+    --text-muted: #808080;
+
+    --border: #3a3a3a;
+    --border-strong: #4a4a4a;
+
+    --glass-bg: rgba(33, 37, 41, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.1);
+
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.2);
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.25);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.3);
+    --shadow-lg: 0 12px 24px rgba(0, 0, 0, 0.35);
+  }
+}
+
+/* ========== REDUCED MOTION ========== */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --transition-fast: 0ms;
+    --transition-base: 0ms;
+    --transition-slow: 0ms;
+  }
+
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
