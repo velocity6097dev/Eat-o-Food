@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -760,6 +760,881 @@ document.addEventListener('DOMContentLoaded', () => {
     loadState();       // 1. Fetch cart and promo state from store
     updatePromoUI();   // 2. Set the UI based on loaded promo state
     renderCart();      // 3. Render items and bill based on cart and promo state
+});
+</script>
+<script src="../../assets/js/component-loader.js" defer></script>
+</body>
+</html> -->
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cart - Bistro Track</title>
+  <script src="../../assets/js/store.js"></script>
+  <script src="https://unpkg.com/lucide@latest" defer></script>
+  <script src="https://checkout.razorpay.com/v1/checkout.js" defer></script>
+  <link rel="stylesheet" href="../../assets/css/variables.css">
+  <link rel="stylesheet" href="../../assets/css/reset.css">
+  <link rel="stylesheet" href="../../assets/css/components.css">
+  <style>
+    /* ADDING GLASS MORPHISM TO CARDS */
+    .ui-card {
+      background: var(--glass-bg);
+      backdrop-filter: var(--glass-backdrop);
+      -webkit-backdrop-filter: var(--glass-backdrop);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      margin: 0 0 16px 0;
+      padding: 16px;
+      box-shadow: var(--glass-shadow);
+    }
+
+    /* Original Cart Styles (Minimal) */
+    .card-header-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      font-size: 14px;
+    }
+    .card-header-row .title {
+      font-weight: 600;
+    }
+    .card-header-row .time {
+      color: var(--text-muted);
+    }
+    .cart-item-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--glass-border);
+    }
+    .cart-item-row:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+    .item-name {
+      flex: 1;
+      font-size: 15px;
+    }
+    .item-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .qty-btn {
+      width: 32px;
+      height: 32px;
+      border: 1px solid var(--border);
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      color: var(--text-secondary);
+      cursor: pointer;
+    }
+    .qty-btn[data-action="increase"] {
+      background: var(--brand-primary);
+      border-color: var(--brand-primary);
+      color: var(--text-on-brand);
+    }
+    .qty-num {
+      font-weight: 500;
+      width: 12px;
+      text-align: center;
+    }
+    .item-price {
+      font-weight: 500;
+      width: 50px;
+      text-align: right;
+    }
+
+    /* Empty State */
+    #empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 40px 16px;
+      min-height: 300px;
+      gap: 16px;
+    }
+    .empty-cart-icon {
+      width: 80px;
+      height: 80px;
+      color: var(--brand-primary);
+    }
+    .empty-state-heading {
+      font-size: 20px;
+      font-weight: 700;
+      margin-top: 16px;
+    }
+    .empty-state-subtext {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 24px;
+    }
+
+    /* Promo Code */
+    .promo-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      font-size: 14px;
+    }
+    .promo-input-group {
+      display: flex;
+      gap: 8px;
+    }
+    .promo-input {
+      flex: 1;
+      border: 1px solid var(--border);
+      background-color: var(--surface-1);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 15px;
+      outline: none;
+    }
+     .promo-input:focus {
+        border-color: var(--brand-primary);
+     }
+    .promo-btn {
+      border: none;
+      background: var(--brand-primary);
+      color: #fff;
+      border-radius: 8px;
+      padding: 0 16px;
+      font-weight: 500;
+      cursor: pointer;
+      font-size: 15px;
+      transition: background-color 0.2s;
+    }
+    .promo-btn:hover {
+      background: var(--brand-primary-dark);
+    }
+    .promo-applied-banner {
+      background: var(--success-bg);
+      border: 1px solid var(--success-border);
+      border-radius: 8px;
+      padding: 12px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .promo-banner-text {
+      flex: 1;
+      font-size: 13px;
+    }
+    .promo-banner-text strong {
+      color: var(--success-text);
+      display: block;
+      margin-bottom: 2px;
+    }
+    .promo-remove {
+      color: var(--success-text);
+      background: none;
+      border: none;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    /* Bill Summary */
+    .bill-title {
+      font-weight: 600;
+      margin-bottom: 16px;
+      font-size: 15px;
+    }
+    .bill-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      font-size: 15px;
+      color: var(--text-secondary);
+    }
+    .bill-row.discount {
+      color: var(--success-text);
+    }
+    .bill-row.total-row {
+      border-top: 1px solid var(--glass-border);
+      padding-top: 16px;
+      margin-top: 16px;
+      margin-bottom: 0;
+      font-weight: 600;
+      color: var(--text-primary);
+      font-size: 16px;
+    }
+
+    /* Bottom Payment Area */
+    .bottom-payment-bar {
+      padding: 16px 0 0;
+    }
+    .btn-proceed {
+      width: 100%;
+      background: var(--gradient-primary);
+      border: none;
+      color: var(--text-on-brand);
+      font-weight: 600;
+      font-size: 16px;
+      padding: 14px;
+      border-radius: var(--radius-lg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all var(--transition-base);
+      cursor: pointer;
+      box-shadow: var(--shadow-brand-sm);
+    }
+    .btn-proceed:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-brand);
+    }
+    .btn-proceed:disabled {
+      background: var(--text-muted);
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+
+    /* Modal Styles */
+    .pay-method {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--surface-1);
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 12px;
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .pay-method:hover {
+      background: var(--surface-2);
+      border-color: var(--brand-primary);
+    }
+    .pay-method.sel {
+      border-color: var(--info-strong);
+      background: var(--info-bg);
+    }
+    .pay-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      background: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+      border: 1px solid var(--border);
+    }
+    .pay-method.sel .pay-icon {
+      border-color: var(--info-strong);
+    }
+    .pay-info {
+      flex: 1;
+    }
+    .pay-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 2px;
+    }
+    .pay-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+    .radio {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      flex-shrink: 0;
+      position: relative;
+      background: white;
+    }
+    .pay-method.sel .radio {
+      border-color: var(--info-strong);
+      background: var(--info-strong);
+    }
+    .radio::after {
+      content: '';
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: white;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      opacity: 0;
+    }
+    .pay-method.sel .radio::after {
+      opacity: 1;
+    }
+
+</style>
+</head>
+<body>
+
+<div class="app-container">
+
+  <div id="header-placeholder"></div>
+
+  <main class="body">
+    <div class="screen-title">
+      <span>Your Cart</span>
+    </div>
+
+    <div id="empty-state" style="display: none;">
+      <i data-lucide="shopping-basket" class="empty-cart-icon"></i>
+      <div class="empty-state-content">
+        <div class="empty-state-heading">Your cart is empty</div>
+        <div class="empty-state-subtext">Looks like you haven't added anything to your cart yet.</div>
+      </div>
+      <a href="./menu.html" class="btn-primary">Browse Menu</a>
+    </div>
+
+    <div id="cart-content">
+      <div class="ui-card" id="cart-items-card">
+        </div>
+
+      <div class="ui-card">
+        <div class="promo-header">
+          <i data-lucide="tag" style="width:16px;height:16px;"></i> Promo code
+        </div>
+
+        <div class="promo-input-group" id="promo-input-area">
+          <input type="text" class="promo-input" id="promo-code-input" placeholder="Enter promo code">
+          <button class="promo-btn" id="apply-promo-btn">Apply</button>
+        </div>
+
+        <div class="promo-applied-banner" id="promo-applied-area" style="display: none;">
+          <i data-lucide="tag" style="width:16px;height:16px; color: var(--success-text); margin-top: 2px;"></i>
+          <div class="promo-banner-text">
+            <strong id="promo-text-applied">Code applied</strong>
+            <span id="promo-text-details">— Discount applied</span>
+          </div>
+          <button class="promo-remove" id="remove-promo-btn">Remove</button>
+        </div>
+      </div>
+
+      <div class="ui-card" id="bill-summary-card">
+        </div>
+
+      <div class="bottom-payment-bar" id="payment-bar" style="display: none;">
+        <button class="btn-proceed" id="proceed-btn">Proceed to payment <i data-lucide="arrow-right" style="width:16px; height:16px;"></i></button>
+      </div>
+    </div>
+  </main>
+
+  <div id="footer-placeholder"></div>
+
+</div>
+
+<div id="toast-placeholder"></div>
+
+<div class="modal-overlay" id="payment-modal">
+    <div class="modal-content">
+        <div id="payment-selection-view">
+            <h3>Select Payment Method</h3>
+
+            <div class="modal-order-summary" id="modal-summary" style="background: var(--surface-1); border-radius: 8px; padding: 12px; margin-bottom: 20px; font-size: 14px;">
+              <div class="summary-row" style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                <span>Total Amount</span>
+                <span id="modal-total">₹0</span>
+              </div>
+            </div>
+
+            <div class="payment-methods-container" id="payment-options-container">
+              <div class="pay-method sel" data-method="UPI">
+                <div class="pay-icon">📱</div>
+                <div class="pay-info">
+                  <div class="pay-name">UPI</div>
+                  <div class="pay-sub">Google Pay, PhonePe, Paytm</div>
+                </div>
+                <div class="radio sel"></div>
+              </div>
+              <div class="pay-method" data-method="Card">
+                <div class="pay-icon">💳</div>
+                <div class="pay-info">
+                  <div class="pay-name">Debit or Credit Card</div>
+                  <div class="pay-sub">Visa, Mastercard, AmEx</div>
+                </div>
+                <div class="radio"></div>
+              </div>
+              <div class="pay-method" data-method="Counter">
+                <div class="pay-icon">🏪</div>
+                <div class="pay-info">
+                  <div class="pay-name">Pay at Counter</div>
+                  <div class="pay-sub">Pay when you collect order</div>
+                </div>
+                <div class="radio"></div>
+              </div>
+            </div>
+
+            <button class="btn-primary" id="pay-button" style="background: var(--info-strong);">Proceed to Pay</button>
+            <button class="btn-secondary" id="close-modal-btn">Cancel</button>
+        </div>
+
+        <div id="payment-processing-view" style="display: none; text-align:center;">
+              <div class="processing-spinner" style="width: 40px; height: 40px; border: 4px solid var(--surface-2); border-top-color: var(--info-strong); border-radius: 50%; animation: spin 1s linear infinite; margin: 20px auto;"></div>
+              <h3 style="margin-top: 16px;">Processing Payment</h3>
+              <p style="color: var(--text-muted); font-size: 14px; margin-top: 8px;">
+                Completing payment via <strong id="processing-method-name"></strong>
+              </p>
+              <button class="btn-secondary" id="cancel-payment-btn" style="margin-top: 20px; width: auto; padding: 10px 16px;">Cancel</button>
+        </div>
+
+        <div id="counter-payment-view" style="display: none; text-align:center;">
+              <i data-lucide="clock" style="width: 48px; height: 48px; color: var(--info-strong); margin-bottom: 16px;"></i>
+              <h3 style="margin-top: 0;">Awaiting Counter Payment</h3>
+              <p style="color: var(--text-muted); font-size: 14px; margin-top: 12px;">
+                Please pay <strong>₹<span id="counter-amount">0</span></strong> at the counter.
+              </p>
+              <button class="btn-secondary" id="cancel-counter-payment-btn" style="width: auto; padding: 10px 16px; margin-top: 20px;">Cancel Order</button>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // Update back button in header
+    const navBackBtn = document.querySelector('#header-placeholder .nav-back');
+    if (navBackBtn) {
+        navBackBtn.href = './menu.html';
+    }
+
+    // DOM Elements
+    const cartItemsCard = document.getElementById('cart-items-card');
+    const billSummaryCard = document.getElementById('bill-summary-card');
+    const cartContent = document.getElementById('cart-content');
+    const emptyState = document.getElementById('empty-state');
+    const paymentBar = document.getElementById('payment-bar');
+    const proceedBtn = document.getElementById('proceed-btn');
+
+    // Promo Elements
+    const promoInputArea = document.getElementById('promo-input-area');
+    const promoAppliedArea = document.getElementById('promo-applied-area');
+    const promoInput = document.getElementById('promo-code-input');
+    const applyPromoBtn = document.getElementById('apply-promo-btn');
+    const removePromoBtn = document.getElementById('remove-promo-btn');
+    const promoTextApplied = document.getElementById('promo-text-applied');
+    const promoTextDetails = document.getElementById('promo-text-details');
+
+    // Modal and Payment Elements
+    const paymentModal = document.getElementById('payment-modal');
+    const payButton = document.getElementById('pay-button');
+    const closeModalBtn = document.getElementById('close-modal-btn');
+    const paymentSelectionView = document.getElementById('payment-selection-view');
+    const paymentProcessingView = document.getElementById('payment-processing-view');
+    const counterPaymentView = document.getElementById('counter-payment-view');
+    const cancelPaymentBtn = document.getElementById('cancel-payment-btn');
+    const cancelCounterPaymentBtn = document.getElementById('cancel-counter-payment-btn');
+    const processingMethodName = document.getElementById('processing-method-name');
+    const modalTotal = document.getElementById('modal-total');
+    const counterAmount = document.getElementById('counter-amount');
+    const paymentOptionsContainer = document.getElementById('payment-options-container');
+
+    // Constants & State
+    const GST_RATE = 0.05; // 5%
+    let appliedPromoCode = null;
+    let appliedPromoDiscount = 0; // percentage as decimal (e.g., 0.20)
+    
+    let cart = {};
+    let isPromoApplied = false;
+    let orderTotal = 0;
+
+    // --- Persistent Store Management ---
+    const loadState = () => {
+        cart = window.persistentStore.getItem('cart') || {};
+        isPromoApplied = window.persistentStore.getItem('promoApplied') || false;
+        
+        // Restore promo from memory if it was applied
+        if(isPromoApplied) {
+            appliedPromoCode = window.persistentStore.getItem('promoCode');
+            appliedPromoDiscount = window.persistentStore.getItem('promoDiscount') || 0;
+        }
+    };
+    
+    const saveCart = () => {
+        window.persistentStore.setItem('cart', cart);
+    };
+
+    const savePromoState = () => {
+        window.persistentStore.setItem('promoApplied', isPromoApplied);
+        if(isPromoApplied) {
+            window.persistentStore.setItem('promoCode', appliedPromoCode);
+            window.persistentStore.setItem('promoDiscount', appliedPromoDiscount);
+        } else {
+            window.persistentStore.removeItem('promoCode');
+            window.persistentStore.removeItem('promoDiscount');
+        }
+    };
+
+    // --- API Driven Promo Logic ---
+    applyPromoBtn.addEventListener('click', async () => {
+        const code = promoInput.value.trim().toUpperCase();
+        if (code === "") return;
+        
+        // Add a visual loading state to button
+        const originalText = applyPromoBtn.innerText;
+        applyPromoBtn.innerText = '...';
+        applyPromoBtn.disabled = true;
+
+        try {
+            const res = await fetch('/backend/api/promo/validate.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ code: code })
+            });
+            const data = await res.json();
+            
+            if (data.success) {
+                isPromoApplied = true;
+                appliedPromoCode = data.code;
+                appliedPromoDiscount = data.discount_percent / 100;
+                
+                promoTextApplied.innerText = `${data.code} applied`;
+                promoTextDetails.innerText = `— ${data.discount_percent}% off your order`;
+
+                savePromoState(); 
+                updatePromoUI(true); 
+                renderBill();
+                if(window.showToast) window.showToast(`Promo code "${data.code}" applied!`, 'success');
+            } else {
+                if(window.showToast) window.showToast(data.error || "Invalid Promo Code.", 'error');
+                promoInput.classList.add('shake');
+                setTimeout(() => promoInput.classList.remove('shake'), 500);
+            }
+        } catch(e) {
+            console.error(e);
+            if(window.showToast) window.showToast("Network error. Try again.", 'error');
+        } finally {
+            applyPromoBtn.innerText = originalText;
+            applyPromoBtn.disabled = false;
+        }
+    });
+
+    removePromoBtn.addEventListener('click', () => {
+        isPromoApplied = false;
+        appliedPromoCode = null;
+        appliedPromoDiscount = 0;
+        promoInput.value = "";
+        savePromoState(); 
+        updatePromoUI(false);
+        renderBill();
+        if(window.showToast) window.showToast('Promo code removed.', 'info');
+    });
+
+    const updatePromoUI = (animate = false) => {
+        if (isPromoApplied && appliedPromoCode) {
+            promoInputArea.style.display = 'none';
+            promoAppliedArea.style.display = 'flex';
+            
+            promoTextApplied.innerText = `${appliedPromoCode} applied`;
+            promoTextDetails.innerText = `— ${Math.round(appliedPromoDiscount * 100)}% off your order`;
+
+            if (animate) {
+                promoAppliedArea.classList.add('animate');
+                setTimeout(() => promoAppliedArea.classList.remove('animate'), 500);
+            }
+        } else {
+            promoInputArea.style.display = 'flex';
+            promoAppliedArea.style.display = 'none';
+        }
+    };
+
+    // --- Rendering Logic ---
+    const renderCart = () => {
+        const cartKeys = Object.keys(cart);
+
+        if (cartKeys.length === 0) {
+            cartContent.style.display = 'none';
+            paymentBar.style.display = 'none';
+            emptyState.style.display = 'flex';
+            if (window.lucide) { lucide.createIcons(); }
+            return;
+        }
+
+        cartContent.style.display = 'block';
+        paymentBar.style.display = 'block';
+        emptyState.style.display = 'none';
+
+        let totalItems = 0;
+        let itemsHtml = '';
+
+        cartKeys.forEach(id => {
+            const item = cart[id];
+            totalItems += item.quantity;
+            itemsHtml += `
+                <div class="cart-item-row" data-id="${id}">
+                    <div class="item-name">${item.name}</div>
+                    <div class="item-controls">
+                        <button class="qty-btn" data-action="decrease" data-id="${id}">−</button>
+                        <span class="qty-num">${item.quantity}</span>
+                        <button class="qty-btn" data-action="increase" data-id="${id}">+</button>
+                        <span class="item-price">₹${item.price * item.quantity}</span>
+                    </div>
+                </div>
+            `;
+        });
+
+        const tableNumber = window.persistentStore.getItem('tableNumber') || '-';
+        cartItemsCard.innerHTML = `
+            <div class="card-header-row">
+                <span class="title">Table ${tableNumber} &middot; ${totalItems} items</span>
+                <span class="time">Est. 18 min</span>
+            </div>
+            ${itemsHtml}
+        `;
+
+        renderBill();
+        if (window.lucide) { lucide.createIcons(); }
+    };
+
+    const renderBill = () => {
+        const subtotal = Object.values(cart).reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        
+        let promoHtml = '';
+        let discountAmount = 0;
+
+        if (isPromoApplied && subtotal > 0 && appliedPromoCode) {
+            discountAmount = subtotal * appliedPromoDiscount;
+            promoHtml = `<div class="bill-row discount"><span>Promo ${appliedPromoCode}</span><span>−₹${Math.round(discountAmount)}</span></div>`;
+        }
+
+        const subtotalAfterDiscount = subtotal - discountAmount;
+        const gst = subtotalAfterDiscount * GST_RATE;
+        const total = subtotalAfterDiscount + gst;
+
+        orderTotal = Math.round(total);
+        modalTotal.textContent = `₹${orderTotal}`;
+
+        billSummaryCard.innerHTML = `
+            <div class="bill-title">Bill summary</div>
+            <div class="bill-row"><span>Subtotal</span><span>₹${subtotal}</span></div>
+            ${promoHtml}
+            <div class="bill-row"><span>GST (5%)</span><span>₹${Math.round(gst)}</span></div>
+            <div class="bill-row total-row"><span>Total payable</span><span>₹${orderTotal}</span></div>
+        `;
+    };
+
+    // --- Event Listeners ---
+    cartItemsCard.addEventListener('click', (e) => {
+        const button = e.target.closest('.qty-btn');
+        if (button) {
+            const id = button.dataset.id;
+            const action = button.dataset.action;
+
+            if (action === 'increase') {
+                cart[id].quantity++;
+            } else if (action === 'decrease') {
+                cart[id].quantity--;
+                if (cart[id].quantity <= 0) {
+                    delete cart[id];
+                }
+                
+                if (Object.keys(cart).length === 0) {
+                    isPromoApplied = false;
+                    appliedPromoCode = null;
+                    appliedPromoDiscount = 0;
+                    promoInput.value = "";
+                    savePromoState();
+                    updatePromoUI(false);
+                }
+            }
+            saveCart();
+            renderCart();
+        }
+    });
+
+    document.body.addEventListener('click', (e) => {
+        if (e.target.matches('#clear-cart-btn')) {
+            if (confirm('Are you sure you want to clear your cart?')) {
+                cart = {};
+                isPromoApplied = false;
+                appliedPromoCode = null;
+                appliedPromoDiscount = 0;
+                promoInput.value = "";
+                savePromoState();
+                saveCart();
+                updatePromoUI();
+                renderCart();
+            }
+        }
+    });
+
+    // --- Server-Side Order & Payment Integration ---
+    proceedBtn.addEventListener('click', () => {
+        paymentModal.classList.add('active');
+    });
+
+    closeModalBtn.addEventListener('click', () => {
+        paymentModal.classList.remove('active');
+    });
+
+    paymentOptionsContainer.addEventListener('click', (e) => {
+        const clickedMethod = e.target.closest('.pay-method');
+        if (clickedMethod) {
+            paymentOptionsContainer.querySelectorAll('.pay-method').forEach(m => m.classList.remove('sel'));
+            clickedMethod.classList.add('sel');
+        }
+    });
+
+    payButton.addEventListener('click', async () => {
+        const selectedMethodEl = paymentOptionsContainer.querySelector('.pay-method.sel');
+        const method = selectedMethodEl ? selectedMethodEl.dataset.method : 'UPI';
+        const tableNumber = window.persistentStore.getItem('tableNumber') || '-';
+
+        paymentSelectionView.style.display = 'none';
+        
+        // 1. Create order on backend server
+        const orderItems = Object.keys(cart).map(id => ({ id: parseInt(id), quantity: cart[id].quantity }));
+        const orderPayload = {
+            table_number: tableNumber,
+            items: orderItems,
+            payment_method: method
+        };
+        
+        if (isPromoApplied && appliedPromoCode) {
+            orderPayload.promo_code = appliedPromoCode;
+        }
+        
+        try {
+            const res = await fetch('/backend/api/orders/create.php', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(orderPayload)
+            });
+            const data = await res.json();
+            
+            if(!data.success) {
+                alert(data.error || 'Failed to create order.');
+                resetModalViews();
+                return;
+            }
+            
+            const serverOrderId = data.order_id;
+            const serverTotal = data.bill.total;
+
+            if (method === 'Counter') {
+                counterPaymentView.style.display = 'block';
+                document.getElementById('counter-amount').textContent = serverTotal;
+                
+                // Clear cart locally
+                cart = {}; isPromoApplied = false; promoInput.value = "";
+                window.persistentStore.removeItem('cart');
+                window.persistentStore.setItem('promoApplied', false);
+                window.persistentStore.removeItem('promoCode');
+                window.persistentStore.removeItem('promoDiscount');
+                
+                setTimeout(() => { window.location.href = 'tracking.html'; }, 3000);
+            } else {
+                paymentProcessingView.style.display = 'block';
+                document.getElementById('processing-method-name').textContent = method;
+                initializeRazorpayPayment(method, tableNumber, serverOrderId);
+            }
+        } catch(e) {
+            console.error(e);
+            alert("Network Error: Failed to communicate with server");
+            resetModalViews();
+        }
+    });
+
+    const initializeRazorpayPayment = async (method, tableNumber, serverOrderId) => {
+        try {
+            const rzpRes = await fetch('/backend/api/payment/razorpay_order.php', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ order_id: serverOrderId })
+            });
+            const rzpData = await rzpRes.json();
+            
+            if(!rzpData.success) {
+                alert(rzpData.error || 'Failed to initialize payment gateway.');
+                resetModalViews();
+                return;
+            }
+            
+            const options = {
+                key: rzpData.key_id,
+                amount: rzpData.amount,
+                currency: rzpData.currency,
+                name: "Eat-o-Food",
+                description: `Order for Table ${tableNumber}`,
+                order_id: rzpData.razorpay_order_id,
+                handler: async function (response) {
+                    // Verify payment securely on server
+                    try {
+                        const verifyRes = await fetch('/backend/api/payment/razorpay_verify.php', {
+                            method: 'POST',
+                            headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify({
+                                order_id: serverOrderId,
+                                razorpay_order_id: response.razorpay_order_id,
+                                razorpay_payment_id: response.razorpay_payment_id,
+                                razorpay_signature: response.razorpay_signature
+                            })
+                        });
+                        const verifyData = await verifyRes.json();
+                        
+                        if(verifyData.success) {
+                            cart = {}; isPromoApplied = false; promoInput.value = "";
+                            window.persistentStore.removeItem('cart');
+                            window.persistentStore.setItem('promoApplied', false);
+                            window.persistentStore.removeItem('promoCode');
+                            window.persistentStore.removeItem('promoDiscount');
+                            window.location.href = 'tracking.html';
+                        } else {
+                            alert(verifyData.error || "Payment verification failed on server");
+                            resetModalViews();
+                        }
+                    } catch(e) {
+                        alert("Network error during verification.");
+                        resetModalViews();
+                    }
+                },
+                modal: { ondismiss: function() { resetModalViews(); alert('Payment cancelled by user.'); } }
+            };
+            
+            const rzp = new Razorpay(options);
+            rzp.on('payment.failed', function (response) {
+                resetModalViews();
+                alert(`Payment failed: ${response.error.description}`);
+            });
+            rzp.open();
+        } catch(e) {
+            console.error(e);
+            alert("Error communicating with payment server");
+            resetModalViews();
+        }
+    };
+
+    const resetModalViews = () => {
+        paymentSelectionView.style.display = 'block';
+        paymentProcessingView.style.display = 'none';
+        counterPaymentView.style.display = 'none';
+        paymentModal.classList.remove('active');
+    }
+
+    cancelPaymentBtn.addEventListener('click', resetModalViews);
+    cancelCounterPaymentBtn.addEventListener('click', resetModalViews);
+
+    // Initialization Sequence
+    loadState();
+    updatePromoUI(); 
+    renderCart();
 });
 </script>
 <script src="../../assets/js/component-loader.js" defer></script>
