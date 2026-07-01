@@ -1,0 +1,14 @@
+.splash-wrap {
+      background: linear-gradient(135deg, #0f0f11 0%, #1a1410 100%) !important;
+      border-bottom: 1px solid var(--amber);
+    }
+    .splash-content { color: var(--amber) !important; }
+    .splash-title { color: var(--amber) !important; }
+    .splash-subtitle { color: var(--owner-sub) !important; }
+    .progress-fill { background: var(--amber) !important; }
+    .progress-track { background: rgba(245,158,11,0.2) !important; }
+    .splash-icon { animation: owner-pulse 1.5s infinite ease-in-out; }
+    @keyframes owner-pulse {
+      0%,100% { transform: scale(1) rotate(0deg); }
+      50%      { transform: scale(1.12) rotate(-4deg); }
+    }

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Menu Manager — Bistro Track Owner</title>
+
+  <script src="../../assets/js/store.js"></script>
+  <script src="https://unpkg.com/lucide@latest" defer></script>
+  <link rel="stylesheet" href="../../assets/css/variables.css">
+  <link rel="stylesheet" href="../../assets/css/reset.css">
+  <link rel="stylesheet" href="../../assets/css/components.css">
+
+  <style>
+    .app-container { height: 100vh; display: flex; flex-direction: column; max-width: 480px; margin: 0 auto; overflow: hidden; background: var(--app-bg); color: var(--text-primary); }
+    
+    /* Top Nav */
+    .owner-nav { display: flex; align-items: center; justify-content: space-between; padding: 16px; background: var(--surface-1); border-bottom: 1px solid var(--border); }
+    
+    /* Body */
+    .owner-body { flex: 1; overflow-y: auto; padding: 16px; }
+
+    .ui-card { background: var(--glass-bg); backdrop-filter: var(--glass-backdrop); border: 1px solid var(--glass-border); border-radius: 12px; padding: 16px; margin-bottom: 16px; }
+    .section-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; font-weight: 600; font-size: 15px; color: var(--text-primary); }
+    
+    /* Form Elements */
+    .form-group { margin-bottom: 12px; }
+    .form-group label { display: block; font-size: 12px; font-weight: 500; color: var(--text-muted); margin-bottom: 6px; }
+    .form-input, .form-select { width: 100%; padding: 10px 12px; background: var(--surface-0); border: 1px solid var(--border); border-radius: 8px; font-size: 14px; color: var(--text-primary); outline: none; }
+    .form-input:focus, .form-select:focus { border-color: var(--brand-primary); }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    
+    /* List Items */
+    .menu-item-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); }
+    .menu-item-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .mi-info { flex: 1; }
+    .mi-name { font-size: 14px; font-weight: 600; color: var(--text-primary); display: flex; align-items: center; gap: 6px; }
+    .mi-desc { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+    .mi-price { font-size: 13px; font-weight: 700; color: var(--text-primary); margin-right: 12px; }
+    .btn-delete { background: rgba(239, 68, 68, 0.1); color: #ef4444; border: none; padding: 6px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+
+    /* Bottom Nav */
+    .owner-nav-bar { display: flex; background: var(--surface-1); border-top: 1px solid var(--border); }
+    .bn-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 10px 0; color: var(--text-muted); font-size: 11px; text-decoration: none; }
+    .bn-item.active { color: var(--brand-primary); }
+  </style>
+</head>
+<body>
+
+<div class="app-container">
+  
+  <nav class="owner-nav">
+    <div style="font-weight: 700; font-size: 16px;">Menu Manager</div>
+  </nav>
+
+  <main class="owner-body">
+
+    <div class="ui-card">
+      <div class="section-header"><i data-lucide="plus-circle" style="color: var(--brand-primary);"></i> Add New Dish</div>
+      <form id="add-item-form">
+        <div class="form-group">
+          <label>Dish Name</label>
+          <input type="text" id="item-name" class="form-input" required placeholder="e.g., Tandoori Chicken">
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <input type="text" id="item-desc" class="form-input" required placeholder="Short tasty description">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Price (₹)</label>
+            <input type="number" id="item-price" class="form-input" required placeholder="250">
+          </div>
+          <div class="form-group">
+            <label>Category</label>
+            <select id="item-category" class="form-select">
+              <option value="starters">Starters</option>
+              <option value="mains">Mains</option>
+              <option value="breads">Breads</option>
+              <option value="drinks">Drinks</option>
+              <option value="desserts">Desserts</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Type</label>
+            <select id="item-type" class="form-select">
+              <option value="veg">Veg</option>
+              <option value="nonveg">Non-Veg</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Emoji</label>
+            <input type="text" id="item-emoji" class="form-input" placeholder="🍛" required>
+          </div>
+        </div>
+        <button type="submit" class="btn-primary" style="width: 100%; margin-top: 8px;">Add Dish</button>
+      </form>
+    </div>
+
+    <div class="ui-card">
+      <div class="section-header"><i data-lucide="list" style="color: var(--brand-primary);"></i> Live Menu</div>
+      <div id="live-menu-list">
+        </div>
+    </div>
+
+  </main>
+
+  <nav class="owner-nav-bar">
+    <a class="bn-item" href="./dashboard.html"><i data-lucide="layout-dashboard"></i><span>Dashboard</span></a>
+    <a class="bn-item active" href="./menu-manager.html"><i data-lucide="book-open"></i><span>Menu</span></a>
+    <a class="bn-item" href="./settings.html"><i data-lucide="settings"></i><span>Settings</span></a>
+  </nav>
+</div>
+
+<script>
+  // Default data so it's not empty on first load
+  const defaultMenu = [
+      { id: '1', name: 'Butter Chicken', price: 360, category: 'mains', desc: 'Creamy tomato curry, best seller', type: 'nonveg', emoji: '🍗' },
+      { id: '2', name: 'Paneer Tikka', price: 280, category: 'starters', desc: 'Grilled cottage cheese, tandoor style', type: 'veg', emoji: '🍛' },
+      { id: '4', name: 'Garlic Naan', price: 75, category: 'breads', desc: 'Tandoor-baked flatbread with garlic', type: 'veg', emoji: '🥖' },
+      { id: '5', name: 'Coke', price: 40, category: 'drinks', desc: 'Chilled soft drink', type: 'veg', emoji: '🥤' }
+  ];
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('add-item-form');
+    
+    // Ensure menu exists
+    let menu = window.persistentStore.getItem('menuItems');
+    if (!menu || menu.length === 0) {
+      menu = defaultMenu;
+      window.persistentStore.setItem('menuItems', menu);
+    }
+
+    renderManagerList();
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const newItem = {
+        id: Date.now().toString(),
+        name: document.getElementById('item-name').value,
+        desc: document.getElementById('item-desc').value,
+        price: parseInt(document.getElementById('item-price').value),
+        category: document.getElementById('item-category').value,
+        type: document.getElementById('item-type').value,
+        emoji: document.getElementById('item-emoji').value || '🍽️'
+      };
+
+      let currentMenu = window.persistentStore.getItem('menuItems') || [];
+      currentMenu.push(newItem);
+      window.persistentStore.setItem('menuItems', currentMenu);
+      
+      form.reset();
+      renderManagerList();
+      alert("Dish added to the live client menu!");
+    });
+
+    if (window.lucide) lucide.createIcons();
+  });
+
+  function renderManagerList() {
+    const list = document.getElementById('live-menu-list');
+    const menu = window.persistentStore.getItem('menuItems') || [];
+    
+    if (menu.length === 0) {
+      list.innerHTML = `<p style="font-size:13px; color:var(--text-muted);">Menu is empty.</p>`;
+      return;
+    }
+
+    list.innerHTML = menu.map(item => `
+      <div class="menu-item-row">
+        <div class="mi-info">
+          <div class="mi-name">
+            <span class="${item.type === 'veg' ? 'veg-dot' : 'nonveg-dot'}"></span>
+            ${item.emoji} ${item.name}
+          </div>
+          <div class="mi-desc">${item.category.toUpperCase()} • ${item.desc}</div>
+        </div>
+        <div class="mi-price">₹${item.price}</div>
+        <button class="btn-delete" onclick="deleteItem('${item.id}')"><i data-lucide="trash-2" style="width:16px;height:16px;"></i></button>
+      </div>
+    `).join('');
+    
+    if (window.lucide) lucide.createIcons();
+  }
+
+  function deleteItem(id) {
+    if (confirm("Remove this dish from the menu?")) {
+      let menu = window.persistentStore.getItem('menuItems') || [];
+      menu = menu.filter(item => item.id !== id);
+      window.persistentStore.setItem('menuItems', menu);
+      renderManagerList();
+    }
+  }
+</script>
+</body>
+</html>

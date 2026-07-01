@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings — Bistro Track Owner</title>
+
+  <script src="../../assets/js/store.js"></script>
+  <script src="https://unpkg.com/lucide@latest" defer></script>
+  <link rel="stylesheet" href="../../assets/css/variables.css">
+  <link rel="stylesheet" href="../../assets/css/reset.css">
+  <link rel="stylesheet" href="../../assets/css/components.css">
+
+  <style>
+    .app-container { height: 100vh; display: flex; flex-direction: column; max-width: 480px; margin: 0 auto; overflow: hidden; }
+    
+    /* Top Nav */
+    .owner-nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px; background: var(--surface-1); border-bottom: 1px solid var(--border);
+    }
+    
+    /* Body */
+    .owner-body { flex: 1; overflow-y: auto; padding: 16px; }
+
+    /* Sections */
+    .ui-card {
+      background: var(--glass-bg); backdrop-filter: var(--glass-backdrop);
+      border: 1px solid var(--glass-border); border-radius: 12px; padding: 16px; margin-bottom: 16px;
+      transition: all 0.2s ease;
+    }
+    .section-header {
+      display: flex; align-items: center; gap: 12px; margin-bottom: 16px; font-weight: 600; font-size: 15px; color: var(--text-primary);
+    }
+    
+    /* Form */
+    .form-group { margin-bottom: 14px; }
+    .form-group label { display: block; font-size: 12px; font-weight: 500; color: var(--text-muted); margin-bottom: 6px; }
+    .form-input {
+      width: 100%; padding: 12px; background: var(--surface-0); border: 1px solid var(--border);
+      border-radius: 8px; font-size: 14px; color: var(--text-primary); outline: none;
+    }
+    .form-input:focus { border-color: var(--brand-primary); }
+    
+    /* Toggles */
+    .toggle-row {
+      display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-top: 1px solid var(--border);
+    }
+    .toggle-row:first-of-type { border-top: none; padding-top: 0; }
+    .toggle-label { font-size: 14px; font-weight: 500; color: var(--text-primary); }
+    .toggle-sub { font-size: 12px; color: var(--text-muted); margin-top: 4px; }
+    
+    .toggle-switch {
+      width: 44px; height: 24px; border-radius: 12px; background: var(--surface-2);
+      cursor: pointer; position: relative; transition: background 0.2s;
+    }
+    .toggle-switch.on { background: var(--brand-primary); }
+    .toggle-switch::after {
+      content: ''; position: absolute; width: 18px; height: 18px; border-radius: 50%;
+      background: #fff; top: 3px; left: 3px; transition: left 0.2s;
+    }
+    .toggle-switch.on::after { left: 23px; }
+
+    /* Danger Button */
+    .btn-danger {
+      width: 100%; padding: 12px; background: transparent; color: var(--warning-text);
+      border: 1px solid var(--warning-bg); border-radius: 8px; font-size: 14px; font-weight: 600;
+      cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+
+    /* Bottom Nav */
+    .owner-nav-bar {
+      display: flex; background: var(--surface-1); border-top: 1px solid var(--border);
+    }
+    .bn-item {
+      flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
+      padding: 10px 0; color: var(--text-muted); font-size: 11px; text-decoration: none;
+    }
+    .bn-item.active { color: var(--brand-primary); }
+  </style>
+</head>
+<body>
+
+<div class="app-container">
+  
+  <nav class="owner-nav">
+    <div style="font-weight: 700; font-size: 16px;">Settings</div>
+    <button class="btn-primary" style="padding: 6px 16px; font-size: 12px; width: auto;" onclick="saveAll()">Save</button>
+  </nav>
+
+  <main class="owner-body">
+
+    <div class="ui-card">
+      <div class="section-header">
+        <i data-lucide="store" style="color: var(--brand-primary);"></i> Restaurant Details
+      </div>
+      <div class="form-group">
+        <label>Restaurant Name</label>
+        <input class="form-input" type="text" value="Bistro Track">
+      </div>
+      <div class="form-group">
+        <label>Tagline</label>
+        <input class="form-input" type="text" value="Smart Dining Experience">
+      </div>
+      <div class="form-group" style="margin-bottom: 0;">
+        <label>Support Phone</label>
+        <input class="form-input" type="tel" value="+91 98765 43210">
+      </div>
+    </div>
+
+    <div class="ui-card">
+      <div class="section-header">
+        <i data-lucide="clock" style="color: var(--brand-primary);"></i> Operations
+      </div>
+      <div class="toggle-row">
+        <div>
+          <div class="toggle-label">Accepting Orders</div>
+          <div class="toggle-sub">Toggle off to temporarily pause kitchen</div>
+        </div>
+        <div class="toggle-switch on" onclick="this.classList.toggle('on')"></div>
+      </div>
+      <div class="toggle-row">
+        <div>
+          <div class="toggle-label">Auto-Approve Orders</div>
+          <div class="toggle-sub">Send directly to prep without manual review</div>
+        </div>
+        <div class="toggle-switch on" onclick="this.classList.toggle('on')"></div>
+      </div>
+    </div>
+
+    <div class="ui-card" style="border-color: var(--warning-bg);">
+      <div class="section-header" style="color: var(--warning-text);">
+        <i data-lucide="alert-triangle"></i> Danger Zone
+      </div>
+      <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">These actions are permanent and affect the client store immediately.</p>
+      
+      <button class="btn-danger" onclick="clearOrders()">
+        <i data-lucide="trash-2" style="width: 16px;"></i> Wipe Today's Orders
+      </button>
+    </div>
+
+  </main>
+
+  <nav class="owner-nav-bar">
+    <a class="bn-item" href="./dashboard.html">
+      <i data-lucide="layout-dashboard"></i><span>Dashboard</span>
+    </a>
+    <a class="bn-item" href="./menu-manager.html">
+      <i data-lucide="book-open"></i><span>Menu</span>
+    </a>
+    <a class="bn-item active" href="./settings.html">
+      <i data-lucide="settings"></i><span>Settings</span>
+    </a>
+  </nav>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    if (window.lucide) lucide.createIcons();
+  });
+
+  function saveAll() {
+    alert("Settings saved successfully.");
+  }
+
+  function clearOrders() {
+    if (confirm("Are you sure you want to clear all active order history? This will remove them from the client view as well.")) {
+      window.persistentStore.setItem('orderHistory', []);
+      alert("Order history wiped.");
+    }
+  }
+</script>
+</body>
+</html>

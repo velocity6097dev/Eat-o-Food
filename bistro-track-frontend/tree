@@ -1,24 +1,28 @@
 /bistro-track-frontend
-├── /assets
-│   ├── /css
-│   │   ├── variables.css      (Colors, fonts, spacing)
-│   │   ├── reset.css          (Margin/padding resets)
-│   │   ├── components.css     (Reusable cards, buttons, navbars)
-│   │   ├── loader.css         (Universal loader styles)
-│   │   └── utils.css          (Helper classes)
-│   ├── /js
-│   │   ├── app.js             (Main logic, routing, event listeners)
-│   │   ├── loader.js          (Loader trigger functions)
-│   │   └── api.js             (Prep for backend fetch calls)
-│   └── /images                (Logos, backgrounds, food placeholders)
-├── /views
-│   ├── /client
-│   │   ├── welcome.html       (QR scan landing page)
-│   │   ├── menu.html          (Main ordering screen)
-│   │   ├── cart.html          (Cart & gifts)
-│   │   └── tracking.html      (Order status)
-│   └── /owner
-│       ├── dashboard.html     (Metrics & live tables)
-│       ├── menu-manager.html  (Food & promos)
-│       └── settings.html      (Restaurant configs)
-└── index.html                 (Global entry point or redirect)
+├── index.html
+├── assets
+│   ├── css
+│   │   ├── components.css
+│   │   ├── loader.css
+│   │   ├── reset.css
+│   │   └── variables.css
+│   └── js
+│       ├── component-loader.js
+│       ├── loader.js
+│       ├── store.js
+│       └── welcome.js
+└── views
+    ├── client
+    │   ├── cart.html
+    │   ├── menu.html
+    │   ├── settings.html
+    │   ├── tracking.html
+    │   ├── welcome.html
+    │   └── components
+    │       ├── footer.html
+    │       ├── header.html
+    │       └── toast.html
+    └── owner
+        ├── dashboard.html
+        ├── menu-manager.html
+        └── settings.html

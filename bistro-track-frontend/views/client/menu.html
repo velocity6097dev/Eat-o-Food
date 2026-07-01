@@ -36,12 +36,7 @@
             <div class="search-bar-wrapper">
                 <div class="search-bar">
                     <i data-lucide="search" class="lucide-search"></i>
-                    <input 
-                        type="text" 
-                        id="search-input" 
-                        class="search-input" 
-                        placeholder="Search for dishes..."
-                    >
+                    <input type="text" id="search-input" class="search-input" placeholder="Search for dishes...">
                 </div>
             </div>
 
@@ -56,146 +51,10 @@
         </div>
 
         <div id="menu-items-container" class="menu-items-container">
-            
-            <div class="menu-section" id="category-starters">
-                <h3 class="menu-section-header">Starters</h3>
-                
-                <div class="food-item" data-id="2" data-name="Paneer Tikka" data-price="280" data-category="starters">
-                    <div class="food-emoji">🍛</div>
-                    <div class="food-info">
-                        <div class="food-name"><span class="veg-dot"></span>Paneer Tikka</div>
-                        <div class="food-desc">Grilled cottage cheese, tandoor style</div>
-                        <div class="food-price">₹280</div>
-                    </div>
-                    <div class="food-actions"></div>
-                </div>
-
-                <div class="food-item" data-id="7" data-name="Spring Rolls" data-price="180" data-category="starters">
-                    <div class="food-emoji">🥟</div>
-                    <div class="food-info">
-                        <div class="food-name"><span class="veg-dot"></span>Spring Rolls</div>
-                        <div class="food-desc">Crispy vegetable rolls with dip</div>
-                        <div class="food-price">₹180</div>
-                    </div>
-                    <div class="food-actions"></div>
-                </div>
-            </div>
-
-            <div class="menu-section" id="category-mains">
-                <h3 class="menu-section-header">Mains</h3>
-                
-                <div class="food-item" data-id="1" data-name="Butter Chicken" data-price="360" data-category="mains">
-                    <div class="food-emoji">🍗</div>
-                    <div class="food-info">
-                        <div class="food-name"><span class="nonveg-dot"></span>Butter Chicken</div>
-                        <div class="food-desc">Creamy tomato curry, best seller</div>
-                        <div class="tag-row"><span class="tag best">Bestseller</span></div>
-                        <div class="food-price">₹360</div>
-                    </div>
-                    <div class="food-actions"></div>
-                </div>
-
-                <div class="food-item" data-id="3" data-name="Fish Curry" data-price="420" data-category="mains">
-                    <div class="food-emoji">🐟</div>
-                    <div class="food-info">
-                        <div class="food-name"><span class="nonveg-dot"></span>Fish Curry</div>
-                        <div class="food-desc">Coastal style, fresh catch</div>
-                        <div class="food-avail-time"><i data-lucide="clock"></i> Available from 6:00 PM</div>
-                        <div class="food-price">₹420</div>
-                    </div>
-                    <div class="food-actions">
-                        <button class="add-btn disabled" aria-label="Not available yet" disabled>+</button>
-                    </div>
-                </div>
-
-                <div class="food-item" data-id="8" data-name="Dal Makhani" data-price="240" data-category="mains">
-                    <div class="food-emoji">🥘</div>
-                    <div class="food-info">
-                        <div class="food-name"><span class="veg-dot"></span>Dal Makhani</div>
-                        <div class="food-desc">Creamy lentils with butter and cream</div>
-                        <div class="food-price">₹240</div>
-                    </div>
-                    <div class="food-actions"></div>
-                </div>
-            </div>
-
-            <div class="menu-section" id="category-breads">
-                <h3 class="menu-section-header">Breads</h3>
-                
-                <div class="food-item" data-id="4" data-name="Garlic Naan" data-price="75" data-category="breads">
-                    <div class="food-emoji">🥖</div>
-                    <div class="food-info">
-                        <div class="food-name"><span class="veg-dot"></span>Garlic Naan</div>
-                        <div class="food-desc">Tandoor-baked flatbread with garlic</div>
-                        <div class="food-price">₹75</div>
-                    </div>
-                    <div class="food-actions"></div>
-                </div>
-
-                <div class="food-item" data-id="9" data-name="Butter Naan" data-price="65" data-category="breads">
-                    <div class="food-emoji">🥐</div>
-                    <div class="food-info">
-                        <div class="food-name"><span class="veg-dot"></span>Butter Naan</div>
-                        <div class="food-desc">Soft naan with melted butter</div>
-                        <div class="food-price">₹65</div>
-                    </div>
-                    <div class="food-actions"></div>
-                </div>
-            </div>
-
-            <div class="menu-section" id="category-drinks">
-                <h3 class="menu-section-header">Drinks</h3>
-                
-                <div class="food-item" data-id="5" data-name="Coke" data-price="40" data-category="drinks">
-                    <div class="food-emoji">🥤</div>
-                    <div class="food-info">
-                        <div class="food-name">Coke</div>
-                        <div class="food-desc">Chilled soft drink</div>
-                        <div class="food-price">₹40</div>
-                    </div>
-                    <div class="food-actions"></div>
-                </div>
-
-                <div class="food-item" data-id="10" data-name="Lassi" data-price="60" data-category="drinks">
-                    <div class="food-emoji">🥛</div>
-                    <div class="food-info">
-                        <div class="food-name"><span class="veg-dot"></span>Lassi</div>
-                        <div class="food-desc">Sweet yogurt drink</div>
-                        <div class="food-price">₹60</div>
-                    </div>
-                    <div class="food-actions"></div>
-                </div>
-            </div>
-
-            <div class="menu-section" id="category-desserts">
-                <h3 class="menu-section-header">Desserts</h3>
-                
-                <div class="food-item" data-id="6" data-name="Gulab Jamun" data-price="90" data-category="desserts">
-                    <div class="food-emoji">🍮</div>
-                    <div class="food-info">
-                        <div class="food-name"><span class="veg-dot"></span>Gulab Jamun</div>
-                        <div class="food-desc">Warm, sweet, and syrupy</div>
-                        <div class="food-price">₹90</div>
-                    </div>
-                    <div class="food-actions"></div>
-                </div>
-
-                <div class="food-item" data-id="11" data-name="Kheer" data-price="80" data-category="desserts">
-                    <div class="food-emoji">🍲</div>
-                    <div class="food-info">
-                        <div class="food-name"><span class="veg-dot"></span>Kheer</div>
-                        <div class="food-desc">Rice pudding with cardamom</div>
-                        <div class="food-price">₹80</div>
-                    </div>
-                    <div class="food-actions"></div>
-                </div>
-            </div>
-
-            <div class="no-results" id="no-results-message">
+            <div class="no-results" id="no-results-message" style="display: none;">
                 <i data-lucide="search-x"></i>
                 <p>No dishes match your search</p>
             </div>
-
         </div>
     </main>
 
@@ -235,7 +94,7 @@
         const menuHeader = document.getElementById('menu-header');
         const searchInput = document.getElementById('search-input');
         const categoryFilters = document.getElementById('category-filters');
-        const menuSections = document.querySelectorAll('.menu-section');
+        let menuSections = []; // Will be populated dynamically
         const noResultsMessage = document.getElementById('no-results-message');
         const greetingTextEl = document.getElementById('greeting-text');
         const tableNumberEl = document.getElementById('table-number');
@@ -243,17 +102,69 @@
         // State Management
         let cart = {};
 
+        // Default Data fallback
+        const defaultMenu = [
+            { id: '1', name: 'Butter Chicken', price: 360, category: 'mains', desc: 'Creamy tomato curry, best seller', type: 'nonveg', emoji: '🍗' },
+            { id: '2', name: 'Paneer Tikka', price: 280, category: 'starters', desc: 'Grilled cottage cheese, tandoor style', type: 'veg', emoji: '🍛' },
+            { id: '4', name: 'Garlic Naan', price: 75, category: 'breads', desc: 'Tandoor-baked flatbread with garlic', type: 'veg', emoji: '🥖' },
+            { id: '5', name: 'Coke', price: 40, category: 'drinks', desc: 'Chilled soft drink', type: 'veg', emoji: '🥤' }
+        ];
+
+        // --- DYNAMIC RENDERING LOGIC ---
+        const renderMenuFromStore = () => {
+            let menuItems = window.persistentStore.getItem('menuItems');
+            if (!menuItems || menuItems.length === 0) {
+                menuItems = defaultMenu;
+                window.persistentStore.setItem('menuItems', menuItems);
+            }
+
+            // Group by category
+            const grouped = { starters: [], mains: [], breads: [], drinks: [], desserts: [] };
+            menuItems.forEach(item => {
+                if(grouped[item.category]) grouped[item.category].push(item);
+            });
+
+            const catTitles = { starters: 'Starters', mains: 'Mains', breads: 'Breads', drinks: 'Drinks', desserts: 'Desserts' };
+            
+            let html = '';
+            for (const [cat, items] of Object.entries(grouped)) {
+                if (items.length > 0) {
+                    html += `<div class="menu-section" id="category-${cat}">
+                                <h3 class="menu-section-header">${catTitles[cat]}</h3>`;
+                    
+                    items.forEach(item => {
+                        const dotClass = item.type === 'veg' ? 'veg-dot' : 'nonveg-dot';
+                        html += `
+                        <div class="food-item" data-id="${item.id}" data-name="${item.name}" data-price="${item.price}" data-category="${cat}">
+                            <div class="food-emoji">${item.emoji}</div>
+                            <div class="food-info">
+                                <div class="food-name"><span class="${dotClass}"></span>${item.name}</div>
+                                <div class="food-desc">${item.desc}</div>
+                                <div class="food-price">₹${item.price}</div>
+                            </div>
+                            <div class="food-actions">
+                                </div>
+                        </div>`;
+                    });
+                    html += `</div>`;
+                }
+            }
+            // Append no results div
+            html += `<div class="no-results" id="no-results-message" style="display: none;"><i data-lucide="search-x"></i><p>No dishes match your search</p></div>`;
+            
+            menuContainer.innerHTML = html;
+            menuSections = document.querySelectorAll('.menu-section'); // Re-select after injecting
+            if (window.lucide) window.lucide.createIcons();
+        };
+
         const loadCart = () => {
-            // Using unified store.js method
             cart = window.persistentStore.getItem('cart') || {};
         };
 
         const saveCart = () => {
-            // Using unified store.js method
             window.persistentStore.setItem('cart', cart);
         };
 
-        // Update Item Controls
         const updateItemControls = (itemElement) => {
             const id = itemElement.dataset.id;
             const actionsContainer = itemElement.querySelector('.food-actions');
@@ -272,43 +183,28 @@
             }
         };
 
-        // Update Cart Indicators
         const updateCartIndicators = () => {
-            // Find elements here to avoid race condition with component loader
             const navCartBadge = document.getElementById('cart-badge');
             const bnCartDot = document.getElementById('bn-cart-dot');
-
             const totalItems = Object.values(cart).reduce((sum, item) => sum + item.quantity, 0);
             const totalPrice = Object.values(cart).reduce((sum, item) => sum + (item.price * item.quantity), 0);
 
             if (totalItems > 0) {
-                // Update badges
-                if (navCartBadge) {
-                    navCartBadge.textContent = totalItems;
-                    navCartBadge.style.display = 'inline-flex';
-                }
-                if (bnCartDot) {
-                    bnCartDot.style.display = 'block';
-                }
-
-                // Update cart bar
+                if (navCartBadge) { navCartBadge.textContent = totalItems; navCartBadge.style.display = 'inline-flex'; }
+                if (bnCartDot) bnCartDot.style.display = 'block';
                 cartBarCount.textContent = `${totalItems} item${totalItems > 1 ? 's' : ''}`;
                 cartBarTotal.textContent = `₹${totalPrice}`;
                 cartBar.style.display = 'flex';
                 menuContainer.style.paddingBottom = `${cartBar.offsetHeight + 8}px`;
             } else {
-                if (navCartBadge) {
-                    navCartBadge.style.display = 'none';
-                }
-                if (bnCartDot) {
-                    bnCartDot.style.display = 'none';
-                }
+                if (navCartBadge) navCartBadge.style.display = 'none';
+                if (bnCartDot) bnCartDot.style.display = 'none';
                 cartBar.style.display = 'none';
                 menuContainer.style.paddingBottom = '0px';
             }
         };
 
-        // Event Handling for Food Items
+        // Event Handling for Food Items (Event Delegation)
         menuContainer.addEventListener('click', (e) => {
             const itemElement = e.target.closest('.food-item');
             if (!itemElement) return;
@@ -334,11 +230,11 @@
                 }
             }
 
-            saveCart();
-            updateItemControls(itemElement);
-            updateCartIndicators();
-            if (message && window.showToast) {
-                window.showToast(message, 'success');
+            if(message) {
+                saveCart();
+                updateItemControls(itemElement);
+                updateCartIndicators();
+                if (window.showToast) window.showToast(message, 'success');
             }
         });
 
@@ -352,6 +248,7 @@
             const searchTerm = searchInput.value.toLowerCase();
             const activeCategory = categoryFilters.querySelector('.cat.active').dataset.filter;
             let itemsVisible = 0;
+            const noResultsEl = document.getElementById('no-results-message');
 
             menuSections.forEach(section => {
                 let sectionVisibleItems = 0;
@@ -379,7 +276,7 @@
                 }
             });
 
-            noResultsMessage.style.display = itemsVisible === 0 ? 'block' : 'none';
+            if(noResultsEl) noResultsEl.style.display = itemsVisible === 0 ? 'block' : 'none';
         };
 
         searchInput.addEventListener('input', updateMenuVisibility);
@@ -396,59 +293,28 @@
         const setDynamicInfo = () => {
             const hour = new Date().getHours();
             let greetingText = 'Welcome!';
-            if (hour < 12) {
-                greetingText = 'Good morning!';
-            } else if (hour < 18) {
-                greetingText = 'Good afternoon!';
-            } else {
-                greetingText = 'Good evening!';
-            }
-            if (greetingTextEl) {
-                greetingTextEl.textContent = greetingText;
-            }
-
-            // Load table number from persistent store
+            if (hour < 12) greetingText = 'Good morning!';
+            else if (hour < 18) greetingText = 'Good afternoon!';
+            else greetingText = 'Good evening!';
+            
+            if (greetingTextEl) greetingTextEl.textContent = greetingText;
             if (tableNumberEl) {
                 const storedTable = window.persistentStore.getItem('tableNumber');
                 tableNumberEl.textContent = storedTable ? storedTable : 'Walk-in';
             }
         };
 
-        // Modal Logic
-        const openModalButtons = document.querySelectorAll('[data-modal-target]');
-        const closeModalButtons = document.querySelectorAll('[data-modal-close]');
-
-        openModalButtons.forEach(button => {
-            button.addEventListener('click', (e) => {
-                e.preventDefault();
-                const modal = document.getElementById(button.dataset.modalTarget);
-                if (modal) modal.classList.add('active');
-            });
-        });
-
-        closeModalButtons.forEach(button => {
-            button.addEventListener('click', () => {
-                const modal = button.closest('.modal-overlay');
-                if (modal) modal.classList.remove('active');
-            });
-        });
-
         // Initialize
         const initializeMenu = () => {
-            loadCart();
+            renderMenuFromStore(); // Build HTML from store
+            loadCart();            // Load cart
+            
+            // Apply cart controls to rendered items
             const foodItems = menuContainer.querySelectorAll('.food-item');
-            foodItems.forEach(item => {
-                if (!item.querySelector('.add-btn.disabled')) {
-                    updateItemControls(item);
-                }
-            });
+            foodItems.forEach(item => updateItemControls(item));
+            
             updateCartIndicators();
             setDynamicInfo();
-
-            // Initialize Lucide Icons
-            if (window.lucide) {
-                window.lucide.createIcons();
-            }
         };
 
         initializeMenu();

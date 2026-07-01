@@ -337,18 +337,15 @@
 
         currentReversedHistory.forEach((order, index) => {
             const orderTime = new Date(order.timestamp);
-            const timeElapsed = Math.floor((Date.now() - orderTime.getTime()) / 60000); // in minutes
             
             const dateOptions = { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
             const dateString = orderTime.toLocaleDateString('en-US', dateOptions);
             
             // Build Items Summary String and count total quantities
             let itemsSummary = '';
-            let totalItemQuantity = 0;
             
             if (order.items && Object.keys(order.items).length > 0) {
                 const itemNames = Object.values(order.items).map(item => {
-                    totalItemQuantity += item.quantity; // Summing up all item quantities
                     return `${item.name} x ${item.quantity}`;
                 });
                 
@@ -359,21 +356,15 @@
                 }
             } else {
                 itemsSummary = 'Item details unavailable';
-                totalItemQuantity = 2; // Fallback quantity if old order data is missing items
             }
 
-            // --- DYNAMIC PREP TIME LOGIC ---
-            // Base time of 15 minutes + 3 minutes per item. Cap it at 45 minutes max.
-            const dynamicPrepTime = Math.min(15 + (totalItemQuantity * 3), 45);
-
-            // Status Logic
-            let statusText = 'Delivered';
-            let statusClass = 'completed';
+            // --- STATUS LOGIC (Read from Owner Panel) ---
+            let statusText = order.status || 'Preparing';
+            let statusClass = 'active';
             
-            if (timeElapsed < dynamicPrepTime) {
-                const minutesLeft = dynamicPrepTime - timeElapsed;
-                statusText = `Preparing • ${minutesLeft} min left`;
-                statusClass = 'active';
+            // If the owner marks it as completed or ready, change to completed UI
+            if (statusText === 'Completed' || statusText === 'Delivered' || statusText === 'Ready to Serve') {
+                statusClass = 'completed';
             }
 
             // Build Card
@@ -526,7 +517,8 @@
 
     // Initial render
     renderOrders();
-    setInterval(renderOrders, 60000); // refresh time
+    // Changed polling to be slightly faster to reflect owner updates quicker
+    setInterval(renderOrders, 5000); 
   });
 </script>
 
