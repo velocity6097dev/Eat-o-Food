@@ -313,6 +313,11 @@
       opacity: 1;
     }
 
+    /* Keyframes for Spinner */
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
 </style>
 </head>
 <body>
@@ -376,9 +381,17 @@
 
 <div class="modal-overlay" id="payment-modal">
     <div class="modal-content">
+        
+        <div id="global-timer-banner" style="display: none; background: #fef2f2; border: 1px solid #fecdd3; border-radius: 8px; padding: 12px; margin-bottom: 20px; align-items: center; justify-content: space-between;">
+            <div style="display: flex; align-items: center; gap: 8px; color: #ef4444; font-weight: 600; font-size: 14px;">
+                <i data-lucide="timer" style="width: 18px; height: 18px;"></i>
+                <span>Complete payment in:</span>
+            </div>
+            <div class="payment-countdown" style="color: #ef4444; font-weight: 700; font-size: 18px; font-variant-numeric: tabular-nums;">05:00</div>
+        </div>
+
         <div id="payment-selection-view">
             <h3>Select Payment Method</h3>
-
             <div class="modal-order-summary" id="modal-summary" style="background: var(--surface-1); border-radius: 8px; padding: 12px; margin-bottom: 20px; font-size: 14px;">
               <div class="summary-row" style="display: flex; justify-content: space-between; margin-bottom: 8px;">
                 <span>Total Amount</span>
@@ -423,16 +436,25 @@
               <p style="color: var(--text-muted); font-size: 14px; margin-top: 8px;">
                 Completing payment via <strong id="processing-method-name"></strong>
               </p>
-              <button class="btn-secondary" id="cancel-payment-btn" style="margin-top: 20px; width: auto; padding: 10px 16px;">Cancel</button>
+              <button class="btn-secondary" id="cancel-payment-btn" style="margin-top: 20px; width: auto; padding: 10px 16px;">Cancel Order</button>
         </div>
 
         <div id="counter-payment-view" style="display: none; text-align:center;">
-              <i data-lucide="clock" style="width: 48px; height: 48px; color: var(--info-strong); margin-bottom: 16px;"></i>
-              <h3 style="margin-top: 0;">Awaiting Counter Payment</h3>
-              <p style="color: var(--text-muted); font-size: 14px; margin-top: 12px;">
-                Please pay <strong>₹<span id="counter-amount">0</span></strong> at the counter.
-              </p>
-              <button class="btn-secondary" id="cancel-counter-payment-btn" style="width: auto; padding: 10px 16px; margin-top: 20px;">Cancel Order</button>
+            <i data-lucide="clock" style="width: 48px; height: 48px; color: var(--info-strong); margin-bottom: 16px;"></i>
+            <h3 style="margin-top: 0;">Awaiting Cashier Approval</h3>
+            
+            <div style="background: rgba(255, 255, 255, 0.05); border: 1px dashed var(--border); border-radius: 8px; padding: 12px; margin: 16px auto; width: fit-content;">
+                <p style="font-size: 12px; color: var(--text-muted); margin: 0 0 4px 0;">Receipt No.</p>
+                <strong id="counter-receipt" style="font-size: 18px; letter-spacing: 2px; color: var(--text-primary);"></strong>
+            </div>
+
+            <p style="color: var(--text-muted); font-size: 14px; margin-top: 12px;">
+                Please show this receipt and pay <strong>₹<span id="counter-amount">0</span></strong> at the counter.
+            </p>
+            <div class="processing-spinner" style="width: 20px; height: 20px; border: 2px solid var(--surface-2); border-top-color: var(--info-strong); border-radius: 50%; animation: spin 1s linear infinite; margin: 16px auto 8px;"></div>
+            <p style="font-size: 12px; color: var(--text-muted);">Waiting for counter to confirm payment...</p>
+            
+            <button class="btn-secondary" id="cancel-counter-payment-btn" style="width: auto; padding: 10px 16px; margin-top: 20px;">Cancel Order</button>
         </div>
     </div>
 </div>
@@ -469,12 +491,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const paymentSelectionView = document.getElementById('payment-selection-view');
     const paymentProcessingView = document.getElementById('payment-processing-view');
     const counterPaymentView = document.getElementById('counter-payment-view');
+    const globalTimerBanner = document.getElementById('global-timer-banner');
+    
     const cancelPaymentBtn = document.getElementById('cancel-payment-btn');
     const cancelCounterPaymentBtn = document.getElementById('cancel-counter-payment-btn');
-    const processingMethodName = document.getElementById('processing-method-name');
-    const modalTotal = document.getElementById('modal-total');
-    const counterAmount = document.getElementById('counter-amount');
     const paymentOptionsContainer = document.getElementById('payment-options-container');
+    const modalTotal = document.getElementById('modal-total');
 
     // Constants & State
     const GST_RATE = 0.05; // 5%
@@ -485,12 +507,16 @@ document.addEventListener('DOMContentLoaded', () => {
     let isPromoApplied = false;
     let orderTotal = 0;
 
+    // --- State variables for timers ---
+    let paymentTimerInterval = null;
+    let orderPollingInterval = null;
+    let currentServerOrderId = null;
+
     // --- Persistent Store Management ---
     const loadState = () => {
         cart = window.persistentStore.getItem('cart') || {};
         isPromoApplied = window.persistentStore.getItem('promoApplied') || false;
         
-        // Restore promo from memory if it was applied
         if(isPromoApplied) {
             appliedPromoCode = window.persistentStore.getItem('promoCode');
             appliedPromoDiscount = window.persistentStore.getItem('promoDiscount') || 0;
@@ -512,12 +538,99 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    // --- Helper Functions for Reset & Clear ---
+    const clearCartLocally = () => {
+        cart = {}; isPromoApplied = false; promoInput.value = "";
+        window.persistentStore.removeItem('cart');
+        window.persistentStore.setItem('promoApplied', false);
+        window.persistentStore.removeItem('promoCode');
+        window.persistentStore.removeItem('promoDiscount');
+    };
+
+    const resetModalViews = () => {
+        clearInterval(paymentTimerInterval);
+        clearInterval(orderPollingInterval);
+        currentServerOrderId = null;
+
+        paymentSelectionView.style.display = 'block';
+        paymentProcessingView.style.display = 'none';
+        counterPaymentView.style.display = 'none';
+        globalTimerBanner.style.display = 'none'; // Hide global timer
+        
+        paymentModal.classList.remove('active');
+        document.querySelectorAll('.payment-countdown').forEach(el => el.textContent = '05:00');
+    };
+
+    // --- The Timer & Polling Logic ---
+    const cancelOrderOnServer = async (orderId) => {
+        if (!orderId) return;
+        try {
+            await fetch('/bistro-track-backend/api/orders/cancel.php', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ order_id: orderId })
+            });
+        } catch (e) {
+            console.error("Failed to cancel on server", e);
+        }
+    };
+
+    const startPaymentTimer = (serverOrderId) => {
+        let timeLeft = 300; // 5 minutes in seconds
+        document.querySelectorAll('.payment-countdown').forEach(el => el.textContent = '05:00');
+        
+        // Show the global timer banner in the modal
+        globalTimerBanner.style.display = 'flex'; 
+
+        if(window.lucide) { lucide.createIcons(); }
+
+        paymentTimerInterval = setInterval(() => {
+            timeLeft--;
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            const timeString = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            document.querySelectorAll('.payment-countdown').forEach(el => el.textContent = timeString);
+
+            if (timeLeft <= 0) {
+                // Time Expired!
+                clearInterval(paymentTimerInterval);
+                clearInterval(orderPollingInterval);
+                cancelOrderOnServer(serverOrderId);
+                
+                alert('Payment window expired. Your order has been cancelled, please try again.');
+                resetModalViews();
+            }
+        }, 1000);
+    };
+
+    const startCounterPolling = (serverOrderId) => {
+        orderPollingInterval = setInterval(async () => {
+            try {
+                // Ping the backend to check if the cashier marked this order as 'paid'
+                const res = await fetch(`/bistro-track-backend/api/orders/status.php?order_id=${serverOrderId}`);
+                const data = await res.json();
+                
+                if (data.success && data.status === 'paid') {
+                    // Success! The counter accepted the cash.
+                    clearInterval(orderPollingInterval);
+                    clearInterval(paymentTimerInterval);
+                    
+                    if(window.showToast) window.showToast('Payment received at counter!', 'success');
+                    clearCartLocally();
+                    window.location.href = 'tracking.html';
+                }
+            } catch (e) {
+                console.error("Polling error", e);
+            }
+        }, 3000); // Check every 3 seconds
+    };
+
     // --- API Driven Promo Logic ---
     applyPromoBtn.addEventListener('click', async () => {
         const code = promoInput.value.trim().toUpperCase();
         if (code === "") return;
         
-        // Add a visual loading state to button
         const originalText = applyPromoBtn.innerText;
         applyPromoBtn.innerText = '...';
         applyPromoBtn.disabled = true;
@@ -535,9 +648,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 appliedPromoCode = data.code;
                 appliedPromoDiscount = data.discount_percent / 100;
                 
-                promoTextApplied.innerText = `${data.code} applied`;
-                promoTextDetails.innerText = `— ${data.discount_percent}% off your order`;
-
                 savePromoState(); 
                 updatePromoUI(true); 
                 renderBill();
@@ -729,17 +839,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
         paymentSelectionView.style.display = 'none';
         
-        // 1. Create order on backend server
+        // Generate receipt number early so we can send it in the payload
+        const receiptNumber = method === 'Counter' ? ('RCPT-' + Math.floor(100000 + Math.random() * 900000)) : null;
+
+        // 1. Create order on backend server (Status: 'pending')
         const orderItems = Object.keys(cart).map(id => ({ id: parseInt(id), quantity: cart[id].quantity }));
         const orderPayload = {
             table_number: tableNumber,
             items: orderItems,
-            payment_method: method
+            payment_method: method,
+            receipt_no: receiptNumber 
         };
-        
-        if (isPromoApplied && appliedPromoCode) {
-            orderPayload.promo_code = appliedPromoCode;
-        }
+        if (isPromoApplied && appliedPromoCode) orderPayload.promo_code = appliedPromoCode;
         
         try {
             const res = await fetch('/bistro-track-backend/api/orders/create.php', {
@@ -755,25 +866,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
             
-            const serverOrderId = data.order_id;
+            currentServerOrderId = data.order_id;
             const serverTotal = data.bill.total;
+
+            // Start the 5-minute expiry timer visibly in our modal
+            startPaymentTimer(currentServerOrderId);
 
             if (method === 'Counter') {
                 counterPaymentView.style.display = 'block';
                 document.getElementById('counter-amount').textContent = serverTotal;
+                document.getElementById('counter-receipt').textContent = receiptNumber;
                 
-                // Clear cart locally
-                cart = {}; isPromoApplied = false; promoInput.value = "";
-                window.persistentStore.removeItem('cart');
-                window.persistentStore.setItem('promoApplied', false);
-                window.persistentStore.removeItem('promoCode');
-                window.persistentStore.removeItem('promoDiscount');
-                
-                setTimeout(() => { window.location.href = 'tracking.html'; }, 3000);
+                // Start polling the server for cashier approval
+                startCounterPolling(currentServerOrderId);
+
             } else {
                 paymentProcessingView.style.display = 'block';
                 document.getElementById('processing-method-name').textContent = method;
-                initializeRazorpayPayment(method, tableNumber, serverOrderId);
+                initializeRazorpayPayment(method, tableNumber, currentServerOrderId);
             }
         } catch(e) {
             console.error(e);
@@ -804,8 +914,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 name: "Eat-o-Food",
                 description: `Order for Table ${tableNumber}`,
                 order_id: rzpData.razorpay_order_id,
+                
+                // REMOVED the restrictive 'config' block so it loads normally and handles Test Mode properly
+                timeout: 300, 
+
                 handler: async function (response) {
-                    // Verify payment securely on server
                     try {
                         const verifyRes = await fetch('/bistro-track-backend/api/payment/razorpay_verify.php', {
                             method: 'POST',
@@ -820,11 +933,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         const verifyData = await verifyRes.json();
                         
                         if(verifyData.success) {
-                            cart = {}; isPromoApplied = false; promoInput.value = "";
-                            window.persistentStore.removeItem('cart');
-                            window.persistentStore.setItem('promoApplied', false);
-                            window.persistentStore.removeItem('promoCode');
-                            window.persistentStore.removeItem('promoDiscount');
+                            clearInterval(paymentTimerInterval); // Stop timer
+                            clearCartLocally();
                             window.location.href = 'tracking.html';
                         } else {
                             alert(verifyData.error || "Payment verification failed on server");
@@ -835,11 +945,18 @@ document.addEventListener('DOMContentLoaded', () => {
                         resetModalViews();
                     }
                 },
-                modal: { ondismiss: function() { resetModalViews(); alert('Payment cancelled by user.'); } }
+                modal: { 
+                    ondismiss: function() { 
+                        // User closed Razorpay explicitly
+                        cancelOrderOnServer(serverOrderId);
+                        resetModalViews(); 
+                    } 
+                }
             };
             
             const rzp = new Razorpay(options);
             rzp.on('payment.failed', function (response) {
+                cancelOrderOnServer(serverOrderId);
                 resetModalViews();
                 alert(`Payment failed: ${response.error.description}`);
             });
@@ -851,15 +968,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    const resetModalViews = () => {
-        paymentSelectionView.style.display = 'block';
-        paymentProcessingView.style.display = 'none';
-        counterPaymentView.style.display = 'none';
-        paymentModal.classList.remove('active');
-    }
-
-    cancelPaymentBtn.addEventListener('click', resetModalViews);
-    cancelCounterPaymentBtn.addEventListener('click', resetModalViews);
+    // Cancel buttons inside the views
+    cancelPaymentBtn.addEventListener('click', () => {
+        if(currentServerOrderId) cancelOrderOnServer(currentServerOrderId);
+        resetModalViews();
+    });
+    
+    cancelCounterPaymentBtn.addEventListener('click', () => {
+        if(currentServerOrderId) cancelOrderOnServer(currentServerOrderId);
+        resetModalViews();
+    });
 
     // Initialization Sequence
     loadState();

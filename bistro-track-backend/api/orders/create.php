@@ -27,8 +27,19 @@ $items         = $input['items'] ?? [];
 $promoCode     = strtoupper(trim($input['promo_code'] ?? ''));
 $paymentMethod = trim($input['payment_method'] ?? 'UPI');
 
+// Receipt number is only relevant for Counter payments, generated client-side
+// and passed through so the cashier and customer see the same number.
+$receiptNo = trim((string) ($input['receipt_no'] ?? ''));
+if ($receiptNo === '') {
+    $receiptNo = null;
+}
+
 if ($tableNumber === '' || !is_numeric($tableNumber) || (float) $tableNumber <= 0) {
     send_error('A valid table number is required');
+}
+
+if ($paymentMethod === 'Counter' && $receiptNo === null) {
+    send_error('Receipt number is required for counter payments');
 }
 
 if (!is_array($items) || count($items) === 0) {
@@ -111,11 +122,11 @@ try {
 
     $orderStmt = $pdo->prepare(
         "INSERT INTO orders
-            (table_number, subtotal, discount_amount, gst_amount, total, promo_code, payment_method, payment_status, status)
-         VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', 'placed')"
+            (table_number, receipt_no, subtotal, discount_amount, gst_amount, total, promo_code, payment_method, payment_status, status)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending', 'pending')"
     );
     $orderStmt->execute([
-        $tableNumber, $subtotal, $discountAmount, $gstAmount, $total, $appliedPromo, $paymentMethod,
+        $tableNumber, $receiptNo, $subtotal, $discountAmount, $gstAmount, $total, $appliedPromo, $paymentMethod,
     ]);
 
     $orderId = (int) $pdo->lastInsertId();
@@ -138,6 +149,7 @@ send_json([
     'success'        => true,
     'order_id'       => $orderId,
     'table_number'   => $tableNumber,
+    'receipt_no'     => $receiptNo,
     'items'          => $orderItems,
     'bill'           => [
         'subtotal'        => $subtotal,
@@ -147,5 +159,5 @@ send_json([
     ],
     'promo_applied'  => $appliedPromo,
     'payment_method' => $paymentMethod,
-    'status'         => 'placed',
+    'status'         => 'pending',
 ], 201);

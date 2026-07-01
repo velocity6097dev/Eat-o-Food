@@ -4,13 +4,312 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Menu - Bistro Track</title>
-    
+
     <link rel="stylesheet" href="../../assets/css/variables.css">
     <link rel="stylesheet" href="../../assets/css/reset.css">
     <link rel="stylesheet" href="../../assets/css/components.css">
-    
+
     <script src="https://unpkg.com/lucide@latest" defer></script>
     <script src="../../assets/js/store.js"></script>
+
+    <style>
+        /* =========================================================
+           Menu page enhancements — scoped to this page only.
+           Reuses existing tokens (--text-muted, --danger-text, etc.)
+           where they already exist in variables.css, with safe
+           fallbacks so the page still looks right if a token is
+           missing.
+        ========================================================= */
+
+        :root {
+            --bt-accent: var(--danger-text, #e85d2f);
+            --bt-veg: #1e8449;
+            --bt-card-border: var(--border-color, #edeae4);
+        }
+
+        /* ---------- Greeting banner ----------
+           No background/text colors are set here on purpose —
+           .greeting-banner keeps whatever color is already defined
+           for it in components.css. Only layout/spacing is adjusted
+           so "Good afternoon" sits left and the table badge sits
+           right, in one compact row, with minimal side padding. */
+        .greeting-banner-wrapper { padding: 10px 0 4px; }
+
+        .greeting-banner {
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            text-align: left !important;
+            gap: 12px;
+            padding: 14px 16px;
+        }
+
+        .greeting-banner h2 {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin: 0;
+            font-size: 17px;
+            font-weight: 800;
+            letter-spacing: -0.2px;
+        }
+
+        .greeting-banner .greeting-icon {
+            font-size: 17px;
+            line-height: 1;
+        }
+
+        .greeting-banner p {
+            margin: 2px 0 0;
+            font-size: 12px;
+            opacity: 0.9;
+        }
+
+        .table-info-badge {
+            display: flex !important;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+            cursor: pointer;
+            user-select: none;
+            white-space: nowrap;
+        }
+
+        .table-info-main {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.1;
+            text-align: right;
+        }
+
+        .table-info-badge .label {
+            font-size: 9px;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            opacity: 0.85;
+        }
+
+        .table-info-badge strong {
+            font-size: 15px;
+        }
+
+        .table-edit-hint {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 5px 9px;
+            border-radius: 8px;
+            border: 1px solid currentColor;
+            opacity: 0.9;
+            transition: opacity 0.15s ease, transform 0.1s ease;
+        }
+
+        .table-info-badge:hover .table-edit-hint { opacity: 1; }
+        .table-info-badge:active { transform: scale(0.97); }
+
+        .table-edit-hint svg { width: 10px; height: 10px; }
+
+        /* ---------- Category filters ---------- */
+        .cats { gap: 8px; }
+
+        .cats .cat {
+            border-radius: 20px;
+            border: 1px solid var(--bt-card-border);
+            padding: 7px 16px;
+            font-weight: 600;
+            font-size: 13px;
+            transition: all 0.15s ease;
+        }
+
+        .cats .cat.active {
+            background: var(--bt-accent);
+            border-color: var(--bt-accent);
+            color: #fff;
+        }
+
+        /* ---------- Food items ---------- */
+        .menu-section-header {
+            font-size: 15px;
+            font-weight: 800;
+            letter-spacing: 0.2px;
+            padding: 16px 14px 6px;
+        }
+
+        .food-item {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 14px;
+            padding: 16px 14px;
+            border-bottom: 1px solid var(--bt-card-border);
+        }
+
+        .food-info {
+            flex: 1;
+            min-width: 0;
+            padding-top: 2px;
+        }
+
+        .food-name {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text, #1f2420);
+        }
+
+        .veg-dot, .nonveg-dot {
+            flex-shrink: 0;
+            width: 14px;
+            height: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 3px;
+            border: 1.5px solid var(--bt-veg);
+        }
+
+        .veg-dot::after {
+            content: "";
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--bt-veg);
+        }
+
+        .nonveg-dot {
+            border: none;
+            border-radius: 0;
+            width: 14px;
+            height: 14px;
+            border: 1.5px solid var(--bt-accent);
+            clip-path: polygon(50% 8%, 92% 92%, 8% 92%);
+        }
+
+        .nonveg-dot::after {
+            content: "";
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: var(--bt-accent);
+            margin-top: 3px;
+        }
+
+        .food-desc {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin: 6px 0;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .food-price {
+            font-size: 15px;
+            font-weight: 700;
+            margin-top: 4px;
+        }
+
+        .food-media {
+            position: relative;
+            flex-shrink: 0;
+            width: 108px;
+        }
+
+        .food-emoji {
+            width: 108px;
+            height: 108px;
+            border-radius: 14px;
+            background: linear-gradient(160deg, #fff2ec, #ffe4d8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 46px;
+            overflow: hidden;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+        }
+
+        .food-emoji img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .food-actions {
+            position: absolute;
+            left: 50%;
+            bottom: -14px;
+            transform: translateX(-50%);
+            z-index: 2;
+        }
+
+        .add-btn {
+            background: #fff;
+            border: 1.5px solid var(--bt-accent);
+            color: var(--bt-accent);
+            font-weight: 800;
+            font-size: 13px;
+            letter-spacing: 0.3px;
+            padding: 7px 24px;
+            border-radius: 9px;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.12);
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .qty-ctrl {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            background: var(--bt-accent);
+            border-radius: 9px;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.12);
+            overflow: hidden;
+        }
+
+        .qty-btn {
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 700;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+        }
+
+        .qty-num {
+            color: #fff;
+            font-weight: 700;
+            font-size: 13px;
+            min-width: 18px;
+            text-align: center;
+        }
+
+        /* ---------- Change-table modal ---------- */
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        #change-table-modal .modal-content {
+            width: 100%;
+            max-width: 320px;
+        }
+
+        #change-table-modal h3 {
+            margin: 0 0 4px;
+        }
+
+        #change-table-modal .welcome-input {
+            width: 100%;
+            box-sizing: border-box;
+        }
+    </style>
 </head>
 <body>
 
@@ -18,16 +317,19 @@
     <div id="header-placeholder"></div>
 
     <main class="body" id="main-body">
-        
+
         <div class="greeting-banner-wrapper">
             <div class="greeting-banner">
                 <div>
-                    <h2 id="greeting-text">Welcome back!</h2>
+                    <h2><span class="greeting-icon" id="greeting-icon">👋</span><span id="greeting-text">Welcome back!</span></h2>
                     <p>Ready to order?</p>
                 </div>
-                <div class="table-info-badge">
-                    <span>Table</span>
-                    <strong id="table-number">-</strong>
+                <div class="table-info-badge" id="table-info-badge" role="button" tabindex="0" aria-label="Change table">
+                    <div class="table-info-main">
+                        <span class="label">Table</span>
+                        <strong id="table-number">-</strong>
+                    </div>
+                    <span class="table-edit-hint"><i data-lucide="pencil"></i>Change</span>
                 </div>
             </div>
         </div>
@@ -76,6 +378,28 @@
     </div>
 </div>
 
+<div class="modal-overlay" id="change-table-modal">
+    <div class="modal-content">
+        <h3>🍽️ Change Table</h3>
+        <p style="color: var(--text-muted); font-size: 14px; margin-top: 4px;">
+            Enter your new table number to switch seats — no need to go back to the welcome screen.
+        </p>
+        <input
+            type="number"
+            id="new-table-input"
+            class="welcome-input"
+            placeholder="e.g., 12"
+            inputmode="numeric"
+            pattern="[0-9]*"
+            style="margin-top: 14px;"
+        >
+        <div style="display: flex; gap: 10px; margin-top: 18px;">
+            <button class="btn-secondary" data-modal-close style="flex: 1; padding: 10px;">Cancel</button>
+            <button class="btn-primary" id="save-table-btn" style="flex: 1; padding: 10px;">Save</button>
+        </div>
+    </div>
+</div>
+
 <div id="toast-placeholder"></div>
 
 <script src="../../assets/js/component-loader.js"></script>
@@ -91,9 +415,16 @@
         const menuHeader = document.getElementById('menu-header');
         const searchInput = document.getElementById('search-input');
         const categoryFilters = document.getElementById('category-filters');
-        let menuSections = []; 
+        let menuSections = [];
         const greetingTextEl = document.getElementById('greeting-text');
+        const greetingIconEl = document.getElementById('greeting-icon');
         const tableNumberEl = document.getElementById('table-number');
+
+        // Change-table elements
+        const tableInfoBadge = document.getElementById('table-info-badge');
+        const changeTableModal = document.getElementById('change-table-modal');
+        const newTableInput = document.getElementById('new-table-input');
+        const saveTableBtn = document.getElementById('save-table-btn');
 
         // State Management
         let cart = {};
@@ -103,39 +434,45 @@
             try {
                 const response = await fetch('/bistro-track-backend/api/menu.php');
                 const data = await response.json();
-                
+
                 if (data.success) {
                     let html = '';
                     data.categories.forEach(cat => {
                         if (cat.items && cat.items.length > 0) {
                             html += `<div class="menu-section" id="category-${cat.slug || cat.name.toLowerCase()}">
                                         <h3 class="menu-section-header">${cat.name}</h3>`;
-                            
+
                             cat.items.forEach(item => {
                                 // Assuming your API returns is_veg, adjust if it uses 'type' instead
                                 const dotClass = item.is_veg ? 'veg-dot' : 'nonveg-dot';
+                                // Use a real photo if the API provides one, otherwise fall back to the emoji tile
+                                const mediaContent = item.image
+                                    ? `<img src="${item.image}" alt="${item.name}">`
+                                    : (item.emoji || '🍛');
+
                                 html += `
                                 <div class="food-item" data-id="${item.id}" data-name="${item.name}" data-price="${item.price}" data-category="${cat.slug || cat.name.toLowerCase()}">
-                                    <div class="food-emoji">${item.emoji || '🍛'}</div>
                                     <div class="food-info">
                                         <div class="food-name"><span class="${dotClass}"></span>${item.name}</div>
                                         <div class="food-desc">${item.description || item.desc || ''}</div>
                                         <div class="food-price">₹${item.price}</div>
                                     </div>
-                                    <div class="food-actions">
-                                        </div>
+                                    <div class="food-media">
+                                        <div class="food-emoji">${mediaContent}</div>
+                                        <div class="food-actions"></div>
+                                    </div>
                                 </div>`;
                             });
                             html += `</div>`;
                         }
                     });
-                    
+
                     html += `<div class="no-results" id="no-results-message" style="display: none;"><i data-lucide="search-x"></i><p>No dishes match your search</p></div>`;
-                    
+
                     menuContainer.innerHTML = html;
                     menuSections = document.querySelectorAll('.menu-section');
                     if (window.lucide) window.lucide.createIcons();
-                    
+
                     // Re-apply cart controls for already added items
                     const foodItems = menuContainer.querySelectorAll('.food-item');
                     foodItems.forEach(item => updateItemControls(item));
@@ -170,7 +507,7 @@
                     </div>
                 `;
             } else {
-                actionsContainer.innerHTML = `<button class="add-btn" aria-label="Add ${itemElement.dataset.name}">+</button>`;
+                actionsContainer.innerHTML = `<button class="add-btn" aria-label="Add ${itemElement.dataset.name}">ADD</button>`;
             }
         };
 
@@ -221,7 +558,7 @@
                 }
             }
 
-            if(message) {
+            if (message) {
                 saveCart();
                 updateItemControls(itemElement);
                 updateCartIndicators();
@@ -267,7 +604,7 @@
                 }
             });
 
-            if(noResultsEl) noResultsEl.style.display = itemsVisible === 0 ? 'block' : 'none';
+            if (noResultsEl) noResultsEl.style.display = itemsVisible === 0 ? 'block' : 'none';
         };
 
         searchInput.addEventListener('input', updateMenuVisibility);
@@ -284,23 +621,88 @@
         const setDynamicInfo = () => {
             const hour = new Date().getHours();
             let greetingText = 'Welcome!';
-            if (hour < 12) greetingText = 'Good morning!';
-            else if (hour < 18) greetingText = 'Good afternoon!';
-            else greetingText = 'Good evening!';
-            
+            let greetingIcon = '👋';
+            if (hour < 5) { greetingText = 'Still up?'; greetingIcon = '🌙'; }
+            else if (hour < 12) { greetingText = 'Good morning!'; greetingIcon = '☀️'; }
+            else if (hour < 17) { greetingText = 'Good afternoon!'; greetingIcon = '🌤️'; }
+            else if (hour < 21) { greetingText = 'Good evening!'; greetingIcon = '🌇'; }
+            else { greetingText = 'Good night!'; greetingIcon = '🌙'; }
+
             if (greetingTextEl) greetingTextEl.textContent = greetingText;
+            if (greetingIconEl) greetingIconEl.textContent = greetingIcon;
             if (tableNumberEl) {
                 const storedTable = window.persistentStore.getItem('tableNumber');
                 tableNumberEl.textContent = storedTable ? storedTable : 'Walk-in';
             }
         };
 
+        // --- Change Table (inline, no trip back to the welcome screen) ---
+        // Visibility is forced with inline styles (not just a CSS class) so
+        // this reliably shows/hides the modal even if components.css uses a
+        // different show/hide convention than expected.
+        const openModal = (modal) => {
+            if (!modal) return;
+            modal.classList.add('open');
+            modal.style.setProperty('display', 'flex', 'important');
+            modal.style.setProperty('opacity', '1', 'important');
+            modal.style.setProperty('visibility', 'visible', 'important');
+            modal.style.setProperty('pointer-events', 'auto', 'important');
+            if (window.lucide) window.lucide.createIcons();
+        };
+        const closeModal = (modal) => {
+            if (!modal) return;
+            modal.classList.remove('open');
+            modal.style.setProperty('display', 'none', 'important');
+        };
+
+        if (tableInfoBadge && changeTableModal) {
+            const openChangeTableModal = () => {
+                newTableInput.value = window.persistentStore.getItem('tableNumber') || '';
+                openModal(changeTableModal);
+                newTableInput.focus();
+            };
+            tableInfoBadge.addEventListener('click', openChangeTableModal);
+            tableInfoBadge.addEventListener('keyup', (e) => {
+                if (e.key === 'Enter' || e.key === ' ') openChangeTableModal();
+            });
+        }
+
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', (e) => {
+                if (e.target === overlay) closeModal(overlay);
+            });
+            overlay.querySelectorAll('[data-modal-close]').forEach(btn => {
+                btn.addEventListener('click', () => closeModal(overlay));
+            });
+        });
+
+        if (saveTableBtn) {
+            saveTableBtn.addEventListener('click', () => {
+                const val = newTableInput.value.trim();
+                if (!val || isNaN(val) || parseInt(val) <= 0) {
+                    alert('Please enter a valid table number.');
+                    return;
+                }
+                window.persistentStore.setItem('tableNumber', val);
+                if (tableNumberEl) tableNumberEl.textContent = val;
+                closeModal(changeTableModal);
+                if (window.showToast) window.showToast(`Table switched to ${val}`, 'success');
+            });
+        }
+
+        if (newTableInput) {
+            newTableInput.addEventListener('keyup', (e) => {
+                if (e.key === 'Enter') saveTableBtn.click();
+            });
+        }
+
         // Initialize
         const initializeMenu = async () => {
-            loadCart();            
-            await renderMenuFromServer(); 
+            loadCart();
+            await renderMenuFromServer();
             updateCartIndicators();
             setDynamicInfo();
+            if (window.lucide) window.lucide.createIcons();
         };
 
         initializeMenu();

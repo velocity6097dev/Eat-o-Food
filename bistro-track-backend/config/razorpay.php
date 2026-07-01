@@ -8,4 +8,4 @@
 // ============================================================
 
 define('RAZORPAY_KEY_ID', 'rzp_test_T7PdP1tLIcDMHL'); // same test key currently in cart.html
-define('RAZORPAY_KEY_SECRET', 'PASTE_YOUR_TEST_KEY_SECRET_HERE');
+define('RAZORPAY_KEY_SECRET', 'RC2JTKLCtTdf4ERswmu17RiV');

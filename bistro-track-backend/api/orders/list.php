@@ -19,7 +19,7 @@ if ($tableNumber === '') {
 }
 
 $stmt = $pdo->prepare(
-    "SELECT id, table_number, total, payment_status, status, created_at
+    "SELECT id, table_number, total, payment_status, payment_method, status, created_at
      FROM orders
      WHERE table_number = ?
      ORDER BY created_at DESC"
