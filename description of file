@@ -1,0 +1,27 @@
+so i wanna create a website for booking so it will be like when a user opens the link he or she will be asked for table number and after entering the table no (which it will fetch after entering is there on db or not ) then it will show the menu of food the client can add the food to cart and then go into cart and pay for the amount they can see the process of food whether its accepted or preaparing or getting cooked or served 
+
+shop owners can add table with(seat no and category high medium low all prices can be configured via app )
+they can accept marked as cooking or marked as served can issue bill also (thermal 58 mm bill)
+name and address timings canbe changed also the website coloring can also be changed 
+can add menu items (season items,timing item availble from this time to this time ,delete item,item marked as not available)
+can create new categories and delete categories (this will be custom can make with new name categories)
+
+
+will be using razorpay integration for payment via online or pay at counter option (pay at counter will give a number to customer like -CNTR-215869 ) AND counter will fetch that and can make that as paid or edit and change as not paid or declined or changed to other payment method 
+
+in menu add system from admin make sure that it has the camera and photo picker both as it will be given that and image uploaded will be shown there inspired with (swiggy and zomatos style web based )
+
+need promocode system with smart things like first 100 customers,first time only,bla bla things and percentage and amount thing
+ 
+
+ will be using node things and make proper folder structure and all 
+
+ my details for the db is 
+ php my admin server free
+username-if0_42310932
+pass-Velocity6097
+
+using infinityfree db
+
+make sure u can add more features but make sure that it will be for mobile as well as pc should be same 
+
