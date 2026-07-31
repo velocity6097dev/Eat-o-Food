@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Menu Items</title>
+<link rel="stylesheet" href="css/admin.css">
+<style>
+  .menu-item-row { display:flex; align-items:center; gap:12px; }
+  .menu-item-photo { width:48px; height:48px; border-radius:10px; object-fit:cover; background:var(--color-line); }
+  .price-grid { display:grid; grid-template-columns: repeat(3,1fr); gap:10px; }
+  .time-grid { display:grid; grid-template-columns: 1fr 1fr; gap:10px; }
+  .toggle-row { display:flex; align-items:center; gap:8px; font-size:13.5px; font-weight:600; margin-bottom:10px; }
+</style>
+</head>
+<body>
+  <div id="appShell"></div>
+
+<script src="js/api.js"></script>
+<script>
+requireAuth();
+
+function content() {
+  return `
+    <div class="page-head">
+      <h1 class="page-title display">Menu Items</h1>
+      <button class="btn btn-primary" id="addBtn">+ Add Item</button>
+    </div>
+    <div class="card" style="padding:0;overflow-x:auto;">
+      <table>
+        <thead><tr><th>Item</th><th>Category</th><th>Price (H/M/L)</th><th>Availability</th><th></th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  `;
+}
+
+let items = [];
+let categories = [];
+
+async function load() {
+  try {
+    [items, categories] = await Promise.all([
+      AdminApi.get('/api/admin/menu'),
+      AdminApi.get('/api/admin/categories')
+    ]);
+    render();
+  } catch (err) { showToast(err.message); }
+}
+
+function render() {
+  document.getElementById('rows').innerHTML = items.map((it) => `
+    <tr>
+      <td>
+        <div class="menu-item-row">
+          <img class="menu-item-photo" src="${it.image_url ? window.API_BASE + it.image_url : 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=100&q=60'}">
+          <div>
+            <strong>${it.name}</strong>${it.is_seasonal ? ' <span class="badge badge-pending">Seasonal</span>' : ''}
+            ${it.available_from ? `<div style="font-size:11.5px;color:var(--color-ink-soft);">${it.available_from}–${it.available_to}</div>` : ''}
+          </div>
+        </div>
+      </td>
+      <td>${it.category_name}</td>
+      <td>${formatMoney(it.price_high)} / ${formatMoney(it.price_medium)} / ${formatMoney(it.price_low)}</td>
+      <td>
+        <label style="display:flex;align-items:center;gap:6px;font-size:13px;">
+          <input type="checkbox" data-toggle="${it.id}" ${it.is_available ? 'checked' : ''}> Available
+        </label>
+      </td>
+      <td style="text-align:right; white-space:nowrap;">
+        <button class="btn btn-outline btn-sm" data-edit="${it.id}">Edit</button>
+        <button class="btn btn-danger btn-sm" data-del="${it.id}">Delete</button>
+      </td>
+    </tr>
+  `).join('') || '<tr><td colspan="5" style="text-align:center;color:var(--color-ink-soft);padding:30px;">No menu items yet</td></tr>';
+
+  document.querySelectorAll('[data-edit]').forEach((b) => b.addEventListener('click', () => openModal(items.find(i => i.id == b.dataset.edit))));
+  document.querySelectorAll('[data-del]').forEach((b) => b.addEventListener('click', () => delItem(b.dataset.del)));
+  document.querySelectorAll('[data-toggle]').forEach((b) => b.addEventListener('change', () => toggleAvail(b.dataset.toggle, b.checked)));
+}
+
+async function toggleAvail(id, checked) {
+  try { await AdminApi.patch(`/api/admin/menu/${id}/availability`, { is_available: checked }); load(); }
+  catch (err) { showToast(err.message); }
+}
+
+async function delItem(id) {
+  if (!confirm('Delete this menu item?')) return;
+  try { await AdminApi.del(`/api/admin/menu/${id}`); load(); } catch (err) { showToast(err.message); }
+}
+
+function openModal(item) {
+  if (categories.length === 0) { showToast('Create a category first'); return; }
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  let selectedFile = null;
+
+  overlay.innerHTML = `
+    <div class="modal-box">
+      <div class="modal-head"><h3 class="display">${item ? 'Edit Item' : 'New Item'}</h3><button class="modal-close">×</button></div>
+
+      <div class="field">
+        <label class="field-label">Photo</label>
+        <div class="image-picker">
+          <img class="image-preview" id="preview" src="${item && item.image_url ? window.API_BASE + item.image_url : 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=100&q=60'}">
+          <button class="btn btn-outline btn-sm" id="cameraBtn" type="button">📷 Take Photo</button>
+          <button class="btn btn-outline btn-sm" id="galleryBtn" type="button">🖼️ Choose from Gallery</button>
+        </div>
+        <input type="file" accept="image/*" capture="environment" id="cameraInput" style="display:none;">
+        <input type="file" accept="image/*" id="galleryInput" style="display:none;">
+      </div>
+
+      <div class="field"><label class="field-label">Name</label><input class="input" id="mName" value="${item ? item.name : ''}" placeholder="e.g. Paneer Tikka"></div>
+      <div class="field"><label class="field-label">Description</label><textarea id="mDesc" rows="2" placeholder="Short description shown to customers">${item ? item.description : ''}</textarea></div>
+      <div class="field"><label class="field-label">Category</label>
+        <select id="mCategory">${categories.map(c => `<option value="${c.id}" ${item && item.category_id === c.id ? 'selected' : ''}>${c.name}</option>`).join('')}</select>
+      </div>
+
+      <div class="field">
+        <label class="field-label">Prices by table category</label>
+        <div class="price-grid">
+          <div><label style="font-size:11.5px;">High</label><input class="input" id="pHigh" type="number" step="0.01" value="${item ? item.price_high : ''}"></div>
+          <div><label style="font-size:11.5px;">Medium</label><input class="input" id="pMedium" type="number" step="0.01" value="${item ? item.price_medium : ''}"></div>
+          <div><label style="font-size:11.5px;">Low</label><input class="input" id="pLow" type="number" step="0.01" value="${item ? item.price_low : ''}"></div>
+        </div>
+      </div>
+
+      <div class="toggle-row"><input type="checkbox" id="mSeasonal" ${item && item.is_seasonal ? 'checked' : ''}> Seasonal item</div>
+
+      <div class="field">
+        <label class="field-label">Available only during this time window (optional)</label>
+        <div class="time-grid">
+          <input class="input" id="mFrom" type="time" value="${item && item.available_from ? item.available_from.slice(0,5) : ''}">
+          <input class="input" id="mTo" type="time" value="${item && item.available_to ? item.available_to.slice(0,5) : ''}">
+        </div>
+      </div>
+
+      <button class="btn btn-primary btn-block" id="mSave">Save</button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  overlay.querySelector('.modal-close').addEventListener('click', () => overlay.remove());
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+
+  overlay.querySelector('#cameraBtn').addEventListener('click', () => overlay.querySelector('#cameraInput').click());
+  overlay.querySelector('#galleryBtn').addEventListener('click', () => overlay.querySelector('#galleryInput').click());
+
+  function handleFile(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    selectedFile = file;
+    overlay.querySelector('#preview').src = URL.createObjectURL(file);
+  }
+  overlay.querySelector('#cameraInput').addEventListener('change', handleFile);
+  overlay.querySelector('#galleryInput').addEventListener('change', handleFile);
+
+  overlay.querySelector('#mSave').addEventListener('click', async () => {
+    const name = document.getElementById('mName').value.trim();
+    if (!name) { showToast('Name is required'); return; }
+
+    const form = new FormData();
+    form.append('name', name);
+    form.append('description', document.getElementById('mDesc').value.trim());
+    form.append('category_id', document.getElementById('mCategory').value);
+    form.append('price_high', document.getElementById('pHigh').value || 0);
+    form.append('price_medium', document.getElementById('pMedium').value || 0);
+    form.append('price_low', document.getElementById('pLow').value || 0);
+    form.append('is_seasonal', document.getElementById('mSeasonal').checked ? '1' : '0');
+    form.append('available_from', document.getElementById('mFrom').value || '');
+    form.append('available_to', document.getElementById('mTo').value || '');
+    if (selectedFile) form.append('image', selectedFile);
+
+    try {
+      if (item) await AdminApi.put(`/api/admin/menu/${item.id}`, form, true);
+      else await AdminApi.post('/api/admin/menu', form, true);
+      overlay.remove();
+      load();
+    } catch (err) { showToast(err.message); }
+  });
+}
+
+renderShell('menu', content());
+document.getElementById('addBtn').addEventListener('click', () => openModal(null));
+load();
+</script>
+</body>
+</html>

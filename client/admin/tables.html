@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tables</title>
+<link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+  <div id="appShell"></div>
+
+<script src="js/api.js"></script>
+<script>
+requireAuth();
+
+function content() {
+  return `
+    <div class="page-head">
+      <h1 class="page-title display">Tables</h1>
+      <button class="btn btn-primary" id="addBtn">+ Add Table</button>
+    </div>
+    <div class="card" style="padding:0;overflow-x:auto;">
+      <table>
+        <thead><tr><th>Table #</th><th>Seats</th><th>Category</th><th>Status</th><th></th></tr></thead>
+        <tbody id="tableRows"></tbody>
+      </table>
+    </div>
+  `;
+}
+
+let tables = [];
+
+async function load() {
+  try {
+    tables = await AdminApi.get('/api/admin/tables');
+    render();
+  } catch (err) { showToast(err.message); }
+}
+
+function render() {
+  document.getElementById('tableRows').innerHTML = tables.map((t) => `
+    <tr>
+      <td><strong>${t.table_number}</strong></td>
+      <td>${t.seat_count}</td>
+      <td style="text-transform:capitalize;">${t.category}</td>
+      <td>${t.is_active ? '<span class="badge badge-paid">Active</span>' : '<span class="badge badge-declined">Disabled</span>'}</td>
+      <td style="text-align:right; white-space:nowrap;">
+        <button class="btn btn-outline btn-sm" data-edit="${t.id}">Edit</button>
+        <button class="btn btn-danger btn-sm" data-del="${t.id}">Delete</button>
+      </td>
+    </tr>
+  `).join('') || '<tr><td colspan="5" style="text-align:center;color:var(--color-ink-soft);padding:30px;">No tables yet</td></tr>';
+
+  document.querySelectorAll('[data-edit]').forEach((b) => b.addEventListener('click', () => openModal(tables.find(t => t.id == b.dataset.edit))));
+  document.querySelectorAll('[data-del]').forEach((b) => b.addEventListener('click', () => delTable(b.dataset.del)));
+}
+
+async function delTable(id) {
+  if (!confirm('Delete this table?')) return;
+  try { await AdminApi.del(`/api/admin/tables/${id}`); load(); } catch (err) { showToast(err.message); }
+}
+
+function openModal(table) {
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.innerHTML = `
+    <div class="modal-box">
+      <div class="modal-head">
+        <h3 class="display">${table ? 'Edit Table' : 'Add Table'}</h3>
+        <button class="modal-close">×</button>
+      </div>
+      <div class="field"><label class="field-label">Table Number</label><input class="input" id="mNumber" value="${table ? table.table_number : ''}"></div>
+      <div class="field"><label class="field-label">Seat Count</label><input class="input" id="mSeats" type="number" min="1" value="${table ? table.seat_count : 2}"></div>
+      <div class="field"><label class="field-label">Category (affects menu pricing)</label>
+        <select id="mCategory">
+          <option value="low" ${table && table.category === 'low' ? 'selected' : ''}>Low</option>
+          <option value="medium" ${!table || table.category === 'medium' ? 'selected' : ''}>Medium</option>
+          <option value="high" ${table && table.category === 'high' ? 'selected' : ''}>High</option>
+        </select>
+      </div>
+      ${table ? `<div class="field"><label class="field-label">Status</label>
+        <select id="mActive">
+          <option value="1" ${table.is_active ? 'selected' : ''}>Active</option>
+          <option value="0" ${!table.is_active ? 'selected' : ''}>Disabled</option>
+        </select>
+      </div>` : ''}
+      <button class="btn btn-primary btn-block" id="mSave">Save</button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  overlay.querySelector('.modal-close').addEventListener('click', () => overlay.remove());
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+
+  overlay.querySelector('#mSave').addEventListener('click', async () => {
+    const payload = {
+      table_number: document.getElementById('mNumber').value.trim(),
+      seat_count: parseInt(document.getElementById('mSeats').value, 10),
+      category: document.getElementById('mCategory').value
+    };
+    if (table) payload.is_active = document.getElementById('mActive').value === '1' ? 1 : 0;
+    try {
+      if (table) await AdminApi.put(`/api/admin/tables/${table.id}`, payload);
+      else await AdminApi.post('/api/admin/tables', payload);
+      overlay.remove();
+      load();
+    } catch (err) { showToast(err.message); }
+  });
+}
+
+renderShell('tables', content());
+document.getElementById('addBtn').addEventListener('click', () => openModal(null));
+load();
+</script>
+</body>
+</html>

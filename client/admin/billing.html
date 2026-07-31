@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Billing</title>
+<link rel="stylesheet" href="css/admin.css">
+<style>
+  .search-row { display:flex; gap:10px; margin-bottom: 20px; }
+  .lookup-result { margin-bottom: 24px; }
+  .lr-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+  .lr-items { font-size: 14px; color: var(--color-ink-soft); margin-bottom: 12px; line-height: 1.6; }
+  .lr-total { font-size: 20px; font-weight: 800; margin-bottom: 14px; }
+  .lr-actions { display:flex; gap:10px; flex-wrap: wrap; }
+</style>
+</head>
+<body>
+  <div id="appShell"></div>
+
+<script src="js/api.js"></script>
+<script>
+requireAuth();
+
+function content() {
+  return `
+    <div class="page-head"><h1 class="page-title display">Counter Billing</h1></div>
+
+    <div class="card lookup-result">
+      <label class="field-label">Look up by counter code</label>
+      <div class="search-row">
+        <input class="input" id="codeInput" placeholder="e.g. CNTR-215869" style="text-transform:uppercase;">
+        <button class="btn btn-primary" id="lookupBtn">Find</button>
+      </div>
+      <div id="result"></div>
+    </div>
+
+    <h3 class="display" style="font-size:17px;margin-bottom:12px;">Pending Counter Payments</h3>
+    <div class="card" style="padding:0;overflow-x:auto;">
+      <table>
+        <thead><tr><th>Code</th><th>Table</th><th>Total</th><th>Status</th><th></th></tr></thead>
+        <tbody id="pendingRows"></tbody>
+      </table>
+    </div>
+  `;
+}
+
+renderShell('billing', content());
+
+document.getElementById('lookupBtn').addEventListener('click', lookup);
+document.getElementById('codeInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') lookup(); });
+
+async function lookup() {
+  const code = document.getElementById('codeInput').value.trim().toUpperCase();
+  if (!code) return;
+  try {
+    const order = await AdminApi.get(`/api/admin/orders/counter/${code}`);
+    renderResult(order);
+  } catch (err) {
+    document.getElementById('result').innerHTML = `<div style="color:var(--color-danger);font-size:14px;">${err.message}</div>`;
+  }
+}
+
+function renderResult(order) {
+  document.getElementById('result').innerHTML = `
+    <div class="lr-head">
+      <strong>Table ${order.table_number} — ${order.counter_code}</strong>
+      <span class="badge badge-${order.payment_status}">${order.payment_status}</span>
+    </div>
+    <div class="lr-items">${order.items.map(i => `${i.quantity} × ${i.item_name}`).join('<br>')}</div>
+    <div class="lr-total">${formatMoney(order.total)}</div>
+    <div class="lr-actions">
+      <button class="btn btn-primary btn-sm" data-act="paid-counter">Mark Paid (Counter)</button>
+      <button class="btn btn-outline btn-sm" data-act="paid-cash">Mark Paid (Cash)</button>
+      <button class="btn btn-danger btn-sm" data-act="declined">Mark Declined</button>
+      <button class="btn btn-outline btn-sm" data-print="${order.id}">Print Bill</button>
+    </div>
+  `;
+  document.querySelectorAll('[data-act]').forEach((b) => b.addEventListener('click', () => updatePayment(order.id, b.dataset.act)));
+  document.querySelector('[data-print]').addEventListener('click', () => window.open(`receipt.html?order=${order.id}`, '_blank'));
+}
+
+async function updatePayment(orderId, action) {
+  const payload = {};
+  if (action === 'paid-counter') { payload.payment_status = 'paid'; payload.payment_method = 'counter'; }
+  if (action === 'paid-cash') { payload.payment_status = 'paid'; payload.payment_method = 'cash'; }
+  if (action === 'declined') { payload.payment_status = 'declined'; }
+  try {
+    const order = await AdminApi.patch(`/api/admin/orders/${orderId}/payment`, payload);
+    renderResult(order);
+    loadPending();
+    showToast('Updated');
+  } catch (err) { showToast(err.message); }
+}
+
+async function loadPending() {
+  try {
+    const orders = await AdminApi.get('/api/admin/orders/active');
+    const pending = orders.filter(o => o.payment_method === 'counter' && o.payment_status !== 'paid');
+    document.getElementById('pendingRows').innerHTML = pending.map(o => `
+      <tr>
+        <td><strong>${o.counter_code}</strong></td>
+        <td>Table ${o.table_number}</td>
+        <td>${formatMoney(o.total)}</td>
+        <td><span class="badge badge-${o.payment_status}">${o.payment_status}</span></td>
+        <td style="text-align:right;"><button class="btn btn-outline btn-sm" data-view="${o.counter_code}">View</button></td>
+      </tr>
+    `).join('') || '<tr><td colspan="5" style="text-align:center;color:var(--color-ink-soft);padding:24px;">No pending counter payments</td></tr>';
+
+    document.querySelectorAll('[data-view]').forEach((b) => b.addEventListener('click', () => {
+      document.getElementById('codeInput').value = b.dataset.view;
+      lookup();
+    }));
+  } catch (err) { showToast(err.message); }
+}
+
+loadPending();
+setInterval(loadPending, 20000);
+</script>
+</body>
+</html>

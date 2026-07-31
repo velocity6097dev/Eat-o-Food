@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Categories</title>
+<link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+  <div id="appShell"></div>
+
+<script src="js/api.js"></script>
+<script>
+requireAuth();
+
+function content() {
+  return `
+    <div class="page-head">
+      <h1 class="page-title display">Categories</h1>
+      <button class="btn btn-primary" id="addBtn">+ Add Category</button>
+    </div>
+    <div class="card" style="padding:0;overflow-x:auto;">
+      <table>
+        <thead><tr><th>Name</th><th>Order</th><th>Status</th><th></th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  `;
+}
+
+let categories = [];
+
+async function load() {
+  try { categories = await AdminApi.get('/api/admin/categories'); render(); }
+  catch (err) { showToast(err.message); }
+}
+
+function render() {
+  document.getElementById('rows').innerHTML = categories.map((c) => `
+    <tr>
+      <td><strong>${c.name}</strong></td>
+      <td>${c.display_order}</td>
+      <td>${c.is_active ? '<span class="badge badge-paid">Active</span>' : '<span class="badge badge-declined">Hidden</span>'}</td>
+      <td style="text-align:right; white-space:nowrap;">
+        <button class="btn btn-outline btn-sm" data-edit="${c.id}">Edit</button>
+        <button class="btn btn-danger btn-sm" data-del="${c.id}">Delete</button>
+      </td>
+    </tr>
+  `).join('') || '<tr><td colspan="4" style="text-align:center;color:var(--color-ink-soft);padding:30px;">No categories yet</td></tr>';
+
+  document.querySelectorAll('[data-edit]').forEach((b) => b.addEventListener('click', () => openModal(categories.find(c => c.id == b.dataset.edit))));
+  document.querySelectorAll('[data-del]').forEach((b) => b.addEventListener('click', () => delCat(b.dataset.del)));
+}
+
+async function delCat(id) {
+  if (!confirm('Delete this category? Menu items inside it will also be deleted.')) return;
+  try { await AdminApi.del(`/api/admin/categories/${id}`); load(); } catch (err) { showToast(err.message); }
+}
+
+function openModal(cat) {
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.innerHTML = `
+    <div class="modal-box">
+      <div class="modal-head"><h3 class="display">${cat ? 'Edit Category' : 'New Category'}</h3><button class="modal-close">×</button></div>
+      <div class="field"><label class="field-label">Name</label><input class="input" id="mName" value="${cat ? cat.name : ''}" placeholder="e.g. Starters"></div>
+      <div class="field"><label class="field-label">Display Order</label><input class="input" id="mOrder" type="number" value="${cat ? cat.display_order : 0}"></div>
+      ${cat ? `<div class="field"><label class="field-label">Status</label>
+        <select id="mActive"><option value="1" ${cat.is_active ? 'selected' : ''}>Active</option><option value="0" ${!cat.is_active ? 'selected' : ''}>Hidden</option></select>
+      </div>` : ''}
+      <button class="btn btn-primary btn-block" id="mSave">Save</button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  overlay.querySelector('.modal-close').addEventListener('click', () => overlay.remove());
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+  overlay.querySelector('#mSave').addEventListener('click', async () => {
+    const name = document.getElementById('mName').value.trim();
+    if (!name) { showToast('Name is required'); return; }
+    const payload = { name, display_order: parseInt(document.getElementById('mOrder').value, 10) || 0 };
+    if (cat) payload.is_active = document.getElementById('mActive').value === '1' ? 1 : 0;
+    try {
+      if (cat) await AdminApi.put(`/api/admin/categories/${cat.id}`, payload);
+      else await AdminApi.post('/api/admin/categories', payload);
+      overlay.remove();
+      load();
+    } catch (err) { showToast(err.message); }
+  });
+}
+
+renderShell('categories', content());
+document.getElementById('addBtn').addEventListener('click', () => openModal(null));
+load();
+</script>
+</body>
+</html>

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Menu</title>
+<link rel="stylesheet" href="css/theme.css">
+<style>
+  .top-bar .table-chip {
+    background: rgba(255,255,255,0.18); padding: 4px 12px; border-radius: var(--radius-pill);
+    font-size: 13px; font-weight: 600;
+  }
+  .cat-section { padding: 20px 20px 4px; }
+  .cat-title { font-size: 20px; margin-bottom: 14px; }
+  .item-row {
+    display: flex; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--color-line);
+  }
+  .item-row:last-child { border-bottom: none; }
+  .item-info { flex: 1; min-width: 0; }
+  .item-name { font-weight: 700; font-size: 15.5px; margin-bottom: 4px; }
+  .item-desc { font-size: 13px; color: var(--color-ink-soft); margin-bottom: 8px; line-height: 1.4; }
+  .item-price { font-weight: 700; font-size: 14.5px; }
+  .item-photo-wrap {
+    position: relative; width: 100px; height: 90px; flex-shrink: 0;
+  }
+  .item-photo {
+    width: 100px; height: 90px; border-radius: 12px; object-fit: cover; background: var(--color-line);
+  }
+  .add-btn {
+    position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%);
+    background: var(--color-surface); border: 1.5px solid var(--color-primary); color: var(--color-primary);
+    font-weight: 800; font-size: 13px; padding: 6px 18px; border-radius: var(--radius-pill);
+    box-shadow: var(--shadow-card); white-space: nowrap;
+  }
+  .stepper {
+    position: absolute; bottom: -10px; left: 50%; transform: translateX(-50%);
+    background: var(--color-primary); color: #fff; border-radius: var(--radius-pill);
+    display: flex; align-items: center; gap: 10px; padding: 6px 10px; box-shadow: var(--shadow-card);
+  }
+  .stepper button { background: transparent; color: #fff; font-size: 16px; font-weight: 800; width: 18px; }
+  .badges { display: flex; gap: 6px; margin-bottom: 6px; }
+  .cart-bar {
+    position: sticky; bottom: 0; left: 0; right: 0;
+    background: var(--color-primary); color: #fff;
+    padding: 14px 20px; display: none;
+    align-items: center; justify-content: space-between;
+    box-shadow: 0 -4px 14px rgba(0,0,0,0.12);
+  }
+  .cart-bar.visible { display: flex; }
+  .cart-bar-info { font-size: 13px; opacity: 0.9; }
+  .cart-bar-total { font-weight: 800; font-size: 16px; }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="top-bar">
+      <div>
+        <div style="font-size:12px; opacity:0.85;">Ordering for</div>
+        <div id="shopNameTop" style="font-weight:700; font-size:16px;">Restaurant</div>
+      </div>
+      <div class="table-chip" id="tableChip">Table --</div>
+    </div>
+
+    <div id="menuContainer"></div>
+    <div class="empty-state" id="emptyState" style="display:none;">No menu items available right now. Please check back soon.</div>
+
+    <div class="cart-bar" id="cartBar" onclick="window.location.href='cart.html'">
+      <div>
+        <div class="cart-bar-total" id="cartBarCount">0 items</div>
+        <div class="cart-bar-info" id="cartBarSubtotal">Rs. 0</div>
+      </div>
+      <button class="btn btn-accent">View Cart →</button>
+    </div>
+  </div>
+
+<script src="js/api.js"></script>
+<script>
+(async function() {
+  const table = getTable();
+  if (!table) { window.location.href = 'index.html'; return; }
+
+  const shop = await applyShopTheme();
+  if (shop) document.getElementById('shopNameTop').textContent = shop.name;
+  document.getElementById('tableChip').textContent = `Table ${table.table_number}`;
+
+  let cart = getCart();
+
+  function qtyFor(itemId) {
+    const line = cart.find((c) => c.menuItemId === itemId);
+    return line ? line.quantity : 0;
+  }
+
+  function updateCartBar() {
+    const count = cartCount(cart);
+    const bar = document.getElementById('cartBar');
+    if (count > 0) {
+      bar.classList.add('visible');
+      document.getElementById('cartBarCount').textContent = `${count} item${count > 1 ? 's' : ''} added`;
+      document.getElementById('cartBarSubtotal').textContent = formatMoney(cartSubtotal(cart));
+    } else {
+      bar.classList.remove('visible');
+    }
+  }
+
+  function changeQty(item, delta) {
+    let line = cart.find((c) => c.menuItemId === item.id);
+    if (!line && delta > 0) {
+      cart.push({ menuItemId: item.id, name: item.name, price: item.price, quantity: 1 });
+    } else if (line) {
+      line.quantity += delta;
+      if (line.quantity <= 0) cart = cart.filter((c) => c.menuItemId !== item.id);
+    }
+    setCart(cart);
+    renderMenu(window.__menuData);
+    updateCartBar();
+  }
+
+  function renderMenu(menu) {
+    const container = document.getElementById('menuContainer');
+    container.innerHTML = '';
+    if (!menu || menu.length === 0) {
+      document.getElementById('emptyState').style.display = 'block';
+      return;
+    }
+    menu.forEach((cat) => {
+      const section = document.createElement('div');
+      section.className = 'cat-section';
+      const title = document.createElement('div');
+      title.className = 'cat-title display';
+      title.textContent = cat.name;
+      section.appendChild(title);
+
+      cat.items.forEach((item) => {
+        const qty = qtyFor(item.id);
+        const row = document.createElement('div');
+        row.className = 'item-row';
+        row.innerHTML = `
+          <div class="item-info">
+            <div class="badges">
+              ${item.is_seasonal ? '<span class="badge badge-seasonal">Seasonal</span>' : ''}
+            </div>
+            <div class="item-name">${item.name}</div>
+            <div class="item-desc">${item.description || ''}</div>
+            <div class="item-price">${formatMoney(item.price)}</div>
+          </div>
+          <div class="item-photo-wrap">
+            <img class="item-photo" src="${item.image_url ? window.API_BASE + item.image_url : 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200&q=60'}" alt="${item.name}">
+            ${qty > 0
+              ? `<div class="stepper"><button class="qty-minus">−</button><span>${qty}</span><button class="qty-plus">+</button></div>`
+              : `<button class="add-btn">ADD</button>`}
+          </div>
+        `;
+        const photoWrap = row.querySelector('.item-photo-wrap');
+        const addBtn = photoWrap.querySelector('.add-btn');
+        if (addBtn) addBtn.addEventListener('click', () => changeQty(item, 1));
+        const minus = photoWrap.querySelector('.qty-minus');
+        const plus = photoWrap.querySelector('.qty-plus');
+        if (minus) minus.addEventListener('click', () => changeQty(item, -1));
+        if (plus) plus.addEventListener('click', () => changeQty(item, 1));
+        section.appendChild(row);
+      });
+      container.appendChild(section);
+    });
+  }
+
+  try {
+    const { menu } = await Api.get(`/api/menu?tableCategory=${table.category}`);
+    window.__menuData = menu;
+    renderMenu(menu);
+  } catch (err) {
+    showToast(err.message);
+  }
+  updateCartBar();
+})();
+</script>
+</body>
+</html>

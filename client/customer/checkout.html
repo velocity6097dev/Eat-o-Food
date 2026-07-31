@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Checkout</title>
+<link rel="stylesheet" href="css/theme.css">
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<style>
+  .back-row { display:flex; align-items:center; gap:10px; padding:16px 20px 0; }
+  .back-btn { background:none; font-size:20px; color: var(--color-ink); }
+  .page-title { font-size: 22px; }
+  .section { padding: 16px 20px; }
+  .field-label { font-weight: 600; font-size: 14px; margin-bottom: 8px; display: block; }
+  .pay-option {
+    display: flex; align-items: center; gap: 14px; padding: 16px; border-radius: 14px;
+    border: 1.5px solid var(--color-line); margin-bottom: 12px; cursor: pointer;
+  }
+  .pay-option.selected { border-color: var(--color-primary); background: #F0F7F4; }
+  .pay-option input { accent-color: var(--color-primary); width: 18px; height: 18px; }
+  .pay-option-title { font-weight: 700; font-size: 14.5px; }
+  .pay-option-sub { font-size: 12.5px; color: var(--color-ink-soft); }
+  .total-line { display: flex; justify-content: space-between; font-weight: 800; font-size: 18px; padding: 4px 0 14px; }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="top-bar">
+      <div style="font-weight:700; font-size:16px;" id="shopNameTop">Restaurant</div>
+      <div style="background: rgba(255,255,255,0.18); padding: 4px 12px; border-radius: 999px; font-size: 13px; font-weight: 600;" id="tableChip">Table --</div>
+    </div>
+    <div class="back-row">
+      <button class="back-btn" onclick="window.location.href='cart.html'">←</button>
+      <h1 class="page-title display">Checkout</h1>
+    </div>
+
+    <div class="section">
+      <label class="field-label" for="nameInput">Your name (optional)</label>
+      <input class="input" id="nameInput" placeholder="e.g. Rahul">
+    </div>
+    <div class="section" style="padding-top:0;">
+      <label class="field-label" for="phoneInput">Phone number (optional, needed for some promo codes)</label>
+      <input class="input" id="phoneInput" type="tel" placeholder="10-digit mobile number">
+    </div>
+
+    <div class="section">
+      <label class="field-label">Payment method</label>
+      <label class="pay-option selected" id="onlineOption">
+        <input type="radio" name="paymentMethod" value="online" checked>
+        <div>
+          <div class="pay-option-title">Pay Online</div>
+          <div class="pay-option-sub">UPI, card, or netbanking via Razorpay</div>
+        </div>
+      </label>
+      <label class="pay-option" id="counterOption">
+        <input type="radio" name="paymentMethod" value="counter">
+        <div>
+          <div class="pay-option-title">Pay at Counter</div>
+          <div class="pay-option-sub">You'll get a code to show at the counter</div>
+        </div>
+      </label>
+    </div>
+
+    <div class="section">
+      <div class="total-line"><span>Total to pay</span><span id="totalAmount">Rs. 0</span></div>
+      <button class="btn btn-primary btn-block" id="placeOrderBtn">Place Order</button>
+      <div class="error-msg" id="errorMsg" style="color: var(--color-danger); font-size:14px; margin-top:10px;"></div>
+    </div>
+  </div>
+
+<script src="js/api.js"></script>
+<script>
+(async function() {
+  const table = getTable();
+  const cart = getCart();
+  if (!table || cart.length === 0) { window.location.href = 'index.html'; return; }
+
+  const shop = await applyShopTheme();
+  if (shop) document.getElementById('shopNameTop').textContent = shop.name;
+  document.getElementById('tableChip').textContent = `Table ${table.table_number}`;
+
+  const appliedPromo = JSON.parse(localStorage.getItem('appliedPromo') || 'null');
+  const taxPercent = shop ? Number(shop.tax_percent) : 0;
+  const subtotal = cartSubtotal(cart);
+  const discount = appliedPromo ? appliedPromo.discount : 0;
+  const taxable = subtotal - discount;
+  const tax = Math.round(((taxable * taxPercent) / 100) * 100) / 100;
+  const total = Math.round((taxable + tax) * 100) / 100;
+  document.getElementById('totalAmount').textContent = formatMoney(total);
+
+  document.querySelectorAll('input[name="paymentMethod"]').forEach((radio) => {
+    radio.addEventListener('change', () => {
+      document.getElementById('onlineOption').classList.toggle('selected', radio.value === 'online' && radio.checked);
+      document.getElementById('counterOption').classList.toggle('selected', radio.value === 'counter' && radio.checked);
+    });
+  });
+
+  const btn = document.getElementById('placeOrderBtn');
+  const errorMsg = document.getElementById('errorMsg');
+
+  btn.addEventListener('click', async () => {
+    errorMsg.textContent = '';
+    btn.disabled = true;
+    btn.textContent = 'Placing order...';
+
+    const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+    const payload = {
+      tableNumber: table.table_number,
+      items: cart.map((c) => ({ menuItemId: c.menuItemId, quantity: c.quantity })),
+      paymentMethod,
+      customerName: document.getElementById('nameInput').value.trim() || null,
+      customerPhone: document.getElementById('phoneInput').value.trim() || null,
+      promoCode: appliedPromo ? appliedPromo.code : null
+    };
+
+    try {
+      const { order } = await Api.post('/api/orders', payload);
+
+      if (paymentMethod === 'counter') {
+        finishAndGoToTracking(order);
+        return;
+      }
+
+      // Online payment via Razorpay
+      const rp = await Api.post('/api/payments/create-razorpay-order', { orderId: order.id });
+      const rzp = new Razorpay({
+        key: rp.keyId,
+        amount: rp.amount,
+        currency: rp.currency,
+        name: shop ? shop.name : 'Restaurant',
+        description: `Order ${order.order_number}`,
+        order_id: rp.razorpayOrderId,
+        prefill: {
+          name: payload.customerName || '',
+          contact: payload.customerPhone || ''
+        },
+        theme: { color: shop ? shop.theme_color : '#1F6F5C' },
+        handler: async function (response) {
+          try {
+            await Api.post('/api/payments/verify', {
+              orderId: order.id,
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature
+            });
+          } catch (e) {
+            showToast('Payment verification failed. Please check with the counter.');
+          }
+          finishAndGoToTracking(order);
+        },
+        modal: {
+          ondismiss: function () {
+            btn.disabled = false;
+            btn.textContent = 'Place Order';
+          }
+        }
+      });
+      rzp.open();
+    } catch (err) {
+      errorMsg.textContent = err.message;
+      btn.disabled = false;
+      btn.textContent = 'Place Order';
+    }
+  });
+
+  function finishAndGoToTracking(order) {
+    setCart([]);
+    localStorage.removeItem('appliedPromo');
+    window.location.href = `track.html?order=${order.order_number}`;
+  }
+})();
+</script>
+</body>
+</html>

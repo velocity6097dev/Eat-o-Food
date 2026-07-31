@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Track Order</title>
+<link rel="stylesheet" href="css/theme.css">
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+<style>
+  .section { padding: 20px; }
+  .order-number { font-size: 13px; color: var(--color-ink-soft); text-align:center; margin-bottom: 4px; }
+  .status-title { font-size: 24px; text-align: center; margin-bottom: 24px; }
+  .stepper-track { display: flex; padding: 10px 20px 24px; }
+  .step { flex: 1; text-align: center; position: relative; }
+  .step-dot {
+    width: 30px; height: 30px; border-radius: 50%; background: var(--color-line);
+    display: flex; align-items: center; justify-content: center; margin: 0 auto 8px;
+    color: #fff; font-weight: 700; font-size: 13px; transition: background 0.3s ease;
+  }
+  .step.done .step-dot { background: var(--color-primary); }
+  .step-line {
+    position: absolute; top: 15px; left: -50%; width: 100%; height: 3px;
+    background: var(--color-line); z-index: -1;
+  }
+  .step:first-child .step-line { display: none; }
+  .step.done .step-line { background: var(--color-primary); }
+  .step-label { font-size: 11.5px; color: var(--color-ink-soft); font-weight: 600; }
+  .step.done .step-label { color: var(--color-ink); }
+  .counter-code-card { text-align: center; padding: 20px; margin: 0 20px 20px; }
+  .counter-code-value { font-size: 28px; font-weight: 800; letter-spacing: 0.05em; color: var(--color-primary); margin: 6px 0; }
+  .items-card { margin: 0 20px 20px; padding: 18px; }
+  .item-line { display: flex; justify-content: space-between; font-size: 14px; padding: 6px 0; }
+  .item-line-name { color: var(--color-ink-soft); }
+  .total-line { display: flex; justify-content: space-between; font-weight: 800; font-size: 16px; border-top: 1px dashed var(--color-line); margin-top: 8px; padding-top: 10px; }
+  .payment-pill { display:inline-block; margin: 0 20px 20px; padding: 8px 16px; border-radius: 999px; font-size: 13px; font-weight: 700; }
+  .pill-paid { background:#E6F4EA; color: var(--color-success); }
+  .pill-pending { background:#FDF0E1; color:#B5751A; }
+  .pill-declined { background:#F5E9E7; color: var(--color-danger); }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="top-bar">
+      <div style="font-weight:700; font-size:16px;" id="shopNameTop">Restaurant</div>
+      <div style="background: rgba(255,255,255,0.18); padding: 4px 12px; border-radius: 999px; font-size: 13px; font-weight: 600;" id="tableChip">Table --</div>
+    </div>
+
+    <div class="section" style="padding-bottom:0;">
+      <div class="order-number" id="orderNumber">Order —</div>
+      <h1 class="status-title display" id="statusTitle">Placed</h1>
+    </div>
+
+    <div class="stepper-track" id="stepperTrack"></div>
+
+    <div id="counterCodeCard" class="ticket counter-code-card" style="display:none;">
+      <div style="font-size:13px; color:var(--color-ink-soft);">Show this code at the counter to pay</div>
+      <div class="counter-code-value" id="counterCodeValue">CNTR-000000</div>
+    </div>
+
+    <div id="paymentPillWrap" style="text-align:center;">
+      <span class="payment-pill" id="paymentPill">Payment pending</span>
+    </div>
+
+    <div class="ticket items-card" id="itemsCard"></div>
+
+    <div class="section" style="text-align:center;">
+      <button class="btn btn-outline" onclick="window.location.href='index.html'">Order for another table</button>
+    </div>
+  </div>
+
+<script src="js/api.js"></script>
+<script>
+(async function() {
+  const params = new URLSearchParams(window.location.search);
+  const orderNumber = params.get('order');
+  if (!orderNumber) { window.location.href = 'index.html'; return; }
+
+  const shop = await applyShopTheme();
+  if (shop) document.getElementById('shopNameTop').textContent = shop.name;
+
+  const STEPS = [
+    { key: 'placed', label: 'Placed' },
+    { key: 'accepted', label: 'Accepted' },
+    { key: 'preparing', label: 'Preparing' },
+    { key: 'served', label: 'Served' }
+  ];
+
+  function render(order) {
+    document.getElementById('orderNumber').textContent = `Order ${order.order_number}`;
+    document.getElementById('tableChip').textContent = `Table ${order.table_number}`;
+
+    const statusLabel = STEPS.find((s) => s.key === order.status);
+    document.getElementById('statusTitle').textContent =
+      statusLabel ? statusLabel.label : (order.status === 'cancelled' ? 'Cancelled' : 'Completed');
+
+    const currentIndex = STEPS.findIndex((s) => s.key === order.status);
+    const stepper = document.getElementById('stepperTrack');
+    stepper.innerHTML = STEPS.map((s, i) => `
+      <div class="step ${i <= currentIndex ? 'done' : ''}">
+        <div class="step-line"></div>
+        <div class="step-dot">${i <= currentIndex ? '✓' : i + 1}</div>
+        <div class="step-label">${s.label}</div>
+      </div>
+    `).join('');
+
+    if (order.payment_method === 'counter' && order.counter_code) {
+      document.getElementById('counterCodeCard').style.display = 'block';
+      document.getElementById('counterCodeValue').textContent = order.counter_code;
+    }
+
+    const pill = document.getElementById('paymentPill');
+    if (order.payment_status === 'paid') {
+      pill.textContent = 'Payment received'; pill.className = 'payment-pill pill-paid';
+    } else if (order.payment_status === 'declined') {
+      pill.textContent = 'Payment declined — please see the counter'; pill.className = 'payment-pill pill-declined';
+    } else {
+      pill.textContent = order.payment_method === 'counter' ? 'Pay at counter' : 'Payment pending';
+      pill.className = 'payment-pill pill-pending';
+    }
+
+    document.getElementById('itemsCard').innerHTML = `
+      ${order.items.map((it) => `
+        <div class="item-line">
+          <span class="item-line-name">${it.quantity} × ${it.item_name}</span>
+          <span>${formatMoney(it.subtotal)}</span>
+        </div>
+      `).join('')}
+      <div class="item-line"><span class="item-line-name">Subtotal</span><span>${formatMoney(order.subtotal)}</span></div>
+      ${Number(order.discount) > 0 ? `<div class="item-line"><span class="item-line-name">Discount</span><span>- ${formatMoney(order.discount)}</span></div>` : ''}
+      <div class="item-line"><span class="item-line-name">Tax</span><span>${formatMoney(order.tax)}</span></div>
+      <div class="total-line"><span>Total</span><span>${formatMoney(order.total)}</span></div>
+    `;
+  }
+
+  try {
+    const order = await Api.get(`/api/orders/track/${orderNumber}`);
+    render(order);
+  } catch (err) {
+    showToast(err.message);
+    return;
+  }
+
+  // Live updates
+  const socket = io(window.API_BASE);
+  socket.emit('joinOrder', orderNumber);
+  socket.on('orderUpdate', (order) => {
+    if (order.order_number === orderNumber) render(order);
+  });
+
+  // Fallback polling every 15s in case the socket connection drops
+  setInterval(async () => {
+    try {
+      const order = await Api.get(`/api/orders/track/${orderNumber}`);
+      render(order);
+    } catch (e) {}
+  }, 15000);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bill</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Courier New', monospace;
+    color: #000;
+    background: #ddd;
+    margin: 0;
+    padding: 20px 0;
+  }
+  .receipt {
+    width: 58mm;
+    background: #fff;
+    margin: 0 auto;
+    padding: 6px 8px;
+    font-size: 11px;
+    line-height: 1.45;
+  }
+  .center { text-align: center; }
+  .shop-name { font-size: 15px; font-weight: 700; }
+  .divider { border-top: 1px dashed #000; margin: 6px 0; }
+  .row { display: flex; justify-content: space-between; gap: 6px; }
+  .item-name { flex: 1; word-break: break-word; }
+  table { width: 100%; border-collapse: collapse; font-size: 11px; }
+  td { padding: 2px 0; vertical-align: top; }
+  .totals td { padding: 1px 0; }
+  .totals .label { text-align: left; }
+  .totals .value { text-align: right; }
+  .grand { font-weight: 700; font-size: 13px; }
+  .no-print { text-align: center; padding: 16px; }
+  .no-print button {
+    padding: 10px 20px; font-family: sans-serif; font-weight: 700; border-radius: 8px;
+    border: none; background: #1F6F5C; color: #fff; font-size: 14px; cursor: pointer;
+  }
+  @media print {
+    body { background: #fff; padding: 0; }
+    .no-print { display: none; }
+    @page { size: 58mm auto; margin: 0; }
+  }
+</style>
+</head>
+<body>
+  <div class="no-print"><button onclick="window.print()">Print Bill</button></div>
+  <div class="receipt" id="receipt">Loading...</div>
+
+<script src="js/api.js"></script>
+<script>
+(async function() {
+  const params = new URLSearchParams(window.location.search);
+  const orderId = params.get('order');
+  if (!orderId) { document.getElementById('receipt').textContent = 'No order specified'; return; }
+
+  try {
+    const [order, shop] = await Promise.all([
+      AdminApi.get(`/api/admin/orders/${orderId}`),
+      AdminApi.get('/api/shop')
+    ]);
+    render(order, shop);
+    setTimeout(() => window.print(), 400);
+  } catch (err) {
+    document.getElementById('receipt').textContent = err.message;
+  }
+
+  function render(order, shop) {
+    const dt = new Date(order.created_at);
+    const dateStr = dt.toLocaleDateString();
+    const timeStr = dt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+    document.getElementById('receipt').innerHTML = `
+      <div class="center shop-name">${shop.name}</div>
+      <div class="center">${shop.address}</div>
+      ${shop.phone ? `<div class="center">Ph: ${shop.phone}</div>` : ''}
+      <div class="divider"></div>
+      <div class="row"><span>Order #${order.order_number}</span></div>
+      <div class="row"><span>Table ${order.table_number}</span><span>${dateStr} ${timeStr}</span></div>
+      <div class="divider"></div>
+      <table>
+        <tbody>
+          ${order.items.map(it => `
+            <tr>
+              <td class="item-name">${it.item_name} x${it.quantity}</td>
+              <td style="text-align:right;">${Number(it.subtotal).toFixed(2)}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+      <div class="divider"></div>
+      <table class="totals">
+        <tr><td class="label">Subtotal</td><td class="value">Rs. ${Number(order.subtotal).toFixed(2)}</td></tr>
+        ${Number(order.discount) > 0 ? `<tr><td class="label">Discount</td><td class="value">- Rs. ${Number(order.discount).toFixed(2)}</td></tr>` : ''}
+        <tr><td class="label">Tax</td><td class="value">Rs. ${Number(order.tax).toFixed(2)}</td></tr>
+        <tr class="grand"><td class="label">TOTAL</td><td class="value">Rs. ${Number(order.total).toFixed(2)}</td></tr>
+      </table>
+      <div class="divider"></div>
+      <div class="row"><span>Payment</span><span>${order.payment_method.toUpperCase()} — ${order.payment_status.toUpperCase()}</span></div>
+      ${order.counter_code ? `<div class="row"><span>Counter Code</span><span>${order.counter_code}</span></div>` : ''}
+      <div class="divider"></div>
+      <div class="center">Thank you, visit again!</div>
+    `;
+  }
+})();
+</script>
+</body>
+</html>

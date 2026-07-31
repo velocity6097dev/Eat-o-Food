@@ -1,0 +1,186 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --color-primary: #1F6F5C;      /* deep pine teal - overridden live by shop settings */
+  --color-accent: #E8A33D;       /* marigold - overridden live by shop settings */
+  --color-ink: #241C15;
+  --color-ink-soft: #6b5f52;
+  --color-bg: #FAF8F3;
+  --color-surface: #FFFFFF;
+  --color-line: #E8E1D4;
+  --color-danger: #C1462F;
+  --color-success: #2F7A4D;
+  --radius-card: 16px;
+  --radius-pill: 999px;
+  --shadow-card: 0 2px 10px rgba(36,28,21,0.06), 0 1px 2px rgba(36,28,21,0.05);
+  --font-display: 'Fraunces', serif;
+  --font-body: 'Inter', sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, .display {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+button {
+  font-family: var(--font-body);
+  cursor: pointer;
+  border: none;
+}
+
+a { color: inherit; }
+
+.container {
+  max-width: 520px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background: var(--color-bg);
+  position: relative;
+  padding-bottom: 24px;
+}
+
+@media (min-width: 900px) {
+  .container {
+    max-width: 720px;
+    box-shadow: var(--shadow-card);
+    min-height: calc(100vh - 40px);
+    margin-top: 20px;
+    margin-bottom: 20px;
+    border-radius: 20px;
+    overflow: hidden;
+  }
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 20px;
+  border-radius: var(--radius-pill);
+  font-weight: 700;
+  font-size: 15px;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+.btn:active { transform: scale(0.97); }
+.btn-primary { background: var(--color-primary); color: #fff; }
+.btn-accent { background: var(--color-accent); color: #241C15; }
+.btn-outline { background: transparent; color: var(--color-primary); border: 1.5px solid var(--color-primary); }
+.btn-block { width: 100%; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.card {
+  background: var(--color-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  padding: 16px;
+}
+
+.input {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1.5px solid var(--color-line);
+  font-size: 16px;
+  font-family: var(--font-body);
+  background: var(--color-surface);
+  color: var(--color-ink);
+}
+.input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+.badge-veg { background: #E6F4EA; color: #2F7A4D; }
+.badge-seasonal { background: #FDF0E1; color: #B5751A; }
+.badge-soldout { background: #F5E9E7; color: var(--color-danger); }
+
+.top-bar {
+  background: var(--color-primary);
+  color: #fff;
+  padding: 18px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 24px;
+  color: var(--color-ink-soft);
+}
+
+.skeleton {
+  background: linear-gradient(90deg, #ECE7DC 25%, #F5F1E8 37%, #ECE7DC 63%);
+  background-size: 400% 100%;
+  animation: shimmer 1.4s ease infinite;
+  border-radius: 10px;
+}
+@keyframes shimmer {
+  0% { background-position: 100% 50%; }
+  100% { background-position: 0 50%; }
+}
+
+/* "Ticket stub" motif - used for order tracking + cart summary */
+.ticket {
+  position: relative;
+  background: var(--color-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+}
+.ticket::before {
+  content: '';
+  position: absolute;
+  left: -10px; top: 50%;
+  width: 20px; height: 20px;
+  background: var(--color-bg);
+  border-radius: 50%;
+  transform: translateY(-50%);
+}
+.ticket::after {
+  content: '';
+  position: absolute;
+  right: -10px; top: 50%;
+  width: 20px; height: 20px;
+  background: var(--color-bg);
+  border-radius: 50%;
+  transform: translateY(-50%);
+}
+.ticket-perforation {
+  border-top: 2px dashed var(--color-line);
+  margin: 0 20px;
+}
+
+.toast {
+  position: fixed;
+  bottom: 24px; left: 50%;
+  transform: translateX(-50%);
+  background: var(--color-ink);
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: var(--radius-pill);
+  font-size: 14px;
+  font-weight: 600;
+  z-index: 999;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+}

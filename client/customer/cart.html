@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Your Cart</title>
+<link rel="stylesheet" href="css/theme.css">
+<style>
+  .back-row { display:flex; align-items:center; gap:10px; padding:16px 20px 0; }
+  .back-btn { background:none; font-size:20px; color: var(--color-ink); }
+  .page-title { font-size: 22px; }
+  .cart-list { padding: 16px 20px; display: flex; flex-direction: column; gap: 12px; }
+  .cart-item { display: flex; align-items: center; justify-content: space-between; padding: 14px; }
+  .cart-item-name { font-weight: 700; font-size: 15px; margin-bottom: 4px; }
+  .cart-item-price { font-size: 13px; color: var(--color-ink-soft); }
+  .stepper-flat { display: flex; align-items: center; gap: 12px; background: var(--color-bg); border-radius: var(--radius-pill); padding: 6px 12px; }
+  .stepper-flat button { background: none; color: var(--color-primary); font-size: 18px; font-weight: 800; width: 18px; }
+  .promo-row { padding: 4px 20px 16px; display: flex; gap: 10px; }
+  .promo-msg { font-size: 13px; padding: 0 20px 10px; }
+  .promo-msg.ok { color: var(--color-success); }
+  .promo-msg.err { color: var(--color-danger); }
+  .summary { margin: 8px 20px; padding: 18px; }
+  .summary-row { display: flex; justify-content: space-between; font-size: 14px; padding: 5px 0; color: var(--color-ink-soft); }
+  .summary-row.total { color: var(--color-ink); font-weight: 800; font-size: 17px; border-top: 1px dashed var(--color-line); margin-top: 8px; padding-top: 12px; }
+  .checkout-wrap { padding: 20px; }
+</style>
+</head>
+<body>
+  <div class="container">
+    <div class="top-bar">
+      <div style="font-weight:700; font-size:16px;" id="shopNameTop">Restaurant</div>
+      <div class="table-chip" style="background: rgba(255,255,255,0.18); padding: 4px 12px; border-radius: 999px; font-size: 13px; font-weight: 600;" id="tableChip">Table --</div>
+    </div>
+    <div class="back-row">
+      <button class="back-btn" onclick="window.location.href='menu.html'">←</button>
+      <h1 class="page-title display">Your Cart</h1>
+    </div>
+
+    <div class="cart-list card" id="cartList" style="margin:16px 20px 0;"></div>
+    <div class="empty-state" id="emptyState" style="display:none;">
+      Your cart is empty.<br><br>
+      <button class="btn btn-primary" onclick="window.location.href='menu.html'">Browse Menu</button>
+    </div>
+
+    <div id="promoSection" style="display:none;">
+      <div class="promo-row">
+        <input class="input" id="promoInput" placeholder="Have a promo code?" style="text-transform:uppercase;">
+        <button class="btn btn-outline" id="applyPromoBtn" style="white-space:nowrap;">Apply</button>
+      </div>
+      <div class="promo-msg" id="promoMsg"></div>
+
+      <div class="ticket summary">
+        <div class="summary-row"><span>Subtotal</span><span id="sumSubtotal">Rs. 0</span></div>
+        <div class="summary-row" id="discountRow" style="display:none;"><span>Discount</span><span id="sumDiscount">- Rs. 0</span></div>
+        <div class="summary-row"><span>Tax</span><span id="sumTax">Rs. 0</span></div>
+        <div class="ticket-perforation"></div>
+        <div class="summary-row total"><span>To Pay</span><span id="sumTotal">Rs. 0</span></div>
+      </div>
+
+      <div class="checkout-wrap">
+        <button class="btn btn-primary btn-block" id="checkoutBtn">Proceed to Checkout</button>
+      </div>
+    </div>
+  </div>
+
+<script src="js/api.js"></script>
+<script>
+(async function() {
+  const table = getTable();
+  if (!table) { window.location.href = 'index.html'; return; }
+  const shop = await applyShopTheme();
+  if (shop) document.getElementById('shopNameTop').textContent = shop.name;
+  document.getElementById('tableChip').textContent = `Table ${table.table_number}`;
+
+  let cart = getCart();
+  let appliedPromo = null; // { code, discount }
+  let taxPercent = shop ? Number(shop.tax_percent) : 0;
+
+  function render() {
+    const listEl = document.getElementById('cartList');
+    const empty = document.getElementById('emptyState');
+    const promoSection = document.getElementById('promoSection');
+
+    if (cart.length === 0) {
+      listEl.style.display = 'none';
+      empty.style.display = 'block';
+      promoSection.style.display = 'none';
+      return;
+    }
+    listEl.style.display = 'block';
+    empty.style.display = 'none';
+    promoSection.style.display = 'block';
+
+    listEl.innerHTML = cart.map((line) => `
+      <div class="cart-item" data-id="${line.menuItemId}">
+        <div>
+          <div class="cart-item-name">${line.name}</div>
+          <div class="cart-item-price">${formatMoney(line.price)} each</div>
+        </div>
+        <div class="stepper-flat">
+          <button class="minus">−</button>
+          <span>${line.quantity}</span>
+          <button class="plus">+</button>
+        </div>
+      </div>
+    `).join('');
+
+    listEl.querySelectorAll('.cart-item').forEach((row) => {
+      const id = Number(row.dataset.id);
+      row.querySelector('.minus').addEventListener('click', () => changeQty(id, -1));
+      row.querySelector('.plus').addEventListener('click', () => changeQty(id, 1));
+    });
+
+    const subtotal = cartSubtotal(cart);
+    const discount = appliedPromo ? appliedPromo.discount : 0;
+    const taxable = subtotal - discount;
+    const tax = Math.round(((taxable * taxPercent) / 100) * 100) / 100;
+    const total = Math.round((taxable + tax) * 100) / 100;
+
+    document.getElementById('sumSubtotal').textContent = formatMoney(subtotal);
+    document.getElementById('sumTax').textContent = formatMoney(tax);
+    document.getElementById('sumTotal').textContent = formatMoney(total);
+    if (discount > 0) {
+      document.getElementById('discountRow').style.display = 'flex';
+      document.getElementById('sumDiscount').textContent = `- ${formatMoney(discount)}`;
+    } else {
+      document.getElementById('discountRow').style.display = 'none';
+    }
+  }
+
+  function changeQty(id, delta) {
+    const line = cart.find((c) => c.menuItemId === id);
+    if (!line) return;
+    line.quantity += delta;
+    if (line.quantity <= 0) cart = cart.filter((c) => c.menuItemId !== id);
+    setCart(cart);
+    appliedPromo = null; // re-validate promo if cart changes
+    document.getElementById('promoMsg').textContent = '';
+    render();
+  }
+
+  document.getElementById('applyPromoBtn').addEventListener('click', async () => {
+    const code = document.getElementById('promoInput').value.trim().toUpperCase();
+    const msg = document.getElementById('promoMsg');
+    if (!code) return;
+    try {
+      const result = await Api.post('/api/promocodes/check', { code, subtotal: cartSubtotal(cart) });
+      if (result.valid) {
+        appliedPromo = { code, discount: result.discount };
+        msg.textContent = `${result.message} — you saved ${formatMoney(result.discount)}`;
+        msg.className = 'promo-msg ok';
+      } else {
+        appliedPromo = null;
+        msg.textContent = result.message;
+        msg.className = 'promo-msg err';
+      }
+      render();
+    } catch (err) {
+      msg.textContent = err.message;
+      msg.className = 'promo-msg err';
+    }
+  });
+
+  document.getElementById('checkoutBtn').addEventListener('click', () => {
+    localStorage.setItem('appliedPromo', JSON.stringify(appliedPromo));
+    window.location.href = 'checkout.html';
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>

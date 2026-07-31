@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Orders</title>
+<link rel="stylesheet" href="css/admin.css">
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+</head>
+<body>
+  <div id="appShell"></div>
+
+<script src="js/api.js"></script>
+<script>
+requireAuth();
+
+const COLUMNS = [
+  { key: 'placed', label: 'New Orders', next: 'accepted', nextLabel: 'Accept' },
+  { key: 'accepted', label: 'Accepted', next: 'preparing', nextLabel: 'Start Preparing' },
+  { key: 'preparing', label: 'Preparing', next: 'served', nextLabel: 'Mark Served' },
+  { key: 'served', label: 'Served', next: 'completed', nextLabel: 'Complete & Bill' }
+];
+
+function content() {
+  return `
+    <div class="page-head">
+      <h1 class="page-title display">Live Orders</h1>
+      <button class="btn btn-outline btn-sm" id="refreshBtn">Refresh</button>
+    </div>
+    <div class="kanban" id="kanban"></div>
+  `;
+}
+
+async function loadOrders() {
+  try {
+    const orders = await AdminApi.get('/api/admin/orders/active');
+    renderKanban(orders);
+  } catch (err) {
+    showToast(err.message);
+  }
+}
+
+function renderKanban(orders) {
+  const kanban = document.getElementById('kanban');
+  kanban.innerHTML = COLUMNS.map((col) => {
+    const colOrders = orders.filter((o) => o.status === col.key);
+    return `
+      <div>
+        <div class="kanban-col-head"><span>${col.label}</span><span>${colOrders.length}</span></div>
+        <div id="col-${col.key}">
+          ${colOrders.length === 0 ? '<div class="card" style="text-align:center;color:var(--color-ink-soft);font-size:13px;padding:20px;">No orders</div>' : ''}
+          ${colOrders.map((o) => orderCardHtml(o, col)).join('')}
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  kanban.querySelectorAll('[data-advance]').forEach((btn) => {
+    btn.addEventListener('click', () => advanceStatus(btn.dataset.advance, btn.dataset.status));
+  });
+  kanban.querySelectorAll('[data-print]').forEach((btn) => {
+    btn.addEventListener('click', () => window.open(`receipt.html?order=${btn.dataset.print}`, '_blank'));
+  });
+  kanban.querySelectorAll('[data-cancel]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      if (confirm('Cancel this order?')) advanceStatus(btn.dataset.cancel, 'cancelled');
+    });
+  });
+}
+
+function orderCardHtml(o, col) {
+  const paymentBadge = o.payment_status === 'paid'
+    ? '<span class="badge badge-paid">Paid</span>'
+    : o.payment_status === 'declined'
+      ? '<span class="badge badge-declined">Declined</span>'
+      : `<span class="badge badge-pending">${o.payment_method === 'counter' ? 'Pay at counter' : 'Pending'}</span>`;
+
+  return `
+    <div class="card order-card">
+      <div class="order-card-head">
+        <span class="order-card-table">Table ${o.table_number}</span>
+        <span class="order-card-time">${formatTime(o.created_at)}</span>
+      </div>
+      <div style="margin-bottom:8px;">${paymentBadge} ${o.counter_code ? `<span class="badge badge-pending">${o.counter_code}</span>` : ''}</div>
+      <div class="order-card-items">
+        ${o.items.map((it) => `${it.quantity} × ${it.item_name}`).join('<br>')}
+      </div>
+      <div style="font-weight:800;margin-bottom:10px;">${formatMoney(o.total)}</div>
+      <div class="order-card-actions">
+        ${col.next ? `<button class="btn btn-primary btn-sm" data-advance="${o.id}" data-status="${col.next}">${col.nextLabel}</button>` : ''}
+        <button class="btn btn-outline btn-sm" data-print="${o.id}">Print Bill</button>
+        ${col.key === 'placed' ? `<button class="btn btn-danger btn-sm" data-cancel="${o.id}">Cancel</button>` : ''}
+      </div>
+    </div>
+  `;
+}
+
+async function advanceStatus(orderId, status) {
+  try {
+    await AdminApi.patch(`/api/admin/orders/${orderId}/status`, { status });
+    loadOrders();
+  } catch (err) {
+    showToast(err.message);
+  }
+}
+
+renderShell('dashboard', content());
+loadOrders();
+document.getElementById('refreshBtn').addEventListener('click', loadOrders);
+
+const socket = io(window.API_BASE);
+socket.emit('joinAdmin');
+socket.on('newOrder', () => { showToast('New order received'); loadOrders(); });
+socket.on('adminOrderUpdate', () => loadOrders());
+setInterval(loadOrders, 20000);
+</script>
+</body>
+</html>
