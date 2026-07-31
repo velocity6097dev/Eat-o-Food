@@ -2,4 +2,3 @@ node_modules/
 .env
 uploads/menu/*
 !uploads/menu/.gitkeep
-run
