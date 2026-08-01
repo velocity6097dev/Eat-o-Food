@@ -1,4 +1,5 @@
 const db = require('../config/db');
+const { emitTablesUpdate } = require('../sockets/index');
 
 // Public: customer enters a table number, we check it exists & is active
 async function checkTable(req, res) {
@@ -37,6 +38,7 @@ async function createTable(req, res) {
       [table_number, seat_count || 2, category || 'medium']
     );
     res.status(201).json({ id: result.insertId });
+    emitTablesUpdate();
   } catch (err) {
     if (err.code === 'ER_DUP_ENTRY') {
       return res.status(409).json({ error: 'A table with that number already exists' });
@@ -60,6 +62,7 @@ async function updateTable(req, res) {
       [table_number, seat_count, category, is_active, id]
     );
     res.json({ success: true });
+    emitTablesUpdate();
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Could not update table' });
@@ -71,6 +74,7 @@ async function deleteTable(req, res) {
   try {
     await db.query('DELETE FROM restaurant_tables WHERE id = ?', [id]);
     res.json({ success: true });
+    emitTablesUpdate();
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Could not delete table' });

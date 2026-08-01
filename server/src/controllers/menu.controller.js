@@ -1,5 +1,6 @@
 const db = require('../config/db');
 const { isWithinTimeWindow, priceForCategory } = require('../utils/helpers');
+const { emitMenuUpdate } = require('../sockets/index');
 
 // Public: customer-facing menu, grouped by category, priced for the table's category,
 // filtered to items that are marked available AND within their time window right now.
@@ -65,6 +66,9 @@ async function createMenuItem(req, res) {
   }
 
   const image_url = req.file ? `/uploads/menu/${req.file.filename}` : '';
+  // is_seasonal arrives as the string '0' or '1' from the multipart form -
+  // a plain truthy check on the string '0' is always true, so compare explicitly.
+  const seasonalFlag = is_seasonal === '1' || is_seasonal === true || is_seasonal === 1 ? 1 : 0;
 
   try {
     const [result] = await db.query(
@@ -74,11 +78,12 @@ async function createMenuItem(req, res) {
       [
         category_id, name, description || '',
         price_high || 0, price_medium || 0, price_low || 0,
-        image_url, is_seasonal ? 1 : 0,
+        image_url, seasonalFlag,
         available_from || null, available_to || null
       ]
     );
     res.status(201).json({ id: result.insertId, image_url });
+    emitMenuUpdate();
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Could not create menu item' });
@@ -109,9 +114,9 @@ async function updateMenuItem(req, res) {
     const values = [
       category_id, name, description,
       price_high, price_medium, price_low,
-      is_seasonal !== undefined ? (is_seasonal ? 1 : 0) : undefined,
+      is_seasonal !== undefined ? (is_seasonal === '1' || is_seasonal === true || is_seasonal === 1 ? 1 : 0) : undefined,
       available_from || null, available_to || null,
-      is_available !== undefined ? (is_available ? 1 : 0) : undefined
+      is_available !== undefined ? (is_available === '1' || is_available === true || is_available === 1 ? 1 : 0) : undefined
     ];
 
     if (req.file) {
@@ -122,6 +127,7 @@ async function updateMenuItem(req, res) {
     values.push(id);
     await db.query(`UPDATE menu_items SET ${fields.join(', ')} WHERE id = ?`, values);
     res.json({ success: true });
+    emitMenuUpdate();
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Could not update menu item' });
@@ -135,6 +141,7 @@ async function setAvailability(req, res) {
   try {
     await db.query('UPDATE menu_items SET is_available = ? WHERE id = ?', [is_available ? 1 : 0, id]);
     res.json({ success: true });
+    emitMenuUpdate();
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Could not update availability' });
@@ -146,6 +153,7 @@ async function deleteMenuItem(req, res) {
   try {
     await db.query('DELETE FROM menu_items WHERE id = ?', [id]);
     res.json({ success: true });
+    emitMenuUpdate();
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Could not delete menu item' });

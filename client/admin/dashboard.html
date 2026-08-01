@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Orders</title>
 <link rel="stylesheet" href="css/admin.css">
+<script src="https://unpkg.com/lucide@latest"></script>
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 </head>
 <body>
@@ -15,10 +16,9 @@
 requireAuth();
 
 const COLUMNS = [
-  { key: 'placed', label: 'New Orders', next: 'accepted', nextLabel: 'Accept' },
-  { key: 'accepted', label: 'Accepted', next: 'preparing', nextLabel: 'Start Preparing' },
+  { key: 'placed', label: 'New Orders', next: 'preparing', nextLabel: 'Accept & Prepare' },
   { key: 'preparing', label: 'Preparing', next: 'served', nextLabel: 'Mark Served' },
-  { key: 'served', label: 'Served', next: 'completed', nextLabel: 'Complete & Bill' }
+  { key: 'served', label: 'Served — Awaiting Payment', next: 'completed', nextLabel: 'Complete & Bill' }
 ];
 
 function content() {
@@ -97,7 +97,12 @@ function orderCardHtml(o, col) {
 
 async function advanceStatus(orderId, status) {
   try {
-    await AdminApi.patch(`/api/admin/orders/${orderId}/status`, { status });
+    // If marking Served and the order was already paid, the server auto-completes
+    // it instead - no separate "Complete & Bill" click needed.
+    const order = await AdminApi.patch(`/api/admin/orders/${orderId}/status`, { status });
+    if (status === 'served' && order.status === 'completed') {
+      showToast('Already paid — order completed automatically');
+    }
     loadOrders();
   } catch (err) {
     showToast(err.message);
@@ -108,7 +113,7 @@ renderShell('dashboard', content());
 loadOrders();
 document.getElementById('refreshBtn').addEventListener('click', loadOrders);
 
-const socket = io(window.API_BASE);
+const socket = window.API_BASE ? io(window.API_BASE) : io();
 socket.emit('joinAdmin');
 socket.on('newOrder', () => { showToast('New order received'); loadOrders(); });
 socket.on('adminOrderUpdate', () => loadOrders());

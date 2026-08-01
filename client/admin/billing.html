@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Billing</title>
 <link rel="stylesheet" href="css/admin.css">
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 <style>
   .search-row { display:flex; gap:10px; margin-bottom: 20px; }
   .lookup-result { margin-bottom: 24px; }
@@ -114,6 +116,13 @@ async function loadPending() {
 }
 
 loadPending();
+
+const socket = connectSocket();
+if (socket) {
+  socket.emit('joinAdmin');
+  socket.on('adminOrderUpdate', loadPending);
+}
+// Fallback poll in case the socket connection drops
 setInterval(loadPending, 20000);
 </script>
 </body>

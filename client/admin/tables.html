@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Tables</title>
 <link rel="stylesheet" href="css/admin.css">
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 </head>
 <body>
   <div id="appShell"></div>
@@ -67,7 +69,7 @@ function openModal(table) {
     <div class="modal-box">
       <div class="modal-head">
         <h3 class="display">${table ? 'Edit Table' : 'Add Table'}</h3>
-        <button class="modal-close">×</button>
+        <button class="modal-close"><i data-lucide="x" class="icon"></i></button>
       </div>
       <div class="field"><label class="field-label">Table Number</label><input class="input" id="mNumber" value="${table ? table.table_number : ''}"></div>
       <div class="field"><label class="field-label">Seat Count</label><input class="input" id="mSeats" type="number" min="1" value="${table ? table.seat_count : 2}"></div>
@@ -88,6 +90,7 @@ function openModal(table) {
     </div>
   `;
   document.body.appendChild(overlay);
+  if (window.lucide) window.lucide.createIcons();
   overlay.querySelector('.modal-close').addEventListener('click', () => overlay.remove());
   overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
 
@@ -110,6 +113,9 @@ function openModal(table) {
 renderShell('tables', content());
 document.getElementById('addBtn').addEventListener('click', () => openModal(null));
 load();
+
+const socket = connectSocket();
+if (socket) socket.on('tablesUpdate', load);
 </script>
 </body>
 </html>

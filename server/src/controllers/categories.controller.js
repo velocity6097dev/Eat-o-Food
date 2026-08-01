@@ -1,4 +1,5 @@
 const db = require('../config/db');
+const { emitCategoriesUpdate, emitMenuUpdate } = require('../sockets/index');
 
 async function listCategories(req, res) {
   try {
@@ -19,6 +20,8 @@ async function createCategory(req, res) {
       [name, display_order || 0]
     );
     res.status(201).json({ id: result.insertId });
+    emitCategoriesUpdate();
+    emitMenuUpdate();
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Could not create category' });
@@ -38,6 +41,8 @@ async function updateCategory(req, res) {
       [name, display_order, is_active, id]
     );
     res.json({ success: true });
+    emitCategoriesUpdate();
+    emitMenuUpdate();
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Could not update category' });
@@ -49,6 +54,8 @@ async function deleteCategory(req, res) {
   try {
     await db.query('DELETE FROM categories WHERE id = ?', [id]);
     res.json({ success: true });
+    emitCategoriesUpdate();
+    emitMenuUpdate();
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Could not delete category. Remove or move its menu items first.' });

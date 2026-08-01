@@ -5,12 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Menu</title>
 <link rel="stylesheet" href="css/theme.css">
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 <style>
-  .top-bar .table-chip {
-    background: rgba(255,255,255,0.18); padding: 4px 12px; border-radius: var(--radius-pill);
-    font-size: 13px; font-weight: 600;
-  }
-  .cat-section { padding: 20px 20px 4px; }
+  .cat-section { padding: 20px 20px 4px; scroll-margin-top: 110px; }
   .cat-title { font-size: 20px; margin-bottom: 14px; }
   .item-row {
     display: flex; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--color-line);
@@ -40,50 +38,68 @@
   .stepper button { background: transparent; color: #fff; font-size: 16px; font-weight: 800; width: 18px; }
   .badges { display: flex; gap: 6px; margin-bottom: 6px; }
   .cart-bar {
-    position: sticky; bottom: 0; left: 0; right: 0;
+    position: fixed; bottom: 62px; left: 0; right: 0; max-width: 520px; margin: 0 auto;
     background: var(--color-primary); color: #fff;
     padding: 14px 20px; display: none;
     align-items: center; justify-content: space-between;
-    box-shadow: 0 -4px 14px rgba(0,0,0,0.12);
+    box-shadow: 0 -4px 14px rgba(0,0,0,0.12); z-index: 25;
   }
+  @media (min-width: 900px) { .cart-bar { max-width: 720px; } }
   .cart-bar.visible { display: flex; }
   .cart-bar-info { font-size: 13px; opacity: 0.9; }
   .cart-bar-total { font-weight: 800; font-size: 16px; }
 </style>
 </head>
 <body>
-  <div class="container">
+  <div class="container has-tab-bar">
     <div class="top-bar">
       <div>
         <div style="font-size:12px; opacity:0.85;">Ordering for</div>
         <div id="shopNameTop" style="font-weight:700; font-size:16px;">Restaurant</div>
       </div>
-      <div class="table-chip" id="tableChip">Table --</div>
+      <button class="table-chip-btn" id="tableChipBtn">Table -- <i data-lucide="pencil" class="icon-sm"></i></button>
+    </div>
+
+    <div class="menu-controls">
+      <div class="search-bar-wrap">
+        <div class="search-bar">
+          <i data-lucide="search" class="icon"></i>
+          <input id="searchInput" placeholder="Search for dishes...">
+        </div>
+      </div>
+      <div class="chip-bar" id="chipBar"></div>
     </div>
 
     <div id="menuContainer"></div>
-    <div class="empty-state" id="emptyState" style="display:none;">No menu items available right now. Please check back soon.</div>
+    <div class="empty-state" id="emptyState" style="display:none;">No dishes match your search.</div>
 
     <div class="cart-bar" id="cartBar" onclick="window.location.href='cart.html'">
       <div>
         <div class="cart-bar-total" id="cartBarCount">0 items</div>
         <div class="cart-bar-info" id="cartBarSubtotal">Rs. 0</div>
       </div>
-      <button class="btn btn-accent">View Cart →</button>
+      <button class="btn btn-accent">View Cart <i data-lucide="arrow-right" class="icon-sm"></i></button>
     </div>
   </div>
+
+  <nav class="tab-bar" id="tabBar"></nav>
 
 <script src="js/api.js"></script>
 <script>
 (async function() {
-  const table = getTable();
+  let table = getTable();
   if (!table) { window.location.href = 'index.html'; return; }
 
   const shop = await applyShopTheme();
   if (shop) document.getElementById('shopNameTop').textContent = shop.name;
-  document.getElementById('tableChip').textContent = `Table ${table.table_number}`;
+  document.getElementById('tableChipBtn').innerHTML = `Table ${table.table_number} <i data-lucide="pencil" class="icon-sm"></i>`;
+  document.getElementById('tableChipBtn').addEventListener('click', () => openChangeTableModal(table.table_number));
+  if (window.lucide) window.lucide.createIcons();
+
+  renderTabBar('menu');
 
   let cart = getCart();
+  let searchTerm = '';
 
   function qtyFor(itemId) {
     const line = cart.find((c) => c.menuItemId === itemId);
@@ -100,6 +116,7 @@
     } else {
       bar.classList.remove('visible');
     }
+    renderTabBar('menu');
   }
 
   function changeQty(item, delta) {
@@ -111,20 +128,42 @@
       if (line.quantity <= 0) cart = cart.filter((c) => c.menuItemId !== item.id);
     }
     setCart(cart);
-    renderMenu(window.__menuData);
+    renderMenu();
     updateCartBar();
   }
 
-  function renderMenu(menu) {
+  function filteredMenu() {
+    const menu = window.__menuData || [];
+    if (!searchTerm) return menu;
+    const term = searchTerm.toLowerCase();
+    return menu
+      .map((cat) => ({ ...cat, items: cat.items.filter((it) => it.name.toLowerCase().includes(term)) }))
+      .filter((cat) => cat.items.length > 0);
+  }
+
+  function renderChips(menu) {
+    const chipBar = document.getElementById('chipBar');
+    chipBar.innerHTML = menu.map((cat, i) => `<button class="chip ${i === 0 ? 'active' : ''}" data-cat="${cat.id}">${cat.name}</button>`).join('');
+    chipBar.querySelectorAll('.chip').forEach((chip) => {
+      chip.addEventListener('click', () => {
+        chipBar.querySelectorAll('.chip').forEach((c) => c.classList.remove('active'));
+        chip.classList.add('active');
+        const section = document.getElementById(`cat-${chip.dataset.cat}`);
+        if (section) section.scrollIntoView({ behavior: 'smooth' });
+      });
+    });
+  }
+
+  function renderMenu() {
+    const menu = filteredMenu();
     const container = document.getElementById('menuContainer');
     container.innerHTML = '';
-    if (!menu || menu.length === 0) {
-      document.getElementById('emptyState').style.display = 'block';
-      return;
-    }
+    document.getElementById('emptyState').style.display = menu.length === 0 ? 'block' : 'none';
+
     menu.forEach((cat) => {
       const section = document.createElement('div');
       section.className = 'cat-section';
+      section.id = `cat-${cat.id}`;
       const title = document.createElement('div');
       title.className = 'cat-title display';
       title.textContent = cat.name;
@@ -144,7 +183,7 @@
             <div class="item-price">${formatMoney(item.price)}</div>
           </div>
           <div class="item-photo-wrap">
-            <img class="item-photo" src="${item.image_url ? window.API_BASE + item.image_url : 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200&q=60'}" alt="${item.name}">
+            <img class="item-photo" src="${item.image_url ? (window.API_BASE || '') + item.image_url : 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200&q=60'}" alt="${item.name}">
             ${qty > 0
               ? `<div class="stepper"><button class="qty-minus">−</button><span>${qty}</span><button class="qty-plus">+</button></div>`
               : `<button class="add-btn">ADD</button>`}
@@ -163,14 +202,29 @@
     });
   }
 
-  try {
-    const { menu } = await Api.get(`/api/menu?tableCategory=${table.category}`);
-    window.__menuData = menu;
-    renderMenu(menu);
-  } catch (err) {
-    showToast(err.message);
+  document.getElementById('searchInput').addEventListener('input', (e) => {
+    searchTerm = e.target.value;
+    renderMenu();
+  });
+
+  async function loadMenu() {
+    try {
+      const { menu } = await Api.get(`/api/menu?tableCategory=${table.category}`);
+      window.__menuData = menu;
+      renderChips(menu);
+      renderMenu();
+    } catch (err) {
+      showToast(err.message);
+    }
   }
+
+  await loadMenu();
   updateCartBar();
+
+  // Realtime sync: if the owner adds/edits/removes a dish, or its
+  // availability changes, this page updates within moments - no refresh needed.
+  const socket = listenForShopUpdates();
+  if (socket) socket.on('menuUpdate', () => loadMenu());
 })();
 </script>
 </body>

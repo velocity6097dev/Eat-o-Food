@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Invoice</title>
+<link rel="stylesheet" href="css/theme.css">
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+  body { background: #EFEAE0; }
+  .invoice-wrap { max-width: 480px; margin: 0 auto; padding: 24px 16px 60px; }
+  .invoice-sheet { background: #fff; border-radius: 18px; box-shadow: var(--shadow-card); padding: 28px 24px; }
+  .inv-head { text-align: center; margin-bottom: 20px; }
+  .inv-shop-name { font-size: 22px; margin-bottom: 4px; }
+  .inv-shop-meta { font-size: 12.5px; color: var(--color-ink-soft); line-height: 1.5; }
+  .inv-divider { border-top: 1.5px dashed var(--color-line); margin: 18px 0; }
+  .inv-meta-row { display: flex; justify-content: space-between; font-size: 13px; color: var(--color-ink-soft); padding: 3px 0; }
+  .inv-meta-row strong { color: var(--color-ink); }
+  .inv-items table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  .inv-items th { text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.03em; color: var(--color-ink-soft); padding-bottom: 8px; border-bottom: 1.5px solid var(--color-line); }
+  .inv-items td { padding: 8px 0; border-bottom: 1px solid var(--color-line); }
+  .inv-items tr:last-child td { border-bottom: none; }
+  .inv-totals { margin-top: 14px; }
+  .inv-total-row { display: flex; justify-content: space-between; font-size: 14px; padding: 4px 0; color: var(--color-ink-soft); }
+  .inv-total-row.grand { font-weight: 800; font-size: 18px; color: var(--color-ink); border-top: 1.5px dashed var(--color-line); margin-top: 8px; padding-top: 12px; }
+  .inv-footer { text-align: center; font-size: 12.5px; color: var(--color-ink-soft); margin-top: 20px; }
+  .inv-actions { text-align: center; margin-top: 18px; }
+  .badge-paid-lg { display:inline-block; margin-bottom:14px; padding: 6px 16px; border-radius: 999px; font-size: 12.5px; font-weight: 700; }
+  @media print {
+    body { background: #fff; }
+    .inv-actions { display: none; }
+    .invoice-sheet { box-shadow: none; }
+  }
+</style>
+</head>
+<body>
+  <div class="invoice-wrap">
+    <div class="invoice-sheet" id="invoiceSheet">Loading invoice…</div>
+    <div class="inv-actions">
+      <button class="btn btn-primary" onclick="window.print()">Print / Save as PDF</button>
+    </div>
+  </div>
+
+<script src="js/api.js"></script>
+<script>
+(async function() {
+  const params = new URLSearchParams(window.location.search);
+  const orderNumber = params.get('order');
+  const sheet = document.getElementById('invoiceSheet');
+  if (!orderNumber) { sheet.textContent = 'No order specified.'; return; }
+
+  try {
+    const [order, shop] = await Promise.all([
+      Api.get(`/api/orders/track/${orderNumber}`),
+      Api.get('/api/shop')
+    ]);
+    render(order, shop);
+  } catch (err) {
+    sheet.textContent = err.message;
+  }
+
+  function render(order, shop) {
+    const dt = new Date(order.created_at);
+    const paidBadge = order.payment_status === 'paid'
+      ? '<span class="badge-paid-lg" style="background:#E6F4EA;color:var(--color-success);">Payment Received</span>'
+      : order.payment_status === 'declined'
+        ? '<span class="badge-paid-lg" style="background:#F5E9E7;color:var(--color-danger);">Payment Declined</span>'
+        : '<span class="badge-paid-lg" style="background:#FDF0E1;color:#B5751A;">Payment Pending</span>';
+
+    sheet.innerHTML = `
+      <div class="inv-head">
+        <div class="display inv-shop-name">${shop.name}</div>
+        <div class="inv-shop-meta">${shop.address}${shop.phone ? ` · ${shop.phone}` : ''}</div>
+      </div>
+      <div style="text-align:center;">${paidBadge}</div>
+      <div class="inv-divider"></div>
+      <div class="inv-meta-row"><span>Invoice / Order No.</span><strong>${order.order_number}</strong></div>
+      <div class="inv-meta-row"><span>Table</span><strong>${order.table_number}</strong></div>
+      <div class="inv-meta-row"><span>Date & Time</span><strong>${dt.toLocaleString()}</strong></div>
+      <div class="inv-meta-row"><span>Payment Method</span><strong style="text-transform:capitalize;">${order.payment_method}</strong></div>
+      ${order.counter_code ? `<div class="inv-meta-row"><span>Counter Code</span><strong>${order.counter_code}</strong></div>` : ''}
+      <div class="inv-divider"></div>
+      <div class="inv-items">
+        <table>
+          <thead><tr><th>Item</th><th style="text-align:center;">Qty</th><th style="text-align:right;">Amount</th></tr></thead>
+          <tbody>
+            ${order.items.map(it => `
+              <tr>
+                <td>${it.item_name}</td>
+                <td style="text-align:center;">${it.quantity}</td>
+                <td style="text-align:right;">${formatMoney(it.subtotal)}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+      <div class="inv-totals">
+        <div class="inv-total-row"><span>Subtotal</span><span>${formatMoney(order.subtotal)}</span></div>
+        ${Number(order.discount) > 0 ? `<div class="inv-total-row"><span>Discount</span><span>- ${formatMoney(order.discount)}</span></div>` : ''}
+        <div class="inv-total-row"><span>Tax</span><span>${formatMoney(order.tax)}</span></div>
+        <div class="inv-total-row grand"><span>Total</span><span>${formatMoney(order.total)}</span></div>
+      </div>
+      <div class="inv-footer">Thank you for dining with us!</div>
+    `;
+  }
+})();
+</script>
+</body>
+</html>

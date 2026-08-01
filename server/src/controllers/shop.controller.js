@@ -1,4 +1,5 @@
 const db = require('../config/db');
+const { emitShopUpdate } = require('../sockets/index');
 
 async function getSettings(req, res) {
   try {
@@ -29,6 +30,7 @@ async function updateSettings(req, res) {
     );
     const [rows] = await db.query('SELECT * FROM shop_settings WHERE id = 1');
     res.json(rows[0]);
+    emitShopUpdate(rows[0]);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Could not update shop settings' });

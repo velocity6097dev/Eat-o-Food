@@ -97,13 +97,20 @@ npm run dev      # nodemon, local development
 npm start         # production
 ```
 
-Open the static client:
-- Customer app: `client/customer/index.html` (or host the folder & point your QR
-  codes / table stickers at `https://yourdomain/?table=5`)
-- Admin app: `client/admin/login.html`
+**That's it — one command runs everything.** The Node server now serves the API *and*
+both static client apps itself, so you never need a second terminal or a separate
+static file server:
+- Customer app: `http://<host>:4000/`
+- Admin app: `http://<host>:4000/admin/login.html`
 
-Set `window.API_BASE` at the top of `client/customer/js/api.js` and
-`client/admin/js/api.js` to your deployed backend URL (e.g. `https://your-app.onrender.com`).
+On your phone (same WiFi as your PC), replace `<host>` with your computer's LAN IP,
+e.g. `http://192.168.0.104:4000/`. No `window.API_BASE` editing needed anymore either —
+it defaults to "whatever address loaded this page," so it works identically from
+`localhost`, your LAN IP, or a real deployed domain.
+
+Only set `window.API_BASE` (top of `client/customer/js/api.js` and
+`client/admin/js/api.js`) if you ever host the client files on a *different* server
+than the API — e.g. client on Netlify, API on Render.
 
 ## Razorpay
 
@@ -131,7 +138,26 @@ categories CRUD, cart→order flow, live order status via Socket.io, Razorpay on
 payment + verification, pay-at-counter flow with counter codes, promo code engine
 (first-N-customers, first-time-only via phone number, % / flat, min order amount,
 expiry, usage limits), shop settings (name/address/timings/theme color, applied live
-via a CSS variable), thermal receipt print view, JWT-protected admin API.
+via a CSS variable), thermal receipt print view, JWT-protected admin API, single-command
+startup (Node serves the API and both client apps together), customer bottom nav
+(Menu / Orders / Cart), sticky search + category quick-jump chips on the menu, a
+tap-to-switch table chip, an Orders tab with session order history, and a downloadable
+customer-facing digital invoice (separate from the kitchen's 58mm receipt). The admin
+app uses a slide-out drawer for navigation on mobile instead of a cramped bottom bar.
+
+**Streamlined kitchen flow:** Accept jumps straight from "New Orders" to "Preparing"
+(no separate Accepted step). Marking an order Served auto-completes it immediately if
+payment is already collected — and marking payment paid on an already-Served order
+does the same in reverse — so there's no manual "Complete & Bill" click needed for the
+normal paid case. The Served column only ever holds orders still awaiting payment.
+
+**All icons are Lucide** (via the CDN script + `data-lucide` attributes), no emoji
+anywhere in the UI.
+
+**Realtime sync beyond orders:** the server broadcasts over Socket.io whenever the menu,
+shop settings, tables, categories, or promo codes change, so every open customer tab and
+every admin device picks it up within moments — no page refresh needed. For example, if
+you mark a dish unavailable, a customer already viewing the menu sees it disappear live.
 
 **Good next additions:** multi-admin roles (waiter vs owner), order history/analytics
 dashboard, SMS/WhatsApp notifications on status change, multi-branch support, offline

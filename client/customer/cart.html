@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Your Cart</title>
 <link rel="stylesheet" href="css/theme.css">
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 <style>
   .back-row { display:flex; align-items:center; gap:10px; padding:16px 20px 0; }
   .back-btn { background:none; font-size:20px; color: var(--color-ink); }
@@ -26,13 +28,13 @@
 </style>
 </head>
 <body>
-  <div class="container">
+  <div class="container has-tab-bar">
     <div class="top-bar">
       <div style="font-weight:700; font-size:16px;" id="shopNameTop">Restaurant</div>
-      <div class="table-chip" style="background: rgba(255,255,255,0.18); padding: 4px 12px; border-radius: 999px; font-size: 13px; font-weight: 600;" id="tableChip">Table --</div>
+      <div class="table-chip-btn" id="tableChip">Table --</div>
     </div>
     <div class="back-row">
-      <button class="back-btn" onclick="window.location.href='menu.html'">←</button>
+      <button class="back-btn" onclick="window.location.href='menu.html'"><i data-lucide="arrow-left" class="icon"></i></button>
       <h1 class="page-title display">Your Cart</h1>
     </div>
 
@@ -63,20 +65,27 @@
     </div>
   </div>
 
+  <nav class="tab-bar" id="tabBar"></nav>
+
 <script src="js/api.js"></script>
 <script>
 (async function() {
   const table = getTable();
   if (!table) { window.location.href = 'index.html'; return; }
   const shop = await applyShopTheme();
+  listenForShopUpdates();
   if (shop) document.getElementById('shopNameTop').textContent = shop.name;
-  document.getElementById('tableChip').textContent = `Table ${table.table_number}`;
+  document.getElementById('tableChip').innerHTML = `Table ${table.table_number} <i data-lucide="pencil" class="icon-sm"></i>`;
+  document.getElementById('tableChip').addEventListener('click', () => openChangeTableModal(table.table_number));
+  if (window.lucide) window.lucide.createIcons();
+  renderTabBar('cart');
 
   let cart = getCart();
   let appliedPromo = null; // { code, discount }
   let taxPercent = shop ? Number(shop.tax_percent) : 0;
 
   function render() {
+    renderTabBar('cart');
     const listEl = document.getElementById('cartList');
     const empty = document.getElementById('emptyState');
     const promoSection = document.getElementById('promoSection');

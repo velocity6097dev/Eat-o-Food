@@ -1,5 +1,6 @@
 const db = require('../config/db');
 const { validatePromoCode } = require('../utils/promoEngine');
+const { emitPromoUpdate } = require('../sockets/index');
 
 // Public: customer checks a code against their current cart total before checkout
 async function checkPromoCode(req, res) {
@@ -49,6 +50,7 @@ async function createPromoCode(req, res) {
       ]
     );
     res.status(201).json({ id: result.insertId });
+    emitPromoUpdate();
   } catch (err) {
     if (err.code === 'ER_DUP_ENTRY') {
       return res.status(409).json({ error: 'A promo code with that name already exists' });
@@ -85,6 +87,7 @@ async function updatePromoCode(req, res) {
       ]
     );
     res.json({ success: true });
+    emitPromoUpdate();
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Could not update promo code' });
@@ -96,6 +99,7 @@ async function deletePromoCode(req, res) {
   try {
     await db.query('DELETE FROM promocodes WHERE id = ?', [id]);
     res.json({ success: true });
+    emitPromoUpdate();
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Could not delete promo code' });

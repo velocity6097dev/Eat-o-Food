@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>My Orders</title>
+<link rel="stylesheet" href="css/theme.css">
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+<style>
+  .page-head { padding: 20px 20px 4px; }
+  .page-title { font-size: 22px; }
+  .page-sub { font-size: 13px; color: var(--color-ink-soft); margin-top: 2px; }
+  .list-wrap { padding: 12px 20px; }
+</style>
+</head>
+<body>
+  <div class="container has-tab-bar">
+    <div class="top-bar">
+      <div style="font-weight:700; font-size:16px;" id="shopNameTop">Restaurant</div>
+      <div class="table-chip-btn" id="tableChip">Table --</div>
+    </div>
+
+    <div class="page-head">
+      <h1 class="page-title display">My Orders</h1>
+      <div class="page-sub">Everything you've ordered this visit</div>
+    </div>
+
+    <div class="list-wrap" id="ordersList"></div>
+    <div class="empty-state" id="emptyState" style="display:none;">
+      No orders yet.<br><br>
+      <button class="btn btn-primary" onclick="window.location.href='menu.html'">Browse Menu</button>
+    </div>
+  </div>
+
+  <nav class="tab-bar" id="tabBar"></nav>
+
+<script src="js/api.js"></script>
+<script>
+(async function() {
+  const table = getTable();
+  if (!table) { window.location.href = 'index.html'; return; }
+
+  const shop = await applyShopTheme();
+  listenForShopUpdates();
+  if (shop) document.getElementById('shopNameTop').textContent = shop.name;
+  document.getElementById('tableChip').innerHTML = `Table ${table.table_number} <i data-lucide="pencil" class="icon-sm"></i>`;
+  document.getElementById('tableChip').addEventListener('click', () => openChangeTableModal(table.table_number));
+  if (window.lucide) window.lucide.createIcons();
+  renderTabBar('orders');
+
+  const orderNumbers = getMyOrders();
+  const listEl = document.getElementById('ordersList');
+  const emptyEl = document.getElementById('emptyState');
+
+  if (orderNumbers.length === 0) {
+    emptyEl.style.display = 'block';
+    return;
+  }
+
+  listEl.innerHTML = orderNumbers.map((num) => `
+    <div class="card order-summary-card skeleton" style="height:110px;" id="card-${num}"></div>
+  `).join('');
+
+  const STATUS_LABEL = {
+    placed: 'Placed', accepted: 'Accepted', preparing: 'Preparing',
+    served: 'Served', completed: 'Completed', cancelled: 'Cancelled'
+  };
+
+  await Promise.all(orderNumbers.map(async (num) => {
+    const cardEl = document.getElementById(`card-${num}`);
+    try {
+      const order = await Api.get(`/api/orders/track/${num}`);
+      cardEl.classList.remove('skeleton');
+      cardEl.style.height = 'auto';
+      cardEl.innerHTML = `
+        <div class="osc-head">
+          <strong>Table ${order.table_number}</strong>
+          <span class="status-pill status-${order.status}">${STATUS_LABEL[order.status] || order.status}</span>
+        </div>
+        <div class="osc-number">${order.order_number} · ${new Date(order.created_at).toLocaleString()}</div>
+        <div class="osc-items" style="margin-top:8px;">${order.items.map(it => `${it.quantity} × ${it.item_name}`).join(', ')}</div>
+        <div style="font-weight:800;margin-bottom:10px;">${formatMoney(order.total)}</div>
+        <div class="osc-actions">
+          <button class="btn btn-outline btn-sm" style="padding:8px 14px;font-size:13px;" data-track="${order.order_number}">Track</button>
+          <button class="btn btn-outline btn-sm" style="padding:8px 14px;font-size:13px;" data-invoice="${order.order_number}">Invoice</button>
+        </div>
+      `;
+      cardEl.querySelector('[data-track]').addEventListener('click', () => window.location.href = `track.html?order=${order.order_number}`);
+      cardEl.querySelector('[data-invoice]').addEventListener('click', () => window.open(`invoice.html?order=${order.order_number}`, '_blank'));
+    } catch (err) {
+      cardEl.classList.remove('skeleton');
+      cardEl.style.height = 'auto';
+      cardEl.innerHTML = `<div style="color:var(--color-ink-soft);font-size:13px;">Order ${num} — could not load (${err.message})</div>`;
+    }
+  }));
+})();
+</script>
+</body>
+</html>

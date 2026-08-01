@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Welcome</title>
 <link rel="stylesheet" href="css/theme.css">
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 <style>
   .hero {
     padding: 48px 24px 24px;
@@ -21,6 +23,9 @@
   }
   .field-label { font-weight: 600; font-size: 14px; margin-bottom: 8px; display: block; }
   .error-msg { color: var(--color-danger); font-size: 14px; margin-top: 10px; min-height: 18px; }
+  .continue-card { text-align: center; padding: 24px; }
+  .continue-table-num { font-size: 34px; font-weight: 800; color: var(--color-primary); margin: 6px 0 18px; }
+  .switch-link { background: none; color: var(--color-ink-soft); font-size: 13.5px; text-decoration: underline; margin-top: 14px; }
 </style>
 </head>
 <body>
@@ -32,8 +37,8 @@
       <h1 id="shopName" class="display">Welcome</h1>
       <p id="shopAddress">Loading...</p>
     </div>
-    <div class="form-wrap">
-      <div class="card">
+    <div class="form-wrap" id="formWrap">
+      <div class="card" id="entryCard">
         <label class="field-label" for="tableInput">Enter your table number</label>
         <input class="input" id="tableInput" type="text" inputmode="numeric" placeholder="e.g. 12" autofocus>
         <div class="error-msg" id="errorMsg"></div>
@@ -46,6 +51,7 @@
 <script>
 (async function() {
   const shop = await applyShopTheme();
+  listenForShopUpdates();
   if (shop) {
     document.getElementById('shopName').textContent = shop.name;
     document.getElementById('shopAddress').textContent = shop.address;
@@ -53,7 +59,8 @@
 
   const params = new URLSearchParams(window.location.search);
   const prefill = params.get('table');
-  if (prefill) document.getElementById('tableInput').value = prefill;
+  const forceNew = params.get('newtable') === '1';
+  const existingTable = getTable();
 
   const btn = document.getElementById('continueBtn');
   const input = document.getElementById('tableInput');
@@ -71,7 +78,6 @@
     try {
       const { table } = await Api.get(`/api/tables/check/${encodeURIComponent(tableNumber)}`);
       setTable(table);
-      setCart([]); // fresh cart per table session
       window.location.href = 'menu.html';
     } catch (err) {
       errorMsg.textContent = err.message;
@@ -83,6 +89,27 @@
   btn.addEventListener('click', submit);
   input.addEventListener('keydown', (e) => { if (e.key === 'Enter') submit(); });
 
+  // Already have an active table for this session? Offer a one-tap continue
+  // instead of forcing re-entry — but still let them switch if they want to.
+  if (existingTable && !prefill && !forceNew) {
+    document.getElementById('formWrap').innerHTML = `
+      <div class="card continue-card">
+        <div style="font-size:13px;color:var(--color-ink-soft);">You're currently ordering for</div>
+        <div class="continue-table-num">Table ${existingTable.table_number}</div>
+        <button class="btn btn-primary btn-block" id="continueExistingBtn">Continue to Menu</button>
+        <button class="switch-link" id="switchTableBtn">Order for a different table</button>
+      </div>
+    `;
+    document.getElementById('continueExistingBtn').addEventListener('click', () => {
+      window.location.href = 'menu.html';
+    });
+    document.getElementById('switchTableBtn').addEventListener('click', () => {
+      window.location.href = 'index.html?newtable=1';
+    });
+    return;
+  }
+
+  if (prefill) document.getElementById('tableInput').value = prefill;
   if (prefill) submit();
 })();
 </script>

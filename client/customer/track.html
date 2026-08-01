@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Track Order</title>
 <link rel="stylesheet" href="css/theme.css">
+<script src="https://unpkg.com/lucide@latest"></script>
 <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 <style>
   .section { padding: 20px; }
@@ -39,10 +40,10 @@
 </style>
 </head>
 <body>
-  <div class="container">
+  <div class="container has-tab-bar">
     <div class="top-bar">
       <div style="font-weight:700; font-size:16px;" id="shopNameTop">Restaurant</div>
-      <div style="background: rgba(255,255,255,0.18); padding: 4px 12px; border-radius: 999px; font-size: 13px; font-weight: 600;" id="tableChip">Table --</div>
+      <div class="table-chip-btn" id="tableChip">Table --</div>
     </div>
 
     <div class="section" style="padding-bottom:0;">
@@ -63,10 +64,13 @@
 
     <div class="ticket items-card" id="itemsCard"></div>
 
-    <div class="section" style="text-align:center;">
-      <button class="btn btn-outline" onclick="window.location.href='index.html'">Order for another table</button>
+    <div class="section" style="text-align:center; display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">
+      <button class="btn btn-outline" id="invoiceBtn">Download Invoice</button>
+      <button class="btn btn-outline" onclick="window.location.href='menu.html'">Order More</button>
     </div>
   </div>
+
+  <nav class="tab-bar" id="tabBar"></nav>
 
 <script src="js/api.js"></script>
 <script>
@@ -76,7 +80,13 @@
   if (!orderNumber) { window.location.href = 'index.html'; return; }
 
   const shop = await applyShopTheme();
+  listenForShopUpdates();
   if (shop) document.getElementById('shopNameTop').textContent = shop.name;
+  renderTabBar('orders');
+
+  document.getElementById('invoiceBtn').addEventListener('click', () => {
+    window.open(`invoice.html?order=${orderNumber}`, '_blank');
+  });
 
   const STEPS = [
     { key: 'placed', label: 'Placed' },
@@ -93,15 +103,18 @@
     document.getElementById('statusTitle').textContent =
       statusLabel ? statusLabel.label : (order.status === 'cancelled' ? 'Cancelled' : 'Completed');
 
-    const currentIndex = STEPS.findIndex((s) => s.key === order.status);
+    const currentIndex = order.status === 'completed'
+      ? STEPS.length - 1
+      : STEPS.findIndex((s) => s.key === order.status);
     const stepper = document.getElementById('stepperTrack');
     stepper.innerHTML = STEPS.map((s, i) => `
       <div class="step ${i <= currentIndex ? 'done' : ''}">
         <div class="step-line"></div>
-        <div class="step-dot">${i <= currentIndex ? '✓' : i + 1}</div>
+        <div class="step-dot">${i <= currentIndex ? '<i data-lucide=\"check\" class=\"icon-sm\" style=\"stroke:#fff;\"></i>' : i + 1}</div>
         <div class="step-label">${s.label}</div>
       </div>
     `).join('');
+    if (window.lucide) window.lucide.createIcons();
 
     if (order.payment_method === 'counter' && order.counter_code) {
       document.getElementById('counterCodeCard').style.display = 'block';
@@ -135,13 +148,14 @@
   try {
     const order = await Api.get(`/api/orders/track/${orderNumber}`);
     render(order);
+    addMyOrder(orderNumber); // remember this order so it shows up under the Orders tab
   } catch (err) {
     showToast(err.message);
     return;
   }
 
   // Live updates
-  const socket = io(window.API_BASE);
+  const socket = window.API_BASE ? io(window.API_BASE) : io();
   socket.emit('joinOrder', orderNumber);
   socket.on('orderUpdate', (order) => {
     if (order.order_number === orderNumber) render(order);

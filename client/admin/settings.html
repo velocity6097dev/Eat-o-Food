@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Settings</title>
 <link rel="stylesheet" href="css/admin.css">
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 <style>
   .settings-grid { display:grid; grid-template-columns: 1fr 1fr; gap: 16px; }
   @media (max-width: 700px) { .settings-grid { grid-template-columns: 1fr; } }
@@ -77,6 +79,9 @@ async function load() {
 
 renderShell('settings', content());
 load();
+
+const socket = connectSocket();
+if (socket) socket.on('shopUpdate', load);
 
 document.addEventListener('input', (e) => {
   if (e.target.id === 'sTheme') document.getElementById('sThemeHex').textContent = e.target.value;

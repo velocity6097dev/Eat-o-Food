@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Checkout</title>
 <link rel="stylesheet" href="css/theme.css">
+<script src="https://unpkg.com/lucide@latest"></script>
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <style>
   .back-row { display:flex; align-items:center; gap:10px; padding:16px 20px 0; }
@@ -30,7 +32,7 @@
       <div style="background: rgba(255,255,255,0.18); padding: 4px 12px; border-radius: 999px; font-size: 13px; font-weight: 600;" id="tableChip">Table --</div>
     </div>
     <div class="back-row">
-      <button class="back-btn" onclick="window.location.href='cart.html'">←</button>
+      <button class="back-btn" onclick="window.location.href='cart.html'"><i data-lucide="arrow-left" class="icon"></i></button>
       <h1 class="page-title display">Checkout</h1>
     </div>
 
@@ -76,8 +78,10 @@
   if (!table || cart.length === 0) { window.location.href = 'index.html'; return; }
 
   const shop = await applyShopTheme();
+  listenForShopUpdates();
   if (shop) document.getElementById('shopNameTop').textContent = shop.name;
   document.getElementById('tableChip').textContent = `Table ${table.table_number}`;
+  if (window.lucide) window.lucide.createIcons();
 
   const appliedPromo = JSON.parse(localStorage.getItem('appliedPromo') || 'null');
   const taxPercent = shop ? Number(shop.tax_percent) : 0;

@@ -28,4 +28,45 @@ function emitNewOrder(order) {
   ioInstance.to('admin-room').emit('newOrder', order);
 }
 
-module.exports = { initSockets, emitOrderUpdate, emitNewOrder };
+// --- Broad "everything in this shop" sync events -------------------------
+// This is a single-restaurant app, so these broadcast to every connected
+// client (customer phones + admin devices) rather than a specific room.
+// Whenever the owner changes the menu, shop info, tables, categories, or
+// promo codes, every open tab picks it up within moments instead of only
+// on next page load / refresh.
+
+function emitMenuUpdate() {
+  if (!ioInstance) return;
+  ioInstance.emit('menuUpdate');
+}
+
+function emitShopUpdate(shop) {
+  if (!ioInstance) return;
+  ioInstance.emit('shopUpdate', shop);
+}
+
+function emitTablesUpdate() {
+  if (!ioInstance) return;
+  ioInstance.emit('tablesUpdate');
+}
+
+function emitCategoriesUpdate() {
+  if (!ioInstance) return;
+  ioInstance.emit('categoriesUpdate');
+}
+
+function emitPromoUpdate() {
+  if (!ioInstance) return;
+  ioInstance.emit('promoUpdate');
+}
+
+module.exports = {
+  initSockets,
+  emitOrderUpdate,
+  emitNewOrder,
+  emitMenuUpdate,
+  emitShopUpdate,
+  emitTablesUpdate,
+  emitCategoriesUpdate,
+  emitPromoUpdate
+};

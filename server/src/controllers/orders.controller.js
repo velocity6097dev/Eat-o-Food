@@ -184,7 +184,16 @@ async function updateOrderStatus(req, res) {
     return res.status(400).json({ error: 'Invalid status value' });
   }
   try {
-    await db.query('UPDATE orders SET status = ? WHERE id = ?', [status, id]);
+    let finalStatus = status;
+    // If the kitchen marks an order Served and it's already been paid for, there's
+    // no reason to make staff take a separate "Complete & Bill" step - just finish it.
+    if (status === 'served') {
+      const [[existing]] = await db.query('SELECT payment_status FROM orders WHERE id = ?', [id]);
+      if (existing && existing.payment_status === 'paid') {
+        finalStatus = 'completed';
+      }
+    }
+    await db.query('UPDATE orders SET status = ? WHERE id = ?', [finalStatus, id]);
     const order = await fetchOrderWithItems(id);
     emitOrderUpdate(order);
     res.json(order);
@@ -233,6 +242,16 @@ async function updatePaymentStatus(req, res) {
       WHERE id = ?`,
       [payment_status, payment_method, id]
     );
+
+    // Mirror of the rule above: if payment comes in for an order that's already
+    // been served, that order is done - complete it automatically.
+    if (payment_status === 'paid') {
+      const [[existing]] = await db.query('SELECT status FROM orders WHERE id = ?', [id]);
+      if (existing && existing.status === 'served') {
+        await db.query('UPDATE orders SET status = ? WHERE id = ?', ['completed', id]);
+      }
+    }
+
     const order = await fetchOrderWithItems(id);
     emitOrderUpdate(order);
     res.json(order);
